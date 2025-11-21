@@ -1,44 +1,111 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Gráficos de Energía</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Energía Solar – Gráficas y Tablas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-    body { margin:0; font-family: Arial, sans-serif; background:#f5f5f5; }
-    header { background:#ffcc00; padding:1.5rem; text-align:center; }
-    header h1 { margin:0; }
-    nav {
-      background:#333; padding:1rem; text-align:center;
-    }
-    nav a {
-      color:white; margin:0 1rem; text-decoration:none; font-weight:bold;
-    }
-    nav a:hover { text-decoration:underline; }
-    main {
-      max-width:1000px; margin:2rem auto; background:white;
-      padding:2rem; border-radius:8px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-  <header>
-    <h1>Gráficos de Energía</h1>
-    <p>Aquí podrás visualizar datos reales de temperatura, demanda, generación solar, etc.</p>
+  <header class="topbar">
+    <h1>Energía Solar para Todos</h1>
+    <p>Visualiza series de tiempo y comparaciones regionales.</p>
   </header>
 
-  <nav>
-    <a href="index.html">Inicio</a>
-    <a href="mapa.html">Mapa Interactivo</a>
-    <a href="graficas.html">Gráficos</a>
-    <a href="info.html">Información</a>
+  <nav class="navbar">
+    <a href="index.html">Mapa Interactivo</a>
+    <a class="active" href="graficas.html">Gráficas y Tablas</a>
+    <a href="info.html">Información y Guía</a>
   </nav>
 
-  <main>
-    <h2>Gráficas de Energía</h2>
-    <p>Próximamente: aquí estarán las gráficas reales con tus datos.</p>
+  <main class="container">
+    <section class="panel">
+      <h2>Gráficas de Energía y Clima</h2>
+      <p class="description">
+        Estos son ejemplos; después solo cambiarás los valores en el código para usar
+        tus datos reales (temperatura, demanda, generación solar, etc.).
+      </p>
+
+      <!-- Gráfica 1: Temperatura media 2017–2024 -->
+      <div class="chart-card">
+        <h3>Evolución de la Temperatura Media (2017–2024)</h3>
+        <canvas id="tempChart"></canvas>
+      </div>
+
+      <!-- Gráfica 2: Demanda por región -->
+      <div class="chart-card">
+        <h3>Demanda Energética por Región</h3>
+        <canvas id="demandChart"></canvas>
+      </div>
+
+      <!-- Tabla simple de ejemplo -->
+      <div class="table-card">
+        <h3>Tabla de datos (ejemplo)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Año</th>
+              <th>Temperatura media (°C)</th>
+              <th>Demanda (GWh)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>2017</td><td>20.1</td><td>320</td></tr>
+            <tr><td>2018</td><td>20.4</td><td>340</td></tr>
+            <tr><td>2019</td><td>20.8</td><td>360</td></tr>
+            <tr><td>2020</td><td>21.0</td><td>380</td></tr>
+            <tr><td>2021</td><td>21.3</td><td>390</td></tr>
+            <tr><td>2022</td><td>21.7</td><td>400</td></tr>
+            <tr><td>2023</td><td>22.0</td><td>420</td></tr>
+            <tr><td>2024</td><td>22.2</td><td>440</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <small>© 2024 Shenergys – Plataforma de energía solar.</small>
+  </footer>
+
+  <script>
+    // ====== Gráfica de temperatura ======
+    const ctxTemp = document.getElementById("tempChart").getContext("2d");
+
+    new Chart(ctxTemp, {
+      type: "line",
+      data: {
+        labels: ["2017","2018","2019","2020","2021","2022","2023","2024"],
+        datasets: [{
+          label: "Temperatura Media (°C)",
+          data: [20.1,20.4,20.8,21.0,21.3,21.7,22.0,22.2],
+          fill: true,
+          borderColor: "rgba(255,165,0,1)",
+          backgroundColor: "rgba(255,165,0,0.3)"
+        }]
+      },
+      options: { responsive: true }
+    });
+
+    // ====== Gráfica de demanda ======
+    const ctxDemand = document.getElementById("demandChart").getContext("2d");
+
+    new Chart(ctxDemand, {
+      type: "bar",
+      data: {
+        labels: ["Región 1","Región 2","Región 3","Región 4","Región 5"],
+        datasets: [{
+          label: "Demanda Energética (GWh)",
+          data: [300,250,400,280,450],
+          backgroundColor: "rgba(0,120,255,0.7)"
+        }]
+      },
+      options: { responsive: true }
+    });
+  </script>
 </body>
 </html>
