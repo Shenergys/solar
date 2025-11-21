@@ -1,79 +1,162 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página de Energía Solar</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
-        header {
-            background-color: #ffcc00;
-            color: #333;
-            padding: 1em 0;
-            text-align: center;
-        }
-        nav {
-            display: flex;
-            justify-content: center;
-            background-color: #444;
-            padding: 0.5em 0;
-        }
-        nav a {
-            color: white;
-            margin: 0 1em;
-            text-decoration: none;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        section {
-            padding: 2em;
-            text-align: center;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 1em 0;
-            margin-top: 2em;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Energía Solar para Todos – Mapa Interactivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Estilos generales -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Leaflet (mapa) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
 </head>
 <body>
-    <header>
-        <h1>Energía Solar para Todos</h1>
-        <p>Explora el potencial de la energía solar y contribuye a un futuro sostenible.</p>
-    </header>
-    <nav>
-        <a href="#inicio">Inicio</a>
-        <a href="#mapa">Mapa Interactivo</a>
-        <a href="#graficos">Gráficos</a>
-        <a href="#contacto">Contacto</a>
-    </nav>
-    <section id="inicio">
-        <h2>Bienvenido</h2>
-        <p>Descubre cómo la energía solar puede transformar nuestro mundo.</p>
+  <!-- Barra superior -->
+  <header class="topbar">
+    <h1>Energía Solar para Todos</h1>
+    <p>Explora el potencial solar y variables clave para la planeación energética.</p>
+  </header>
+
+  <!-- Menú navegación -->
+  <nav class="navbar">
+    <a class="active" href="index.html">Mapa Interactivo</a>
+    <a href="graficas.html">Gráficas y Tablas</a>
+    <a href="info.html">Información y Guía</a>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="container">
+    <section class="panel">
+      <h2>Mapa Interactivo</h2>
+      <p class="description">
+        Selecciona las capas que quieras visualizar: radiación, temperatura,
+        áreas naturales protegidas, centrales fotovoltaicas, etc.
+        Por ahora están cargadas capas de ejemplo; después solo reemplaza los datos
+        por tus archivos reales.
+      </p>
+
+      <div class="map-layout">
+        <!-- Controles laterales -->
+        <div class="map-sidebar">
+          <h3>Capas disponibles</h3>
+          <label>
+            <input type="checkbox" id="layer-radiacion" checked />
+            Radiación solar (kWh/m²)
+          </label>
+          <label>
+            <input type="checkbox" id="layer-temperatura" checked />
+            Temperatura media (°C)
+          </label>
+          <label>
+            <input type="checkbox" id="layer-anp" />
+            Áreas Naturales Protegidas
+          </label>
+          <label>
+            <input type="checkbox" id="layer-fv" />
+            Centrales fotovoltaicas
+          </label>
+
+          <p class="hint">
+            Más adelante podrás conectar estos controles con tus capas reales
+            (GeoJSON, WMS, etc.). Ya está listo el código para que
+            sólo cambies los datos.
+          </p>
+        </div>
+
+        <!-- Contenedor del mapa -->
+        <div id="map"></div>
+      </div>
     </section>
-    <section id="mapa">
-        <h2>Mapa Interactivo</h2>
-        <p>Próximamente: Visualiza las áreas con mayor potencial solar.</p>
-    </section>
-    <section id="graficos">
-        <h2>Gráficos de Energía</h2>
-        <p>Próximamente: Analiza datos de irradiación solar y consumo energético.</p>
-    </section>
-    <section id="contacto">
-        <h2>Contacto</h2>
-        <p>¿Tienes preguntas o comentarios? Escríbenos.</p>
-    </section>
-    <footer>
-        <p>&copy; 2024 Energía Solar para Todos. Todos los derechos reservados.</p>
-    </footer>
+  </main>
+
+  <footer class="footer">
+    <small>© 2024 Shenergys – Plataforma de energía solar. Todos los derechos reservados.</small>
+  </footer>
+
+  <!-- Lógica del mapa -->
+  <script>
+    // Crear mapa centrado en México
+    const map = L.map("map").setView([23.5, -102], 5);
+
+    // Capa base (OpenStreetMap)
+    const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
+
+    // ====== CAPAS DE EJEMPLO (reemplázalas con tus datos) ======
+
+    // 1. Radiación solar (ejemplo: círculos)
+    const radiacionLayer = L.layerGroup([
+      L.circle([25, -100], { radius: 90000 }).bindPopup("Alta radiación"),
+      L.circle([20, -99], { radius: 90000 }).bindPopup("Radiación media"),
+    ]).addTo(map);
+
+    // 2. Temperatura media (ejemplo: polígonos muy sencillos)
+    const temperaturaGeojson = {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": { "nombre": "Zona cálida" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [-106, 18],
+              [-96, 18],
+              [-96, 24],
+              [-106, 24],
+              [-106, 18]
+            ]]
+          }
+        }
+      ]
+    };
+
+    const temperaturaLayer = L.geoJSON(temperaturaGeojson, {
+      style: { fillOpacity: 0.2 }
+    }).bindPopup("Zona con temperatura elevada").addTo(map);
+
+    // 3. Áreas Naturales Protegidas (ejemplo: marcador)
+    const anpLayer = L.layerGroup([
+      L.marker([19.5, -99.3]).bindPopup("ANP de ejemplo")
+    ]);
+
+    // 4. Centrales fotovoltaicas (ejemplo)
+    const fvLayer = L.layerGroup([
+      L.marker([21, -101]).bindPopup("Central FV 1 (ejemplo)"),
+      L.marker([28, -111]).bindPopup("Central FV 2 (ejemplo)")
+    ]);
+
+    // ====== Enlazar los checkboxes con las capas ======
+    function toggleLayer(checkboxId, layer) {
+      const checkbox = document.getElementById(checkboxId);
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          layer.addTo(map);
+        } else {
+          map.removeLayer(layer);
+        }
+      });
+    }
+
+    toggleLayer("layer-radiacion", radiacionLayer);
+    toggleLayer("layer-temperatura", temperaturaLayer);
+    toggleLayer("layer-anp", anpLayer);
+    toggleLayer("layer-fv", fvLayer);
+  </script>
 </body>
 </html>
+
 
