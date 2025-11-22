@@ -165,3 +165,42 @@ th {
 .hidden {
   display: none;
 }
+/* Contenedor alto para que las gráficas se vean grandes */
+.chart-container {
+  position: relative;
+  height: 360px;
+}
+
+/* Botones de cambio entre gráficas y tablas */
+.toggle-group {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.toggle {
+  border-radius: 999px;
+  padding: 0.4rem 1.1rem;
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.toggle.active {
+  background-color: #333;
+  color: #fff;
+  border-color: #333;
+}
+
+/* Nota pequeña bajo algunos títulos */
+.small-note {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+/* Por si la tabla se hace muy ancha */
+.table-scroll {
+  overflow-x: auto;
+}
