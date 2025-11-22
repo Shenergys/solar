@@ -21,28 +21,30 @@
     crossorigin=""
   ></script>
 </head>
+
 <body>
   <!-- Barra superior -->
- <header class="site-header">
-  <div class="title-bar">
-    <h1>Energía Solar para Todos</h1>
-    <p class="subtitle">
-      Explora el potencial de la energía solar y contribuye a un futuro sostenible.
-    </p>
-  </div>
+  <header class="site-header">
+    <div class="title-bar">
+      <h1>Energía Solar para Todos</h1>
+      <p class="subtitle">
+        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
+      </p>
+    </div>
 
-  <nav class="main-nav">
-    <a href="index.html">Inicio</a>
-    <a href="mapa.html">Mapa Interactivo</a>
-    <a href="graficas.html">Gráficas y Tablas</a>
-    <a href="info.html">Información y Guía</a>
-  </nav>
-</header>
+    <nav class="main-nav">
+      <a href="index.html">Inicio</a>
+      <a href="mapa.html">Mapa Interactivo</a>
+      <a href="graficas.html">Gráficas y Tablas</a>
+      <a href="info.html">Información y Guía</a>
+    </nav>
+  </header>
 
   <!-- Contenido principal -->
   <main class="container">
     <section class="panel">
       <h2>Mapa Interactivo</h2>
+
       <p class="description">
         Selecciona las capas que quieras visualizar: radiación, temperatura,
         áreas naturales protegidas, centrales fotovoltaicas, etc.
@@ -51,30 +53,19 @@
       </p>
 
       <div class="map-layout">
+
         <!-- Controles laterales -->
         <div class="map-sidebar">
           <h3>Capas disponibles</h3>
-          <label>
-            <input type="checkbox" id="layer-radiacion" checked />
-            Radiación solar (kWh/m²)
-          </label>
-          <label>
-            <input type="checkbox" id="layer-temperatura" checked />
-            Temperatura media (°C)
-          </label>
-          <label>
-            <input type="checkbox" id="layer-anp" />
-            Áreas Naturales Protegidas
-          </label>
-          <label>
-            <input type="checkbox" id="layer-fv" />
-            Centrales fotovoltaicas
-          </label>
+
+          <label><input type="checkbox" id="layer-radiacion" checked /> Radiación solar (kWh/m²)</label>
+          <label><input type="checkbox" id="layer-temperatura" checked /> Temperatura media (°C)</label>
+          <label><input type="checkbox" id="layer-anp" /> Áreas Naturales Protegidas</label>
+          <label><input type="checkbox" id="layer-fv" /> Centrales fotovoltaicas</label>
 
           <p class="hint">
             Más adelante podrás conectar estos controles con tus capas reales
-            (GeoJSON, WMS, etc.). Ya está listo el código para que
-            sólo cambies los datos.
+            (GeoJSON, WMS, etc.). Ya está listo el código para que sólo cambies los datos.
           </p>
         </div>
 
@@ -84,30 +75,27 @@
     </section>
   </main>
 
+  <!-- Pie de página -->
   <footer class="footer">
     <small>© 2024 Shenergys – Plataforma de energía solar. Todos los derechos reservados.</small>
   </footer>
 
   <!-- Lógica del mapa -->
   <script>
-    // Crear mapa centrado en México
     const map = L.map("map").setView([23.5, -102], 5);
 
-    // Capa base (OpenStreetMap)
-    const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "© OpenStreetMap contributors"
     }).addTo(map);
 
-    // ====== CAPAS DE EJEMPLO (reemplázalas con tus datos) ======
-
-    // 1. Radiación solar (ejemplo: círculos)
+    // Radiación solar (ejemplo)
     const radiacionLayer = L.layerGroup([
       L.circle([25, -100], { radius: 90000 }).bindPopup("Alta radiación"),
       L.circle([20, -99], { radius: 90000 }).bindPopup("Radiación media"),
     ]).addTo(map);
 
-    // 2. Temperatura media (ejemplo: polígonos muy sencillos)
+    // Temperatura media
     const temperaturaGeojson = {
       "type": "FeatureCollection",
       "features": [
@@ -117,11 +105,7 @@
           "geometry": {
             "type": "Polygon",
             "coordinates": [[
-              [-106, 18],
-              [-96, 18],
-              [-96, 24],
-              [-106, 24],
-              [-106, 18]
+              [-106, 18], [-96, 18], [-96, 24], [-106, 24], [-106, 18]
             ]]
           }
         }
@@ -132,26 +116,22 @@
       style: { fillOpacity: 0.2 }
     }).bindPopup("Zona con temperatura elevada").addTo(map);
 
-    // 3. Áreas Naturales Protegidas (ejemplo: marcador)
+    // Áreas Naturales Protegidas
     const anpLayer = L.layerGroup([
       L.marker([19.5, -99.3]).bindPopup("ANP de ejemplo")
     ]);
 
-    // 4. Centrales fotovoltaicas (ejemplo)
+    // Centrales fotovoltaicas
     const fvLayer = L.layerGroup([
       L.marker([21, -101]).bindPopup("Central FV 1 (ejemplo)"),
       L.marker([28, -111]).bindPopup("Central FV 2 (ejemplo)")
     ]);
 
-    // ====== Enlazar los checkboxes con las capas ======
+    // Enlazar checkboxes
     function toggleLayer(checkboxId, layer) {
       const checkbox = document.getElementById(checkboxId);
       checkbox.addEventListener("change", () => {
-        if (checkbox.checked) {
-          layer.addTo(map);
-        } else {
-          map.removeLayer(layer);
-        }
+        checkbox.checked ? layer.addTo(map) : map.removeLayer(layer);
       });
     }
 
