@@ -2,19 +2,111 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Energía Solar – Gráficas y Tablas</title>
+  <title>Energía Solar – Gráficas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Estilos generales de la página -->
   <link rel="stylesheet" href="style.css" />
+
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Estilos solo para esta página -->
+  <style>
+    .chart-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 900px) {
+      .chart-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .chart-wrapper {
+      height: 360px;
+    }
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .controls-row label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-right: 0.35rem;
+    }
+    .controls-row select,
+    .controls-row input {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+    }
+    .controls-row button {
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background-color: #2563eb;
+      color: #fff;
+    }
+    .controls-row button:hover {
+      opacity: 0.9;
+    }
+    .metric-tabs {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #f1f1f1;
+      padding: 0.15rem;
+    }
+    .metric-tab {
+      border: none;
+      background: transparent;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-radius: 999px;
+    }
+    .metric-tab.active {
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      font-weight: 600;
+    }
+    #regionalChartContainer {
+      height: 380px;
+    }
+    #regionalTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    #regionalTable th, #regionalTable td {
+      border: 1px solid #ddd;
+      padding: 0.35rem 0.45rem;
+      text-align: right;
+    }
+    #regionalTable th:first-child,
+    #regionalTable td:first-child {
+      text-align: center;
+    }
+    #regionalTable th {
+      background: #f3f3f3;
+    }
+  </style>
 </head>
 <body>
+  <!-- Barra superior -->
   <header class="topbar">
     <h1>Energía Solar para Todos</h1>
-    <p>Visualiza series de tiempo y comparaciones regionales del SEN.</p>
+    <p>Visualiza series de tiempo y comparaciones regionales.</p>
   </header>
 
+  <!-- Menú navegación -->
   <nav class="navbar">
     <a href="index.html">Mapa Interactivo</a>
     <a class="active" href="graficas.html">Gráficas y Tablas</a>
@@ -22,89 +114,92 @@
   </nav>
 
   <main class="container">
+    <!-- Sección 1: Capacidad y generación FV nacional -->
     <section class="panel">
       <h2>Gráficas de Energía y Clima</h2>
       <p class="description">
-        La vista inicial muestra la <strong>capacidad</strong> y la
-        <strong>generación</strong> de energía <strong>solar fotovoltaica</strong>
-        del Sistema Eléctrico Nacional (2010–2024) con tus datos reales.
+        En la parte superior se muestra únicamente la <strong>capacidad instalada</strong> y la
+        <strong>generación eléctrica</strong> de <strong>solar fotovoltaica</strong> en el SEN (2010–2024).
       </p>
 
-      <!-- ================= VISTA INICIAL: FOTOVOLTAICA ================= -->
-      <div class="chart-card">
-        <h3>Capacidad FV instalada en el SEN (2010–2024)</h3>
-        <div class="chart-container">
-          <canvas id="chartCapSolar"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <h3>Generación FV neta por año en el SEN (2010–2024)</h3>
-        <div class="chart-container">
-          <canvas id="chartGenSolar"></canvas>
-        </div>
-      </div>
-
-      <!-- ================= BOTONES GRÁFICAS / TABLAS ================= -->
-      <div class="toggle-group">
-        <button id="btnShowCharts" class="toggle active">Ver gráficas</button>
-        <button id="btnShowTables" class="toggle">Ver tablas</button>
-      </div>
-
-      <!-- ================= SECCIÓN: GRÁFICAS COMPLETAS ================= -->
-      <section id="chartsSection">
-        <!-- Capacidad vs generación total (mix energético) -->
+      <div class="chart-grid">
         <div class="chart-card">
-          <h3>Mix energético: capacidad total vs generación total (SEN)</h3>
-          <p class="small-note">
-            Capacidad total instalada (MW) y generación neta total (GWh) para todas
-            las tecnologías del SEN.
-          </p>
-          <div class="chart-container">
-            <canvas id="chartCapGenTotal"></canvas>
+          <h3>Capacidad solar fotovoltaica instalada (MW)</h3>
+          <div class="chart-wrapper">
+            <canvas id="capSolarChart"></canvas>
           </div>
         </div>
 
-        <!-- Demanda y consumos -->
         <div class="chart-card">
-          <h3>Demanda y consumos de energía eléctrica (SEN)</h3>
-          <p class="small-note">
-            Demanda máxima integrada (MW), consumo bruto (GWh) y consumo final (GWh)
-            del SEN (2010–2024).
-          </p>
-          <div class="chart-container">
-            <canvas id="chartDemandConsumption"></canvas>
+          <h3>Generación eléctrica solar fotovoltaica (GWh)</h3>
+          <div class="chart-wrapper">
+            <canvas id="genSolarChart"></canvas>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- ================= SECCIÓN: TABLAS COMPLETAS ================= -->
-      <section id="tablesSection" style="display: none;">
-        <div class="table-card">
-          <h3>Resumen anual del SEN (2010–2024)</h3>
-          <p class="small-note">
-            Incluye fotovoltaica y totales del sistema: capacidad, generación,
-            demanda máxima, consumo bruto y consumo final.
-          </p>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Año</th>
-                  <th>Capacidad FV (MW)</th>
-                  <th>Generación FV (GWh)</th>
-                  <th>Capacidad total (MW)</th>
-                  <th>Generación total (GWh)</th>
-                  <th>Demanda máx. (MW)</th>
-                  <th>Consumo bruto (GWh)</th>
-                  <th>Consumo final (GWh)</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-mix"></tbody>
-            </table>
+    <!-- Sección 2: Gráficas y tablas por región -->
+    <section class="panel" style="margin-top: 1.75rem;">
+      <h2>Gráficas y tablas por región</h2>
+      <p class="description">
+        Elige la región, el periodo y la variable que quieres analizar.
+        Se muestra el valor de la región y su <strong>participación porcentual en el SEN</strong>.
+      </p>
+
+      <!-- Controles tipo "Región / Año inicial / Año final / Actualizar" -->
+      <div class="controls-row">
+        <div>
+          <label for="regionSelect">Región:</label>
+          <select id="regionSelect"></select>
+        </div>
+
+        <div>
+          <label for="startYear">Año inicial:</label>
+          <input type="number" id="startYear" min="2010" max="2024" />
+        </div>
+
+        <div>
+          <label for="endYear">Año final:</label>
+          <input type="number" id="endYear" min="2010" max="2024" />
+        </div>
+
+        <button id="updateButton" type="button">Actualizar</button>
+
+        <!-- Pestañas para elegir variable -->
+        <div style="margin-left:auto;">
+          <div class="metric-tabs">
+            <button class="metric-tab active" data-metric="demanda">Demanda</button>
+            <button class="metric-tab" data-metric="consumoBruto">Consumo bruto</button>
+            <button class="metric-tab" data-metric="consumoFinal">Consumo final</button>
           </div>
         </div>
-      </section>
+      </div>
+
+      <!-- Gráfica regional -->
+      <div class="chart-card">
+        <div id="regionalChartContainer">
+          <canvas id="regionalChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Tabla regional -->
+      <div class="table-card" style="margin-top: 1rem;">
+        <h3>Tabla de datos</h3>
+        <table id="regionalTable">
+          <thead>
+            <tr>
+              <th>Año</th>
+              <th id="colRegionHeader">Valor región</th>
+              <th id="colSenHeader">Total SEN</th>
+              <th>Participación región</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Se llena dinámicamente -->
+          </tbody>
+        </table>
+      </div>
     </section>
   </main>
 
@@ -112,247 +207,329 @@
     <small>© 2024 Shenergys – Plataforma de energía solar.</small>
   </footer>
 
-  <!-- ===================== LÓGICA DE GRÁFICAS ===================== -->
+  <!-- Datos + lógica de las gráficas -->
   <script>
-    // Datos reales sacados de tus Excel (2010–2024)
-    const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
-    const labelsYears = years.map(String);
+    /* ============
+       1. Datos FV nacional (tus Excels)
+       ============ */
 
-    // Capacidad y generación FV (de tus hojas CAPACIDAD.xlsx y GENERACIÓN.xlsx)
-    const capSolar = [0, 0, 1, 11, 55, 57, 145, 171, 1878, 3646, 5149, 5955, 6515, 7437, 7961];      // MW
-    const genSolar = [0, 0, 3, 20, 83, 45, 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640]; // GWh
+    const solarYears = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
 
-    // Totales del sistema (todas las tecnologías)
-    const capTotal = [55090, 54656, 55692, 57413, 62359, 63545, 73242, 68051, 72958, 78447, 83122, 86154, 87131, 89007, 90543];  // MW
-    const genTotal = [271483, 277894, 281545, 286218, 280365, 287660, 298426, 302880, 310686, 317821, 312348, 323527, 333964, 346501, 352305]; // GWh
+    // Capacidad instalada FV (MW) – archivo CAPACIDAD.xlsx, fila "Solar fotovoltaica"
+    const solarCapacityMW = [0, 0, 1, 11, 55, 57, 145, 171, 1878, 3646, 5149, 5955, 6515, 7437, 7961];
 
-    // Demanda máxima integrada (DEMANDA.xlsx, columna SEN)
-    const demandaSen = [41750, 43324, 43920, 44323, 44398, 45601, 47348, 49049, 50825, 52340, 51225, 52686, 54489, 57958, 59601]; // MW aprox.
+    // Generación FV (GWh) – archivo GENERACIÓN.xlsx, fila "Solar fotovoltaica"
+    const solarGenerationGWh = [0, 0, 3, 20, 83, 45, 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640];
 
-    // Consumo bruto y consumo final (CONSUMO BRUTO.xlsx y CONSUMO FINAL.xlsx, columna SEN)
-    const consBrutoSen = [253460, 269831, 275033, 275497, 280161, 288224, 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807]; // GWh
-    const consFinalSen = [199713, 214098, 219994, 222830, 228635, 237200, 248195, 258895, 268701, 274915, 266238, 277259, 288687, 298599, 304012]; // GWh
+    /* ============
+       2. Datos regionales (DEMANDA, CONSUMO BRUTO, CONSUMO FINAL)
+       ============ */
 
-    // ====== Gráfica: Capacidad FV ======
-    const ctxCapSolar = document.getElementById("chartCapSolar").getContext("2d");
-    new Chart(ctxCapSolar, {
-      type: "line",
+    const energyData = {
+      years: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+
+      // Demanda máxima integrada (MW)
+      demanda: {
+        SEN: [41750, 43324, 43920, 44323, 44398, 45601, 47348, 49049, 50825, 52340, 51225, 52686, 54489, 57958, 59601],
+        CEN: [9004, 8844, 8651, 8411, 8192, 8151, 8567, 8705, 8805, 8754, 8717, 8450, 8466, 8619, 8848],
+        ORI: [6356, 6577, 6626, 6709, 6767, 6960, 7128, 7299, 7594, 7923, 7461, 7868, 8203, 8783, 9034],
+        OCC: [8175, 8669, 8975, 9207, 9104, 9374, 9351, 9842, 10373, 10096, 9763, 10292, 10537, 11478, 11834],
+        NOR: [3617, 3772, 3870, 4087, 4034, 4154, 4350, 4582, 4759, 5310, 5220, 5343, 5342, 5808, 5909],
+        NTE: [3385, 3682, 3725, 3841, 3955, 3986, 4258, 4608, 4639, 4851, 4976, 5042, 5343, 5446, 5540],
+        NES: [7070, 7587, 7798, 7781, 7876, 8248, 8710, 8846, 9202, 9707, 9399, 9674, 10237, 10962, 11109],
+        PEN: [1520, 1544, 1558, 1628, 1664, 1789, 1893, 1955, 2061, 2246, 2014, 2210, 2372, 2698, 2969],
+        SIBC: [2229, 2237, 2302, 2225, 2350, 2479, 2621, 2699, 2863, 2887, 3132, 3215, 3361, 3457, 3635],
+        SIBCS: [368, 385, 389, 407, 428, 432, 442, 484, 500, 536, 513, 560, 596, 675, 689],
+        SIMUL: [26, 27, 26, 27, 28, 28, 28, 29, 29, 30, 30, 32, 32, 32, 34],
+        SIN: [39127, 40675, 41203, 41664, 41592, 42662, 44257, 45837, 47433, 48887, 47550, 48879, 50500, 53794, 55243]
+      },
+
+      // Consumo bruto (GWh)
+      consumoBruto: {
+        SEN: [253460, 269831, 275033, 275497, 280161, 288224, 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807],
+        CEN: [58422, 59303, 59061, 58086, 57423, 57844, 59103, 60685, 61293, 60853, 57429, 58272, 59866, 60160, 60059],
+        ORI: [40098, 42447, 43835, 44224, 44901, 46587, 47642, 48583, 50285, 51655, 50436, 53051, 54643, 56633, 58547],
+        OCC: [51407, 55871, 57470, 57779, 59345, 61025, 62808, 66696, 68107, 69697, 68154, 70900, 73763, 76564, 77541],
+        NOR: [17339, 19251, 20097, 20466, 21089, 21642, 23389, 24293, 24684, 24966, 26104, 26449, 26332, 28259, 29126],
+        NTE: [20403, 22116, 22484, 22679, 23150, 23734, 24696, 25949, 27000, 28868, 29291, 29808, 30596, 31905, 32711],
+        NES: [43442, 47379, 47776, 47581, 48559, 50114, 52895, 54423, 56426, 57411, 54239, 57901, 60806, 62170, 64080],
+        PEN: [9206, 9735, 9938, 10300, 10635, 11610, 12129, 12498, 12989, 13872, 12497, 13613, 14677, 16054, 16930],
+        SIBC: [10991, 11426, 12020, 11996, 12598, 13122, 13438, 13825, 14535, 14621, 14938, 15966, 16686, 16346, 17218],
+        SIBCS: [2016, 2165, 2209, 2239, 2310, 2400, 2541, 2622, 2759, 2823, 2722, 2911, 3080, 3328, 3425],
+        SIMUL: [136, 138, 143, 147, 151, 146, 151, 152, 155, 155, 159, 161, 164, 165, 170],
+        SIN: [240317, 256103, 260661, 261115, 265101, 272557, 282662, 293127, 300783, 307321, 298150, 309994, 320683, 331744, 338994]
+      },
+
+      // Consumo final (GWh)
+      consumoFinal: {
+        SEN: [199713, 214098, 219994, 222830, 228635, 237200, 248195, 258895, 268701, 274915, 266238, 277259, 288687, 298599, 304012],
+        CEN: [34789, 36540, 37792, 38818, 39064, 40364, 45070, 46423, 48269, 48590, 46362, 47262, 48988, 49709, 49411],
+        ORI: [31734, 33567, 34836, 35292, 35986, 37286, 38423, 39607, 41840, 42709, 40722, 42530, 44503, 46528, 48022],
+        OCC: [45144, 48599, 49959, 50428, 51952, 53884, 53290, 57743, 58995, 60871, 59536, 61885, 64629, 66822, 67732],
+        NOR: [14567, 16264, 16895, 17263, 17796, 18497, 20017, 20823, 21277, 21441, 22247, 22332, 22580, 24037, 24651],
+        NTE: [17052, 18340, 18656, 18743, 19596, 20368, 21231, 22466, 23565, 24592, 24508, 24699, 25268, 25909, 26592],
+        NES: [37261, 40608, 40941, 40989, 41947, 43231, 45455, 45957, 47973, 48723, 45613, 49321, 51806, 53160, 53876],
+        PEN: [7732, 8142, 8354, 8660, 9032, 9730, 10342, 11055, 11399, 12425, 11204, 11827, 13043, 14414, 14934],
+        SIBC: [9605, 10044, 10514, 10554, 11122, 11618, 12005, 12429, 12798, 12937, 13521, 14671, 14991, 14879, 15565],
+        SIBCS: [1722, 1882, 1932, 1965, 2016, 2098, 2239, 2267, 2460, 2501, 2394, 2597, 2742, 2995, 3079],
+        SIMUL: [107, 112, 115, 118, 124, 124, 123, 125, 125, 126, 131, 135, 137, 146, 150],
+        SIN: [188279, 202060, 207433, 210192, 215373, 223360, 233828, 244073, 253318, 259352, 250193, 259855, 270817, 280579, 285218]
+      }
+    };
+
+    /* ============
+       3. Gráficas FV nacionales
+       ============ */
+
+    const ctxCap = document.getElementById('capSolarChart').getContext('2d');
+    new Chart(ctxCap, {
+      type: 'line',
       data: {
-        labels: labelsYears,
+        labels: solarYears,
         datasets: [{
-          label: "Capacidad FV instalada (MW)",
-          data: capSolar,
-          fill: true,
-          borderWidth: 2.5,
-          pointRadius: 3,
-          tension: 0.25
+          label: 'Capacidad FV (MW)',
+          data: solarCapacityMW,
+          fill: true
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: { position: "top" },
+          legend: { position: 'top' },
           tooltip: {
             callbacks: {
-              label: (ctx) => `Capacidad FV: ${ctx.parsed.y.toLocaleString("es-MX")} MW`
+              label: (ctx) => `Capacidad: ${ctx.parsed.y.toLocaleString()} MW`
             }
           }
         },
         scales: {
-          y: {
-            title: { display: true, text: "MW" }
-          },
-          x: {
-            title: { display: true, text: "Año" }
-          }
+          x: { title: { display: true, text: 'Año' } },
+          y: { title: { display: true, text: 'MW' }, beginAtZero: false }
         }
       }
     });
 
-    // ====== Gráfica: Generación FV ======
-    const ctxGenSolar = document.getElementById("chartGenSolar").getContext("2d");
-    new Chart(ctxGenSolar, {
-      type: "line",
+    const ctxGen = document.getElementById('genSolarChart').getContext('2d');
+    new Chart(ctxGen, {
+      type: 'line',
       data: {
-        labels: labelsYears,
+        labels: solarYears,
         datasets: [{
-          label: "Generación FV neta (GWh)",
-          data: genSolar,
-          fill: true,
-          borderWidth: 2.5,
-          pointRadius: 3,
-          tension: 0.25
+          label: 'Generación FV (GWh)',
+          data: solarGenerationGWh,
+          fill: true
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: { position: "top" },
+          legend: { position: 'top' },
           tooltip: {
             callbacks: {
-              label: (ctx) => `Generación FV: ${ctx.parsed.y.toLocaleString("es-MX")} GWh`
+              label: (ctx) => `Generación: ${ctx.parsed.y.toLocaleString()} GWh`
             }
           }
         },
         scales: {
-          y: {
-            title: { display: true, text: "GWh" }
-          },
-          x: {
-            title: { display: true, text: "Año" }
-          }
+          x: { title: { display: true, text: 'Año' } },
+          y: { title: { display: true, text: 'GWh' }, beginAtZero: false }
         }
       }
     });
 
-    // ====== Gráfica: Capacidad total vs Generación total ======
-    const ctxCapGenTotal = document.getElementById("chartCapGenTotal").getContext("2d");
-    new Chart(ctxCapGenTotal, {
-      type: "line",
-      data: {
-        labels: labelsYears,
-        datasets: [
-          {
-            label: "Capacidad total instalada (MW)",
-            data: capTotal,
-            yAxisID: "yCap",
-            borderWidth: 2.2,
-            pointRadius: 2.5,
-            tension: 0.2
-          },
-          {
-            label: "Generación total (GWh)",
-            data: genTotal,
-            yAxisID: "yGen",
-            borderWidth: 2.2,
-            pointRadius: 2.5,
-            tension: 0.2
-          }
-        ]
+    /* ============
+       4. Gráfica y tabla regionales
+       ============ */
+
+    const regionSelect = document.getElementById('regionSelect');
+    const startInput = document.getElementById('startYear');
+    const endInput = document.getElementById('endYear');
+    const updateButton = document.getElementById('updateButton');
+    const metricTabs = document.querySelectorAll('.metric-tab');
+    const tbody = document.querySelector('#regionalTable tbody');
+    const colRegionHeader = document.getElementById('colRegionHeader');
+    const colSenHeader = document.getElementById('colSenHeader');
+
+    const metricConfig = {
+      demanda: {
+        labelBase: 'Demanda máxima integrada',
+        unit: 'MW'
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { position: "top" }
-        },
-        scales: {
-          yCap: {
-            type: "linear",
-            position: "left",
-            title: { display: true, text: "Capacidad (MW)" }
-          },
-          yGen: {
-            type: "linear",
-            position: "right",
-            grid: { drawOnChartArea: false },
-            title: { display: true, text: "Generación (GWh)" }
-          },
-          x: {
-            title: { display: true, text: "Año" }
-          }
-        }
-      }
-    });
-
-    // ====== Gráfica: Demanda y consumos ======
-    const ctxDemandCons = document.getElementById("chartDemandConsumption").getContext("2d");
-    new Chart(ctxDemandCons, {
-      type: "line",
-      data: {
-        labels: labelsYears,
-        datasets: [
-          {
-            label: "Demanda máx. integrada (MW)",
-            data: demandaSen,
-            borderWidth: 2.2,
-            pointRadius: 2.5,
-            tension: 0.2
-          },
-          {
-            label: "Consumo bruto (GWh)",
-            data: consBrutoSen,
-            borderWidth: 2.2,
-            pointRadius: 2.5,
-            tension: 0.2
-          },
-          {
-            label: "Consumo final (GWh)",
-            data: consFinalSen,
-            borderWidth: 2.2,
-            pointRadius: 2.5,
-            tension: 0.2
-          }
-        ]
+      consumoBruto: {
+        labelBase: 'Consumo bruto',
+        unit: 'GWh'
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { position: "top" }
-        },
-        scales: {
-          y: {
-            title: { display: true, text: "MW / GWh" }
-          },
-          x: {
-            title: { display: true, text: "Año" }
-          }
-        }
+      consumoFinal: {
+        labelBase: 'Consumo final',
+        unit: 'GWh'
       }
-    });
+    };
 
-    // ====== Rellenar TABLA con los mismos datos ======
-    const tbodyMix = document.getElementById("tbody-mix");
-    years.forEach((year, i) => {
-      const tr = document.createElement("tr");
-      const cols = [
-        year,
-        capSolar[i],
-        genSolar[i],
-        capTotal[i],
-        genTotal[i],
-        demandaSen[i],
-        consBrutoSen[i],
-        consFinalSen[i]
-      ];
-      cols.forEach((value) => {
-        const td = document.createElement("td");
-        if (typeof value === "number") {
-          td.textContent = value.toLocaleString("es-MX");
-        } else {
-          td.textContent = value;
-        }
-        tr.appendChild(td);
+    // Rellenar selector de regiones
+    function populateRegions() {
+      const regions = Object.keys(energyData.demanda).filter(r => r !== 'SEN');
+      regionSelect.innerHTML = '';
+      const optSen = document.createElement('option');
+      optSen.value = 'SEN';
+      optSen.textContent = 'SEN (nacional)';
+      regionSelect.appendChild(optSen);
+      regions.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        regionSelect.appendChild(opt);
       });
-      tbodyMix.appendChild(tr);
+      regionSelect.value = 'CEN'; // región inicial por defecto
+    }
+
+    populateRegions();
+
+    // Rango de años por defecto
+    startInput.value = energyData.years[0];
+    endInput.value = energyData.years[energyData.years.length - 1];
+
+    let currentMetric = 'demanda';
+    let regionalChart = null;
+
+    function getFilteredData(metric, region) {
+      const years = energyData.years;
+      let start = parseInt(startInput.value, 10);
+      let end = parseInt(endInput.value, 10);
+
+      if (isNaN(start)) start = years[0];
+      if (isNaN(end)) end = years[years.length - 1];
+      if (start > end) [start, end] = [end, start];
+
+      let i0 = years.indexOf(start);
+      let i1 = years.indexOf(end);
+      if (i0 === -1) i0 = 0;
+      if (i1 === -1) i1 = years.length - 1;
+
+      const labels = years.slice(i0, i1 + 1);
+      const regionSeries = energyData[metric][region].slice(i0, i1 + 1);
+      const senSeries = energyData[metric]['SEN'].slice(i0, i1 + 1);
+
+      const percentages = region === 'SEN'
+        ? labels.map(() => 100)
+        : regionSeries.map((v, idx) => senSeries[idx] ? (v / senSeries[idx] * 100) : 0);
+
+      return { labels, regionSeries, senSeries, percentages };
+    }
+
+    function updateChartAndTable() {
+      const region = regionSelect.value;
+      const { labels, regionSeries, senSeries, percentages } = getFilteredData(currentMetric, region);
+      const cfg = metricConfig[currentMetric];
+
+      const regionLabel = region === 'SEN'
+        ? `${cfg.labelBase} – SEN`
+        : `${cfg.labelBase} – región ${region}`;
+      const showPercent = region !== 'SEN';
+
+      // Actualizar encabezados de tabla
+      colRegionHeader.textContent = `${cfg.labelBase} región (${cfg.unit})`;
+      colSenHeader.textContent = `${cfg.labelBase} SEN (${cfg.unit})`;
+
+      // Gráfica
+      if (regionalChart) {
+        regionalChart.destroy();
+      }
+
+      const ctx = document.getElementById('regionalChart').getContext('2d');
+      regionalChart = new Chart(ctx, {
+        data: {
+          labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: regionLabel,
+              data: regionSeries,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: 'Participación de la región en el SEN (%)',
+              data: percentages,
+              yAxisID: 'y1',
+              tension: 0.3,
+              pointRadius: 3,
+              borderWidth: 2,
+              hidden: !showPercent
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: function (ctx) {
+                  const dsLabel = ctx.dataset.label || '';
+                  const v = ctx.parsed.y;
+                  if (ctx.dataset.yAxisID === 'y') {
+                    return `${dsLabel}: ${v.toLocaleString()} ${cfg.unit}`;
+                  } else {
+                    return `${dsLabel}: ${v.toFixed(1)} %`;
+                  }
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Año' }
+            },
+            y: {
+              title: { display: true, text: cfg.unit },
+              beginAtZero: false
+            },
+            y1: {
+              position: 'right',
+              title: { display: true, text: '% del SEN' },
+              min: 0,
+              max: 100,
+              grid: { drawOnChartArea: false }
+            }
+          }
+        }
+      });
+
+      // Tabla
+      tbody.innerHTML = '';
+      labels.forEach((year, idx) => {
+        const tr = document.createElement('tr');
+        const vRegion = regionSeries[idx];
+        const vSen = senSeries[idx];
+        const pct = percentages[idx];
+        tr.innerHTML = `
+          <td>${year}</td>
+          <td>${vRegion.toLocaleString()}</td>
+          <td>${vSen.toLocaleString()}</td>
+          <td>${region === 'SEN' ? '100.0' : pct.toFixed(1)}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Listeners
+    regionSelect.addEventListener('change', updateChartAndTable);
+    updateButton.addEventListener('click', updateChartAndTable);
+
+    metricTabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        metricTabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMetric = btn.dataset.metric;
+        updateChartAndTable();
+      });
     });
 
-    // ====== Lógica de botones Gráficas / Tablas ======
-    const btnShowCharts = document.getElementById("btnShowCharts");
-    const btnShowTables = document.getElementById("btnShowTables");
-    const chartsSection = document.getElementById("chartsSection");
-    const tablesSection = document.getElementById("tablesSection");
-
-    btnShowCharts.addEventListener("click", () => {
-      btnShowCharts.classList.add("active");
-      btnShowTables.classList.remove("active");
-      chartsSection.style.display = "block";
-      tablesSection.style.display = "none";
-    });
-
-    btnShowTables.addEventListener("click", () => {
-      btnShowTables.classList.add("active");
-      btnShowCharts.classList.remove("active");
-      chartsSection.style.display = "none";
-      tablesSection.style.display = "block";
-    });
+    // Primera renderización
+    updateChartAndTable();
   </script>
 </body>
 </html>
