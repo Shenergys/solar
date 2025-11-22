@@ -23,47 +23,103 @@
   </nav>
 
   <main class="container">
+    <!-- 1. VISIÓN GENERAL FV -->
     <section class="panel">
-      <h2>Gráficas de Energía y Clima</h2>
+      <h2>Visión general de energía solar fotovoltaica</h2>
       <p class="description">
-        Estos son ejemplos; después solo cambiarás los valores en el código para usar
-        tus datos reales (temperatura, demanda, generación solar, etc.).
+        Estas dos gráficas muestran solo la <strong>capacidad instalada</strong> y la
+        <strong>generación</strong> de energía <strong>solar fotovoltaica</strong> en México
+        (datos SENER 2010–2024).
       </p>
 
-      <!-- Gráfica 1: Temperatura media 2017–2024 -->
-      <div class="chart-card">
-        <h3>Evolución de la Temperatura Media (2017–2024)</h3>
-        <canvas id="tempChart"></canvas>
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <h3>Capacidad instalada FV (MW, 2010–2024)</h3>
+          <canvas id="capSolarChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Generación FV (GWh, 2010–2024)</h3>
+          <canvas id="genSolarChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. MIX ENERGÉTICO NACIONAL -->
+    <section class="panel">
+      <h2>Explorador del mix energético nacional</h2>
+      <p class="description">
+        Aquí puedes ver el comportamiento del sistema eléctrico nacional (SEN):
+        <strong>demanda máxima integrada</strong>, <strong>consumo bruto</strong>,
+        <strong>consumo final</strong>, <strong>generación total</strong> y
+        <strong>capacidad total instalada</strong>. Usa los botones para cambiar
+        entre <strong>gráficas</strong> y <strong>tablas</strong>.
+      </p>
+
+      <!-- Botones de vista -->
+      <div class="view-toggle">
+        <button id="btn-view-charts" class="toggle-btn active">Ver gráficas</button>
+        <button id="btn-view-tables" class="toggle-btn">Ver tablas</button>
       </div>
 
-      <!-- Gráfica 2: Demanda por región -->
-      <div class="chart-card">
-        <h3>Demanda Energética por Región</h3>
-        <canvas id="demandChart"></canvas>
+      <!-- 2A. VISTA GRÁFICAS -->
+      <div id="mix-charts">
+        <div class="chart-grid-2">
+          <div class="chart-card">
+            <h3>Demanda máxima integrada SEN (MWh/h)</h3>
+            <canvas id="demandaChart"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>Consumo bruto SEN (GWh)</h3>
+            <canvas id="consBrutoChart"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>Consumo final SEN (GWh)</h3>
+            <canvas id="consFinalChart"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>Generación total SEN (GWh)</h3>
+            <canvas id="genTotalChart"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>Capacidad total instalada (MW)</h3>
+            <canvas id="capTotalChart"></canvas>
+          </div>
+        </div>
       </div>
 
-      <!-- Tabla simple de ejemplo -->
-      <div class="table-card">
-        <h3>Tabla de datos (ejemplo)</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Año</th>
-              <th>Temperatura media (°C)</th>
-              <th>Demanda (GWh)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>2017</td><td>20.1</td><td>320</td></tr>
-            <tr><td>2018</td><td>20.4</td><td>340</td></tr>
-            <tr><td>2019</td><td>20.8</td><td>360</td></tr>
-            <tr><td>2020</td><td>21.0</td><td>380</td></tr>
-            <tr><td>2021</td><td>21.3</td><td>390</td></tr>
-            <tr><td>2022</td><td>21.7</td><td>400</td></tr>
-            <tr><td>2023</td><td>22.0</td><td>420</td></tr>
-            <tr><td>2024</td><td>22.2</td><td>440</td></tr>
-          </tbody>
-        </table>
+      <!-- 2B. VISTA TABLAS -->
+      <div id="mix-tables" class="hidden">
+        <h3>Tablas de datos nacionales (SEN)</h3>
+        <p>Puedes copiar estos valores directamente a Excel si lo necesitas.</p>
+
+        <div class="table-card">
+          <h4>Demanda máxima integrada SEN (MWh/h)</h4>
+          <table id="tblDemanda"></table>
+        </div>
+
+        <div class="table-card">
+          <h4>Consumo bruto SEN (GWh)</h4>
+          <table id="tblConsBruto"></table>
+        </div>
+
+        <div class="table-card">
+          <h4>Consumo final SEN (GWh)</h4>
+          <table id="tblConsFinal"></table>
+        </div>
+
+        <div class="table-card">
+          <h4>Generación total SEN (GWh)</h4>
+          <table id="tblGenTotal"></table>
+        </div>
+
+        <div class="table-card">
+          <h4>Capacidad total instalada (MW)</h4>
+          <table id="tblCapTotal"></table>
+        </div>
       </div>
     </section>
   </main>
@@ -72,39 +128,130 @@
     <small>© 2024 Shenergys – Plataforma de energía solar.</small>
   </footer>
 
+  <!-- ================== LÓGICA DE GRÁFICAS Y TABLAS ================== -->
   <script>
-    // ====== Gráfica de temperatura ======
-    const ctxTemp = document.getElementById("tempChart").getContext("2d");
+    // ---------------- DATOS REALES (SENER 2010–2024) ----------------
+    // Años
+    const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
 
-    new Chart(ctxTemp, {
-      type: "line",
-      data: {
-        labels: ["2017","2018","2019","2020","2021","2022","2023","2024"],
-        datasets: [{
-          label: "Temperatura Media (°C)",
-          data: [20.1,20.4,20.8,21.0,21.3,21.7,22.0,22.2],
-          fill: true,
-          borderColor: "rgba(255,165,0,1)",
-          backgroundColor: "rgba(255,165,0,0.3)"
-        }]
-      },
-      options: { responsive: true }
+    // Solar fotovoltaica (fila "Solar fotovoltaica" de tus Excel)
+    const capSolar = [0, 0, 1, 11, 55, 57, 145, 171, 1878, 3646, 5149, 5955, 6515, 7437, 7961];      // MW
+    const genSolar = [0, 0, 3, 20, 83, 45, 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640]; // GWh
+
+    // Totales nacionales (SEN o TOTAL de tus tablas)
+    const demandaYears = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+    const demandaSen   = [41750, 43324, 43920, 44323, 44398, 45601, 47348, 49049, 50825, 52340, 51225, 52686, 54489, 57958, 59601];
+
+    const consBrutoSen = [253460, 269831, 275033, 275497, 280161, 288224, 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807];
+
+    const consFinalSen = [199713, 214098, 219994, 222830, 228635, 237200, 248195, 258895, 268701, 274915, 266238, 277259, 288687, 298599, 304012];
+
+    const genTotal = [271483, 277894, 281545, 286218, 280365, 287660, 298426, 302880, 310686, 317821, 312348, 323527, 333964, 346501, 352305];
+
+    const capTotal = [55090, 54656, 55692, 57413, 62359, 63545, 73242, 68051, 72958, 78447, 83122, 86154, 87131, 89007, 90543];
+
+    // ---------------- FUNCIONES AUXILIARES ----------------
+
+    // Crea una gráfica de línea bonita y "de alta calidad"
+    function makeLineChart(canvasId, label, data, yLabel) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: years,
+          datasets: [{
+            label: label,
+            data: data,
+            borderWidth: 3,
+            pointRadius: 3,
+            fill: true,
+            tension: 0.25
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true },
+            tooltip: {
+              mode: "index",
+              intersect: false,
+              callbacks: {
+                label: function(context) {
+                  const value = context.parsed.y.toLocaleString("es-MX");
+                  return label + ": " + value;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: "Año" }
+            },
+            y: {
+              title: { display: true, text: yLabel },
+              ticks: { beginAtZero: false }
+            }
+          },
+          elements: {
+            point: {
+              radius: 3,
+              hoverRadius: 5
+            }
+          }
+        }
+      });
+    }
+
+    // Llena una tabla simple Año–Valor
+    function fillTable(tableId, yearsArr, dataArr, headerLabel) {
+      const table = document.getElementById(tableId);
+      let html = "<thead><tr><th>Año</th><th>" + headerLabel + "</th></tr></thead><tbody>";
+      yearsArr.forEach((y, i) => {
+        html += "<tr><td>" + y + "</td><td>" + dataArr[i].toLocaleString("es-MX") + "</td></tr>";
+      });
+      html += "</tbody>";
+      table.innerHTML = html;
+    }
+
+    // ---------------- CREACIÓN DE GRÁFICAS ----------------
+
+    // Arriba: solo FV
+    makeLineChart("capSolarChart", "Capacidad FV (MW)", capSolar, "MW");
+    makeLineChart("genSolarChart", "Generación FV (GWh)", genSolar, "GWh");
+
+    // Mix nacional
+    makeLineChart("demandaChart",   "Demanda máxima SEN (MWh/h)", demandaSen, "MWh/h");
+    makeLineChart("consBrutoChart", "Consumo bruto SEN (GWh)",    consBrutoSen, "GWh");
+    makeLineChart("consFinalChart", "Consumo final SEN (GWh)",    consFinalSen, "GWh");
+    makeLineChart("genTotalChart",  "Generación total SEN (GWh)", genTotal, "GWh");
+    makeLineChart("capTotalChart",  "Capacidad total instalada (MW)", capTotal, "MW");
+
+    // ---------------- TABLAS ----------------
+    fillTable("tblDemanda",   demandaYears, demandaSen,   "Demanda máxima SEN (MWh/h)");
+    fillTable("tblConsBruto", demandaYears, consBrutoSen, "Consumo bruto SEN (GWh)");
+    fillTable("tblConsFinal", demandaYears, consFinalSen, "Consumo final SEN (GWh)");
+    fillTable("tblGenTotal",  years,        genTotal,     "Generación total SEN (GWh)");
+    fillTable("tblCapTotal",  years,        capTotal,     "Capacidad total instalada (MW)");
+
+    // ---------------- TOGGLE GRÁFICAS / TABLAS ----------------
+    const btnViewCharts = document.getElementById("btn-view-charts");
+    const btnViewTables = document.getElementById("btn-view-tables");
+    const mixCharts     = document.getElementById("mix-charts");
+    const mixTables     = document.getElementById("mix-tables");
+
+    btnViewCharts.addEventListener("click", () => {
+      btnViewCharts.classList.add("active");
+      btnViewTables.classList.remove("active");
+      mixCharts.style.display = "block";
+      mixTables.style.display = "none";
     });
 
-    // ====== Gráfica de demanda ======
-    const ctxDemand = document.getElementById("demandChart").getContext("2d");
-
-    new Chart(ctxDemand, {
-      type: "bar",
-      data: {
-        labels: ["Región 1","Región 2","Región 3","Región 4","Región 5"],
-        datasets: [{
-          label: "Demanda Energética (GWh)",
-          data: [300,250,400,280,450],
-          backgroundColor: "rgba(0,120,255,0.7)"
-        }]
-      },
-      options: { responsive: true }
+    btnViewTables.addEventListener("click", () => {
+      btnViewTables.classList.add("active");
+      btnViewCharts.classList.remove("active");
+      mixCharts.style.display = "none";
+      mixTables.style.display = "block";
     });
   </script>
 </body>
