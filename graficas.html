@@ -33,25 +33,27 @@
     <section class="panel">
         <h2>Capacidad y generación solar fotovoltaica (2010–2024)</h2>
         <p>
-            Estas dos gráficas muestran únicamente la <strong>capacidad instalada</strong> (MW)
+            Estas dos gráficas muestran la <strong>capacidad instalada</strong> (MW)
             y la <strong>generación eléctrica</strong> (GWh) de la tecnología
             <strong>Solar Fotovoltaica</strong> en el SEN, usando tus datos reales (2010–2024).
+            En cada gráfico también se incluye la
+            <strong>participación porcentual de la FV en el total nacional</strong> (%).
         </p>
 
         <div class="grid-2">
             <div>
-                <h3>Capacidad instalada FV (MW)</h3>
+                <h3>Capacidad instalada FV (MW) y participación (%)</h3>
                 <canvas id="chartCapSolar"></canvas>
             </div>
             <div>
-                <h3>Generación FV (GWh)</h3>
+                <h3>Generación FV (GWh) y participación (%)</h3>
                 <canvas id="chartGenSolar"></canvas>
             </div>
         </div>
     </section>
 
     <!-- ========================================================= -->
-    <!-- 2. Mix nacional del SEN: gráficas <-> tabla -->
+    <!-- 2. Mix nacional del SEN: 1 gráfica + tabla                -->
     <!-- ========================================================= -->
     <section class="panel">
         <div class="panel-header">
@@ -63,33 +65,24 @@
         </div>
 
         <p>
-            Aquí se muestran las series nacionales del SEN. Las gráficas están separadas
-            por unidad para que no se mezclen MW con GWh.
+            Aquí se muestran las series nacionales del SEN. Puedes elegir qué variable
+            ver en la gráfica (capacidad, generación, demanda o consumos).
         </p>
 
         <!-- CONTENEDOR DE GRÁFICAS NACIONALES -->
         <div id="mixCharts">
-            <div class="grid-2">
-                <div>
-                    <h3>Capacidad total instalada (todas las tecnologías, MW)</h3>
-                    <canvas id="chartCapTotal"></canvas>
-                </div>
-                <div>
-                    <h3>Generación eléctrica total (todas las tecnologías, GWh)</h3>
-                    <canvas id="chartGenTotal"></canvas>
-                </div>
+            <div class="controls-row">
+                <label>
+                    Variable del SEN:
+                    <select id="senVariableSelect">
+                        <option value="capacidad">Capacidad total (MW)</option>
+                        <option value="generacion">Generación total (GWh)</option>
+                        <option value="demanda">Demanda máxima integrada (MW)</option>
+                        <option value="consumo">Consumo bruto y final (GWh)</option>
+                    </select>
+                </label>
             </div>
-
-            <div class="grid-2">
-                <div>
-                    <h3>Demanda máxima integrada del SEN (MW)</h3>
-                    <canvas id="chartDemandaSEN"></canvas>
-                </div>
-                <div>
-                    <h3>Consumo bruto y final del SEN (GWh)</h3>
-                    <canvas id="chartConsumoSEN"></canvas>
-                </div>
-            </div>
+            <canvas id="chartSEN"></canvas>
         </div>
 
         <!-- TABLA NACIONAL (SE MUESTRA AL ELEGIR "VER TABLA") -->
@@ -186,6 +179,10 @@ const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020,
 const capSolar = [0, 0, 1, 11, 55, 57, 145, 171, 1878, 3646, 5149, 5955, 6515, 7437, 7961];       // MW
 const genSolar = [0, 0, 3, 20, 83, 45, 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640];  // GWh
 
+/* Porcentaje FV respecto al total nacional (capacidad / generación) */
+const capShare = [0.0, 0.0, 0.0, 0.02, 0.09, 0.09, 0.2, 0.25, 2.57, 4.65, 6.19, 6.91, 7.48, 8.36, 8.79];
+const genShare = [0.0, 0.0, 0.0, 0.01, 0.03, 0.02, 0.05, 0.12, 0.7, 2.64, 4.33, 5.28, 4.88, 5.26, 5.29];
+
 /* 2) Totales SEN (todas las tecnologías) */
 const capTotal   = [55090, 54656, 55692, 57413, 62359, 63545, 73242, 68051, 72958, 78447, 83122, 86154, 87131, 89007, 90543]; // MW
 const genTotal   = [271483, 277894, 281545, 286218, 280365, 287660, 298426, 302880, 310686, 317821, 312348, 323527, 333964, 346501, 352305]; // GWh
@@ -262,28 +259,47 @@ const consumoFinalShare = {
 /* =======================
    1. Funciones de apoyo
    ======================= */
-function makeLineChart(ctx, labels, data, label, yLabel) {
+function makeDualSolarChart(ctx, labels, serieValor, serieShare, labelValor, yLabelIzq) {
     return new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [{
-                label: label,
-                data: data,
-                fill: true,
-                tension: 0.25
-            }]
+            datasets: [
+                {
+                    label: labelValor,
+                    data: serieValor,
+                    yAxisID: 'y',
+                    fill: true,
+                    tension: 0.25
+                },
+                {
+                    label: 'Participación FV en el total (%)',
+                    data: serieShare,
+                    yAxisID: 'y1',
+                    fill: false,
+                    tension: 0.25,
+                    borderDash: [5,4]
+                }
+            ]
         },
         options: {
             responsive: true,
+            interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: { position: 'top' },
                 tooltip: { mode: 'index', intersect: false }
             },
-            interaction: { mode: 'index', intersect: false },
             scales: {
                 x: { title: { display: true, text: 'Año' } },
-                y: { title: { display: true, text: yLabel } }
+                y: {
+                    title: { display: true, text: yLabelIzq },
+                    position: 'left'
+                },
+                y1: {
+                    title: { display: true, text: '% de participación' },
+                    position: 'right',
+                    grid: { drawOnChartArea: false }
+                }
             }
         }
     });
@@ -292,82 +308,23 @@ function makeLineChart(ctx, labels, data, label, yLabel) {
 /* =========================================
    2. Gráficas FV y mix nacional del SEN
    ========================================= */
-let chartCapSolar, chartGenSolar, chartCapTotal, chartGenTotal,
-    chartDemandaSEN, chartConsumoSEN;
+let chartCapSolar, chartGenSolar, chartSEN;
+let chartRegion;
 
 window.addEventListener('load', () => {
-    // 2.1 Capacidad y generación SOLAR FV
-    chartCapSolar = makeLineChart(
+    // 2.1 Capacidad y generación SOLAR FV (valor + %)
+    chartCapSolar = makeDualSolarChart(
         document.getElementById('chartCapSolar'),
-        years, capSolar,
-        'Capacidad FV (MW)',
-        'MW'
+        years, capSolar, capShare,
+        'Capacidad FV (MW)', 'MW'
     );
-    chartGenSolar = makeLineChart(
+    chartGenSolar = makeDualSolarChart(
         document.getElementById('chartGenSolar'),
-        years, genSolar,
-        'Generación FV (GWh)',
-        'GWh'
+        years, genSolar, genShare,
+        'Generación FV (GWh)', 'GWh'
     );
 
-    // 2.2 Totales SEN
-    chartCapTotal = makeLineChart(
-        document.getElementById('chartCapTotal'),
-        years, capTotal,
-        'Capacidad total (MW)',
-        'MW'
-    );
-    chartGenTotal = makeLineChart(
-        document.getElementById('chartGenTotal'),
-        years, genTotal,
-        'Generación total (GWh)',
-        'GWh'
-    );
-
-    chartDemandaSEN = makeLineChart(
-        document.getElementById('chartDemandaSEN'),
-        yearsDem, demandaSen,
-        'Demanda máx. SEN (MW)',
-        'MW'
-    );
-
-    // Consumo bruto y final juntos (misma unidad GWh)
-    chartConsumoSEN = new Chart(
-        document.getElementById('chartConsumoSEN'),
-        {
-            type: 'line',
-            data: {
-                labels: yearsDem,
-                datasets: [
-                    {
-                        label: 'Consumo bruto (GWh)',
-                        data: consumoBrutoSen,
-                        fill: true,
-                        tension: 0.25
-                    },
-                    {
-                        label: 'Consumo final (GWh)',
-                        data: consumoFinalSen,
-                        fill: false,
-                        tension: 0.25
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' }
-                },
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { title: { display: true, text: 'Año' } },
-                    y: { title: { display: true, text: 'GWh' } }
-                }
-            }
-        }
-    );
-
-    // 2.3 Llenar tabla nacional
+    // 2.2 Llenar tabla nacional
     const tbody = document.getElementById('mixTableBody');
     years.forEach((year, idx) => {
         const tr = document.createElement('tr');
@@ -382,7 +339,7 @@ window.addEventListener('load', () => {
         tbody.appendChild(tr);
     });
 
-    // 2.4 Botones Ver gráficas / Ver tabla
+    // 2.3 Botones Ver gráficas / Ver tabla
     const btnCharts = document.getElementById('btnViewCharts');
     const btnTable  = document.getElementById('btnViewTable');
     const mixCharts = document.getElementById('mixCharts');
@@ -401,14 +358,98 @@ window.addEventListener('load', () => {
         btnCharts.classList.remove('primary');
     });
 
+    // 2.4 Inicializar gráfica del SEN con selector de variable
+    const senSelect = document.getElementById('senVariableSelect');
+    senSelect.addEventListener('change', updateSenChart);
+    updateSenChart(); // primer render
+
     // 3. Inicializar sección de regiones
     initRegionSection();
 });
 
+/* ===============================
+   2.bis. Gráfica SEN (selector)
+   =============================== */
+function updateSenChart() {
+    const variable = document.getElementById('senVariableSelect').value;
+    const ctx = document.getElementById('chartSEN');
+
+    if (chartSEN) chartSEN.destroy();
+
+    let datasets = [];
+    let yLabel = '';
+    let titulo = '';
+
+    if (variable === 'capacidad') {
+        titulo = 'Capacidad total instalada del SEN (MW)';
+        yLabel = 'MW';
+        datasets.push({
+            label: 'Capacidad total (MW)',
+            data: capTotal,
+            fill: true,
+            tension: 0.25
+        });
+    } else if (variable === 'generacion') {
+        titulo = 'Generación total del SEN (GWh)';
+        yLabel = 'GWh';
+        datasets.push({
+            label: 'Generación total (GWh)',
+            data: genTotal,
+            fill: true,
+            tension: 0.25
+        });
+    } else if (variable === 'demanda') {
+        titulo = 'Demanda máxima integrada del SEN (MW)';
+        yLabel = 'MW';
+        datasets.push({
+            label: 'Demanda máx. integrada (MW)',
+            data: demandaSen,
+            fill: true,
+            tension: 0.25
+        });
+    } else { // consumo bruto + final
+        titulo = 'Consumo bruto y final del SEN (GWh)';
+        yLabel = 'GWh';
+        datasets.push(
+            {
+                label: 'Consumo bruto (GWh)',
+                data: consumoBrutoSen,
+                fill: true,
+                tension: 0.25
+            },
+            {
+                label: 'Consumo final (GWh)',
+                data: consumoFinalSen,
+                fill: false,
+                tension: 0.25
+            }
+        );
+    }
+
+    chartSEN = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: titulo }
+            },
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { title: { display: true, text: 'Año' } },
+                y: { title: { display: true, text: yLabel } }
+            }
+        }
+    });
+}
+
 /* =========================================
    3. Gráfica de regiones (valor + %)
    ========================================= */
-let chartRegion;
 
 function getRegionData(variable, region) {
     let serieRegion, serieShare, serieSen;
