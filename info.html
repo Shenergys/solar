@@ -1,195 +1,71 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Energía Solar para Todos – Inicio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>Contacto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Puedes seguir usando tu style.css -->
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Estilos específicos para el inicio -->
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+    body { margin:0; font-family: Arial, sans-serif; background:#f5f5f5; }
+    header { background:#ffcc00; padding:1.5rem; text-align:center; }
+    header h1 { margin:0; }
+    header p.subtitle { margin:0.3rem 0 0; }
+    nav {
+      background:#333; padding:1rem; text-align:center;
+    }
+    nav a {
+      color:white; margin:0 1rem; text-decoration:none; font-weight:bold;
+    }
+    nav a:hover { text-decoration:underline; }
+    main {
+      max-width:1000px; margin:2rem auto; background:white;
+      padding:2rem; border-radius:8px;
+      line-height:1.6;
     }
 
-    /* HEADER AMARILLO CON LOGO */
-    .site-header {
-      background: #ffcc00;
-      padding: 1.2rem 1.5rem 0.5rem;
-    }
+    .contact-info p { margin:0.2rem 0; }
 
-    .title-bar {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+    form.contact-form {
+      margin-top:1.5rem;
+      display:flex;
+      flex-direction:column;
+      gap:0.8rem;
     }
-
-    .logo-shenergys {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: #222;
-      color: #ffcc00;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1.1rem;
-      flex-shrink: 0;
+    form.contact-form label {
+      font-weight:bold;
     }
-
-    .logo-shenergys span {
-      letter-spacing: 1px;
+    form.contact-form input,
+    form.contact-form textarea {
+      width:100%;
+      padding:0.5rem;
+      border-radius:4px;
+      border:1px solid #ccc;
+      font-family:inherit;
+      font-size:0.95rem;
     }
-
-    .title-text h1 {
-      margin: 0;
-      font-size: 1.9rem;
-      color: #222;
+    form.contact-form button {
+      align-self:flex-start;
+      padding:0.6rem 1.4rem;
+      border:none;
+      border-radius:4px;
+      background:#333;
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
     }
-
-    /* NAV */
-    .main-nav {
-      background: #333;
-      padding: 0.9rem 1rem;
-      margin-top: 0.8rem;
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .main-nav a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .main-nav a:hover {
-      text-decoration: underline;
-    }
-
-    /* HERO CON IMAGEN FOTOVOLTAICA Y ANIMACIÓN */
-    .hero {
-      position: relative;
-      height: 260px;
-      background-image:
-        linear-gradient(to bottom right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.2)),
-        url("https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1600&q=80");
-      background-size: cover;
-      background-position: center top;
-      animation: heroMove 28s ease-in-out infinite alternate;
-    }
-
-    @keyframes heroMove {
-      from { background-position: center top; }
-      to   { background-position: center bottom; }
-    }
-
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 8%;
-      color: #fff;
-    }
-
-    .hero-overlay h2 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.8rem;
-    }
-
-    .hero-overlay p {
-      margin: 0;
-      max-width: 520px;
-      line-height: 1.5;
-    }
-
-    /* CONTENIDO PRINCIPAL */
-    .container {
-      max-width: 1100px;
-      margin: 2rem auto;
-      padding: 0 1rem 2.5rem;
-    }
-
-    .panel {
-      background: #ffffff;
-      padding: 2rem 2.5rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-    }
-
-    .intro-tagline {
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-      font-size: 1.05rem;
-      color: #333;
-      font-weight: 500;
-    }
-
-    h2 {
-      margin-top: 0.3rem;
-      margin-bottom: 0.8rem;
-      font-size: 1.6rem;
-    }
-
-    h3 {
-      margin-top: 1.8rem;
-      margin-bottom: 0.5rem;
-      font-size: 1.3rem;
-    }
-
-    p {
-      line-height: 1.6;
-      margin-bottom: 0.8rem;
-    }
-
-    ul {
-      margin-top: 0.3rem;
-      margin-bottom: 1rem;
-      padding-left: 1.3rem;
-    }
-
-    .footer {
-      text-align: center;
-      padding: 1rem;
-      font-size: 0.85rem;
-      color: #555;
-      background: #f0f0f0;
-    }
-
-    @media (max-width: 600px) {
-      .panel {
-        padding: 1.5rem;
-      }
-      .hero-overlay {
-        padding: 0 1.5rem;
-      }
-      .hero-overlay h2 {
-        font-size: 1.5rem;
-      }
+    form.contact-form button:hover {
+      background:#555;
     }
   </style>
 </head>
 
 <body>
-  <!-- HEADER CON LOGO Y NAV -->
   <header class="site-header">
     <div class="title-bar">
-      <!-- Logo Shenergys (puedes sustituir por una imagen: <img src="tu-logo.png">) -->
-      <div class="logo-shenergys">
-        <span>Sh</span>
-      </div>
-
-      <div class="title-text">
-        <h1>Energía Solar para Todos</h1>
-      </div>
+      <h1>Energía Solar para Todos</h1>
+      <p class="subtitle">
+        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
+      </p>
     </div>
 
     <nav class="main-nav">
@@ -201,70 +77,43 @@
     </nav>
   </header>
 
-  <!-- HERO CON IMAGEN FOTOVOLTAICA -->
-  <section class="hero">
-    <div class="hero-overlay">
-      <h2>Transición energética accesible para todas y todos</h2>
-      <p>
-        Una plataforma abierta para explorar el potencial de la energía solar,
-        la demanda eléctrica y las emisiones asociadas en México.
-      </p>
+  <main>
+    <h2>Contacto</h2>
+    <p>
+      Si deseas más información sobre el proyecto, colaborar o hacer sugerencias,
+      puedes utilizar los datos de contacto o dejar un comentario en el formulario.
+    </p>
+
+    <div class="contact-info">
+      <p><b>Correo electrónico:</b> tu_correo@ejemplo.com</p>
+      <p><b>ORCID:</b> 0000-0000-0000-0000</p>
+      <p><b>Institución:</b> Nombre de tu institución / laboratorio</p>
     </div>
-  </section>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="container">
-    <section class="panel">
-      <!-- Subtítulo que antes estaba en el header -->
-      <p class="intro-tagline">
-        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
-      </p>
+    <h3>Comentarios</h3>
+    <p>
+      Envía tus dudas, sugerencias o comentarios sobre la plataforma. Esta sección
+      puede conectarse más adelante a un backend o a un servicio de correo.
+    </p>
 
-      <h2>Descripción general de la plataforma</h2>
-      <p>
-        <b>Energía Solar para Todos</b> es una plataforma interactiva que integra información
-        sobre clima, demanda eléctrica, potencial fotovoltaico y emisiones. Su objetivo es
-        ofrecer una vista clara y accesible del sistema eléctrico mexicano para apoyar la
-        toma de decisiones, la investigación y la educación.
-      </p>
+    <form class="contact-form">
+      <div>
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" placeholder="Escribe tu nombre">
+      </div>
 
-      <h3>Objetivo</h3>
-      <p>
-        Proporcionar una herramienta visual y abierta que permita:
-        identificar zonas con alto potencial solar, analizar la evolución de la demanda
-        eléctrica y comprender cómo se relacionan estos elementos con las emisiones de
-        gases de efecto invernadero.
-      </p>
+      <div>
+        <label for="email">Correo electrónico</label>
+        <input id="email" type="email" placeholder="tu@correo.com">
+      </div>
 
-      <h3>Visión</h3>
-      <p>
-        Convertirse en un referente en México para la planeación energética sostenible,
-        acercando la información técnica a tomadores de decisión, comunidades académicas
-        y público en general, de forma clara, transparente y actualizada.
-      </p>
+      <div>
+        <label for="mensaje">Comentario</label>
+        <textarea id="mensaje" rows="5" placeholder="Escribe aquí tu mensaje"></textarea>
+      </div>
 
-      <h3>Misión</h3>
-      <p>
-        Integrar datos abiertos, información climática, demanda eléctrica, potencial
-        fotovoltaico y emisiones en una sola plataforma interactiva para:
-      </p>
-      <ul>
-        <li>Identificar regiones con alto potencial fotovoltaico.</li>
-        <li>Analizar la relación entre clima, demanda eléctrica y emisiones.</li>
-        <li>Comunicar de forma clara información compleja a diferentes públicos.</li>
-      </ul>
-
-      <p>
-        Desde el menú superior puedes acceder al
-        <b>Mapa Interactivo</b>, a las <b>Gráficas y Tablas</b>,
-        al módulo de <b>Emisiones</b> y a la sección de <b>Contacto</b>.
-      </p>
-    </section>
+      <button type="submit">Enviar comentario</button>
+    </form>
   </main>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <small>© 2024 Shenergys – Plataforma de energía solar. Todos los derechos reservados.</small>
-  </footer>
 </body>
 </html>
