@@ -15,24 +15,24 @@ body {
 /* ----- CABECERA ----- */
 
 .site-header {
-  background-color: #ffcc00;
+  background-color: #ffcc00; /* amarillo */
   color: #111;
 }
 
-/* LOGO + TÍTULO PEGADOS A LA IZQUIERDA */
+/* barra superior con logo + título */
 .top-bar {
+  position: relative;            /* para centrar el título con absolute */
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 1.8rem;
-  padding: 0.8rem 2rem;
+  padding: 0.8rem 2.5rem;
 }
 
-/* LOGO */
+/* LOGO SP-ENERGY + sol */
 .logo {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  z-index: 2;                    /* por encima del título cuando sea necesario */
 }
 
 .logo-text {
@@ -42,6 +42,7 @@ body {
   text-transform: uppercase;
 }
 
+/* sol estilizado */
 .logo-sun {
   position: relative;
   width: 26px;
@@ -51,6 +52,7 @@ body {
   box-shadow: 0 0 10px rgba(253, 184, 19, 0.85);
 }
 
+/* “rayos” alrededor del sol */
 .logo-sun::before,
 .logo-sun::after {
   content: "";
@@ -65,17 +67,20 @@ body {
   transform: rotate(45deg);
 }
 
-/* TÍTULO PEGADO AL LADO DEL LOGO */
+/* título centrado en la barra amarilla */
 .site-title {
-  font-size: 2rem;
-  font-weight: 800;
-  margin: 0;
-  white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;      /* un poco más grande */
+  font-weight: 700;
+  text-align: center;
 }
 
-/* MENÚ */
+/* ----- MENÚ ----- */
+
 .main-nav {
-  background-color: #222;
+  background-color: #222; /* barra negra */
   display: flex;
   justify-content: center;
   gap: 2.5rem;
@@ -90,7 +95,10 @@ body {
   position: relative;
 }
 
-.main-nav a:hover,
+.main-nav a:hover {
+  color: #ffcc00;
+}
+
 .main-nav a.active {
   color: #ffcc00;
 }
@@ -102,85 +110,111 @@ body {
   left: 0;
   right: 0;
   bottom: -0.25rem;
+  margin: 0 auto;
   width: 70%;
   height: 2px;
-  margin: auto;
   background-color: #ffcc00;
 }
 
-/* ----- HERO (IMAGEN DE PANEL SOLAR) ----- */
+/* ----- HERO CON IMAGEN DE FONDO ----- */
 
 .hero {
   position: relative;
-  height: 420px;
+  height: 420px;        /* un poco más alto para ver paneles */
   overflow: hidden;
 }
 
-/* USANDO TU IMAGEN REAL DE LA CONVERSACIÓN */
+/* IMPORTANTE:
+   Coloca una imagen llamativa de energía fotovoltaica con el nombre
+   "hero-solar.jpg" en la misma carpeta del proyecto, o cambia este nombre
+   por el de tu archivo. */
 .hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("sandbox:/mnt/data/37d7aa39-d67b-4f40-ab48-a528aa406466.png");
+  background-image: url("hero-solar.jpg");
   background-size: cover;
-  background-position: center bottom; /* sube la imagen para mostrar paneles */
-  filter: brightness(0.85);
-  transform: scale(1.06);
+  background-position: center bottom;  /* se ven más los paneles que el cielo */
+  transform: scale(1.05);
   animation: heroZoom 18s ease-in-out infinite alternate;
 }
 
-/* capa oscura */
+/* capa oscura para que se lea bien el texto */
 .hero-overlay {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   height: 100%;
+  width: 100%;
   background: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.55),
-    rgba(0,0,0,0.35)
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.35)
   );
   display: flex;
-  align-items: flex-start;   /* SUBE EL TEXTO */
+  align-items: flex-start;   /* texto un poco más arriba */
   justify-content: center;
-  padding-top: 3.8rem;       /* más arriba */
   text-align: center;
+  padding: 3.5rem 1rem 0;    /* espacio desde arriba */
 }
 
 .hero-title {
-  color: white;
-  font-size: 2.1rem;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+  color: #ffffff;
+  font-size: 2.2rem;
   max-width: 900px;
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
+/* animación suave de zoom para que sea dinámica */
 @keyframes heroZoom {
-  from { transform: scale(1.06); }
-  to   { transform: scale(1.13); }
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1.12);
+  }
 }
 
-/* ----- CONTENIDO ----- */
+/* ----- CONTENIDO PRINCIPAL ----- */
 
 .container {
   max-width: 1100px;
-  margin: 2.5rem auto;
-  padding: 0 1.5rem;
+  margin: 2.5rem auto 3rem;
+  padding: 0 1.5rem 3rem;
 }
 
+/* tarjetas blancas */
 .section-card {
-  background: white;
+  background-color: #ffffff;
   border-radius: 10px;
   padding: 1.8rem 2rem;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.04);
-  margin-bottom: 2rem;
+  margin-bottom: 1.8rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
 }
 
+.section-card h2,
+.section-card h3 {
+  margin-bottom: 0.8rem;
+}
+
+.section-card p {
+  line-height: 1.6;
+}
+
+/* lista en misión */
+.section-card ul {
+  margin: 0.8rem 0 0.8rem 1.3rem;
+  line-height: 1.6;
+}
+
+/* grid para Objetivo / Visión */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
 }
 
-/* FOOTER */
+/* ----- FOOTER ----- */
 
 .footer {
   text-align: center;
@@ -190,21 +224,21 @@ body {
   font-size: 0.85rem;
 }
 
-/* RESPONSIVE */
+/* ----- RESPONSIVE ----- */
 
 @media (max-width: 900px) {
   .top-bar {
     flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
+    align-items: flex-start;
+    padding: 0.8rem 1.5rem;
   }
 
   .site-title {
-    font-size: 1.6rem;
-  }
-
-  .hero {
-    height: 380px;
+    position: static;
+    transform: none;
+    text-align: left;
+    margin-top: 0.3rem;
+    font-size: 1.5rem;
   }
 
   .hero-title {
@@ -215,3 +249,4 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
