@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Emisiones</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; background:#f5f5f5; }
+    header { background:#ffcc00; padding:1.5rem; text-align:center; }
+    header h1 { margin:0; }
+    header p.subtitle { margin:0.3rem 0 0; }
+    nav {
+      background:#333; padding:1rem; text-align:center;
+    }
+    nav a {
+      color:white; margin:0 1rem; text-decoration:none; font-weight:bold;
+    }
+    nav a:hover { text-decoration:underline; }
+    main {
+      max-width:1100px; margin:2rem auto; background:white;
+      padding:2rem; border-radius:8px;
+      line-height:1.6;
+    }
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:1.5rem;
+      margin-top:1.5rem;
+    }
+    .card {
+      border:1px solid #ddd;
+      border-radius:8px;
+      padding:1rem;
+      font-size:0.95rem;
+    }
+    .card h3 { margin-top:0; }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="title-bar">
+      <h1>Energía Solar para Todos</h1>
+      <p class="subtitle">
+        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
+      </p>
+    </div>
+
+    <nav class="main-nav">
+      <a href="index.html">Inicio</a>
+      <a href="mapa.html">Mapa Interactivo</a>
+      <a href="graficas.html">Gráficas y Tablas</a>
+      <a href="emisiones.html">Emisiones</a>
+      <a href="info.html">Contacto</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Emisiones asociadas a la generación eléctrica</h2>
+    <p>
+      En esta sección podrás visualizar las emisiones de gases de efecto invernadero
+      asociadas a la generación de electricidad, así como los escenarios de reducción
+      por aumento de energía solar fotovoltaica.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Gráficas</h3>
+        <p>
+          Aquí podrás insertar gráficos (por ejemplo, usando imágenes PNG exportadas
+          de Python, R o Excel) que muestren:
+        </p>
+        <ul>
+          <li>Evolución histórica de emisiones por año.</li>
+          <li>Escenarios futuros de emisiones (tCO₂e) por escenario climático o de demanda.</li>
+          <li>Emisiones evitadas por sustitución con energía fotovoltaica.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Tablas</h3>
+        <p>
+          También puedes insertar tablas con los valores numéricos:
+        </p>
+        <ul>
+          <li>Emisiones por región y año.</li>
+          <li>Factores de emisión utilizados.</li>
+          <li>Comparación entre escenarios (base, optimista, pesimista, etc.).</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
