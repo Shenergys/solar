@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,24 +9,27 @@
 </head>
 
 <body>
-  <!-- ENCABEZADO SUPERIOR -->
+  <!-- ENCABEZADO: BARRA AMARILLA + LOGO + TÍTULO CENTRADO + MENÚ -->
   <header class="site-header">
-    <!-- Franja amarilla con logo y título centrado -->
-    <div class="branding-bar">
-      <!-- LOGO SP-ENERGY -->
-      <div class="logo-sp">
-        <div class="logo-sp-icon">
-          <span class="logo-sp-top">SP</span>
+    <!-- Barra amarilla superior -->
+    <div class="top-bar">
+      <!-- Logo SP-energy (izquierda) -->
+      <div class="brand-logo">
+        <div class="logo-mark">
+          <span class="logo-sp">SP</span>
           <span class="logo-sun"></span>
         </div>
-        <span class="logo-sp-text">SP-ENERGY</span>
+        <span class="logo-name">SP-energy</span>
       </div>
 
       <!-- Título centrado -->
       <h1 class="site-title">Energía Solar para Todos</h1>
+
+      <!-- Espaciador para que el título quede realmente centrado -->
+      <div class="top-bar-spacer"></div>
     </div>
 
-    <!-- Menú oscuro igual que antes -->
+    <!-- Menú negro inferior -->
     <nav class="main-nav">
       <a href="index.html" class="active">Inicio</a>
       <a href="mapa.html">Mapa Interactivo</a>
@@ -35,73 +39,69 @@
     </nav>
   </header>
 
-  <!-- CONTENIDO PRINCIPAL (como en tu versión con imagen y tarjetas) -->
-  <main>
-    <!-- Hero con paneles solares -->
-    <section class="hero">
-      <div class="hero-overlay">
-        <h2 class="hero-title">
-          Explora el potencial de la energía solar y contribuye a un futuro sostenible.
-        </h2>
-      </div>
+  <!-- HERO CON IMAGEN DE PANELES SOLARES -->
+  <!-- Ajusta la ruta de la imagen en style.css (clase .hero) -->
+  <section class="hero">
+    <div class="hero-content">
+      <h2>Explora el potencial de la energía solar y contribuye a un futuro sostenible.</h2>
+      <!-- Si quieres quitar este texto secundario, simplemente borra este <p> -->
+      <p>
+        Contribuye a un futuro sostenible mediante análisis accesibles y visuales.
+      </p>
+    </div>
+  </section>
+
+  <!-- CONTENIDO PRINCIPAL: DESCRIPCIÓN, OBJETIVO, VISIÓN, MISIÓN -->
+  <main class="container">
+    <section class="section-card">
+      <h2>Descripción general de la plataforma</h2>
+      <p>
+        <strong>Energía Solar para Todos</strong> es una plataforma interactiva que integra información
+        sobre clima, demanda eléctrica, potencial fotovoltaico y emisiones para facilitar la toma de
+        decisiones y la investigación.
+      </p>
     </section>
 
-    <!-- Bloque blanco con tarjetas de descripción, objetivo, visión, misión -->
-    <section class="home-content container">
-      <h2 class="section-title">Descripción general de la plataforma</h2>
-
-      <article class="card">
-        <h3>Descripción general</h3>
+    <section class="grid-2">
+      <article class="section-card">
+        <h3>Objetivo</h3>
         <p>
-          <strong>Energía Solar para Todos</strong> es una plataforma interactiva que integra
-          información sobre clima, demanda eléctrica, potencial fotovoltaico y emisiones
-          para facilitar la toma de decisiones y la investigación.
+          Ofrecer una herramienta visual, actualizada y accesible para comprender el potencial
+          solar del país y su relación con la demanda eléctrica y las emisiones, apoyando la
+          planeación energética sostenible.
         </p>
       </article>
 
-      <div class="cards-grid">
-        <article class="card">
-          <h3>Objetivo</h3>
-          <p>
-            Ofrecer una herramienta visual, actualizada y accesible para comprender el
-            potencial solar del país y su relación con la demanda eléctrica y las emisiones,
-            apoyando la planeación de una transición energética más limpia y justa.
-          </p>
-        </article>
-
-        <article class="card">
-          <h3>Visión</h3>
-          <p>
-            Convertirse en un punto de referencia para investigadores, estudiantes,
-            tomadores de decisión y ciudadanía interesada en el análisis del sistema
-            eléctrico y de la energía solar en México.
-          </p>
-        </article>
-      </div>
-
-      <article class="card">
-        <h3>Misión</h3>
+      <article class="section-card">
+        <h3>Visión</h3>
         <p>
-          Integrar datos abiertos y visualizaciones interactivas para:
-        </p>
-        <ul>
-          <li>Identificar regiones con alto potencial fotovoltaico.</li>
-          <li>Analizar la relación entre clima, demanda eléctrica y emisiones.</li>
-          <li>Comunicar de forma clara información compleja a diferentes públicos.</li>
-        </ul>
-        <p>
-          Desde el menú superior puedes acceder al <strong>Mapa Interactivo</strong>, a las
-          <strong>Gráficas y Tablas</strong>, al módulo de <strong>Emisiones</strong> y a la
-          sección de <strong>Contacto</strong>.
+          Convertirse en un punto de referencia abierto para estudiantes, investigadores,
+          tomadores de decisión y ciudadanía interesada en la transición energética justa en México.
         </p>
       </article>
+    </section>
+
+    <section class="section-card">
+      <h3>Misión</h3>
+      <p>
+        Integrar datos abiertos, resultados de análisis y visualizaciones interactivas para:
+      </p>
+      <ul>
+        <li>Identificar regiones con alto potencial fotovoltaico.</li>
+        <li>Analizar la relación entre clima, demanda eléctrica y emisiones.</li>
+        <li>Comunicar de forma clara información compleja a diferentes públicos.</li>
+      </ul>
+      <p>
+        Desde el menú superior puedes acceder al <strong>Mapa Interactivo</strong>, a las
+        <strong>Gráficas y Tablas</strong>, al módulo de <strong>Emisiones</strong>
+        y a la sección de <strong>Contacto</strong>.
+      </p>
     </section>
   </main>
 
   <footer class="footer">
-    <small>© 2024 SP-ENERGY – Plataforma “Energía Solar para Todos”. Todos los derechos reservados.</small>
+    <small>© 2024 SP-energy – Plataforma “Energía Solar para Todos”. Todos los derechos reservados.</small>
   </footer>
 </body>
 </html>
-
 
