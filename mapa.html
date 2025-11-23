@@ -5,10 +5,12 @@
   <title>Mapa Interactivo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Estilos generales (mismo estilo amarillo) -->
   <style>
     body { margin:0; font-family: Arial, sans-serif; background:#f5f5f5; }
     header { background:#ffcc00; padding:1.5rem; text-align:center; }
     header h1 { margin:0; }
+    header p.subtitle { margin:0.3rem 0 0; }
     nav {
       background:#333; padding:1rem; text-align:center;
     }
@@ -17,32 +19,299 @@
     }
     nav a:hover { text-decoration:underline; }
     main {
-      max-width:1000px; margin:2rem auto; background:white;
+      max-width:1100px; margin:2rem auto; background:white;
       padding:2rem; border-radius:8px;
     }
+
+    .map-tabs {
+      display:flex;
+      gap:1rem;
+      margin-bottom:1.5rem;
+      flex-wrap:wrap;
+    }
+    .map-tabs button {
+      border:none;
+      padding:0.6rem 1.2rem;
+      border-radius:4px;
+      cursor:pointer;
+      font-weight:bold;
+      background:#e0e0e0;
+    }
+    .map-tabs button.active {
+      background:#333;
+      color:#fff;
+    }
+
+    .map-section { display:none; }
+    .map-section.active { display:block; }
+
+    .map-layout {
+      display:flex;
+      flex-wrap:wrap;
+      gap:1.5rem;
+    }
+    .map-sidebar {
+      flex:1 1 260px;
+      font-size:0.95rem;
+    }
+    .map-sidebar h3 { margin-top:0; }
+    .map-sidebar label {
+      display:block;
+      margin-bottom:0.4rem;
+    }
+    .map-sidebar p {
+      font-size:0.85rem;
+      color:#555;
+      margin-top:1rem;
+    }
+    .map-box {
+      flex:2 1 420px;
+      height:450px;
+    }
+    #map-general, #map-fv {
+      width:100%;
+      height:100%;
+      border-radius:8px;
+      border:1px solid #ddd;
+    }
   </style>
+
+  <!-- Leaflet (mapas) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
 </head>
 
 <body>
   <header class="site-header">
-  <div class="title-bar">
-    <h1>Energía Solar para Todos</h1>
-    <p class="subtitle">
-      Explora el potencial de la energía solar y contribuye a un futuro sostenible.
-    </p>
-  </div>
+    <div class="title-bar">
+      <h1>Energía Solar para Todos</h1>
+      <p class="subtitle">
+        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
+      </p>
+    </div>
 
-  <nav class="main-nav">
-    <a href="index.html">Inicio</a>
-    <a href="mapa.html">Mapa Interactivo</a>
-    <a href="graficas.html">Gráficas y Tablas</a>
-    <a href="info.html">Información y Guía</a>
-  </nav>
-</header>
+    <nav class="main-nav">
+      <a href="index.html">Inicio</a>
+      <a href="mapa.html">Mapa Interactivo</a>
+      <a href="graficas.html">Gráficas y Tablas</a>
+      <a href="emisiones.html">Emisiones</a>
+      <a href="info.html">Contacto</a>
+    </nav>
+  </header>
 
   <main>
     <h2>Mapa Interactivo</h2>
-    <p>Próximamente: aquí estará el mapa interactivo real.</p>
+    <p>
+      Selecciona el tipo de mapa que deseas explorar. El mapa general muestra variables
+      de clima y territorio; el mapa fotovoltaico se enfoca en radiación y potencial solar.
+    </p>
+
+    <!-- Botones para cambiar entre mapas -->
+    <div class="map-tabs">
+      <button class="tab-button active" data-target="section-general">
+        Mapa general (radiación, temperatura, ANP, FV)
+      </button>
+      <button class="tab-button" data-target="section-fv">
+        Mapa fotovoltaico (radiación, potencial, factor de planta)
+      </button>
+    </div>
+
+    <!-- SECCIÓN 1: MAPA GENERAL -->
+    <section id="section-general" class="map-section active">
+      <h3>Mapa general del sistema</h3>
+      <div class="map-layout">
+        <div class="map-sidebar">
+          <h3>Capas disponibles</h3>
+
+          <label><input type="checkbox" id="layer-radiacion" checked> Radiación solar (kWh/m²)</label>
+          <label><input type="checkbox" id="layer-temperatura" checked> Temperatura media (°C)</label>
+          <label><input type="checkbox" id="layer-anp"> Áreas Naturales Protegidas</label>
+          <label><input type="checkbox" id="layer-fv"> Centrales fotovoltaicas</label>
+
+          <p>
+            Más adelante podrás conectar estos controles con tus capas reales
+            (GeoJSON, WMS, etc.). Por ahora se usan datos de ejemplo.
+          </p>
+        </div>
+
+        <div class="map-box">
+          <div id="map-general"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: MAPA FOTOVOLTAICO -->
+    <section id="section-fv" class="map-section">
+      <h3>Mapa de energía fotovoltaica</h3>
+      <div class="map-layout">
+        <div class="map-sidebar">
+          <h3>Capas FV</h3>
+
+          <label><input type="checkbox" id="layer-fv-rad" checked> Radiación global</label>
+          <label><input type="checkbox" id="layer-fv-pot"> Potencial fotovoltaico estimado</label>
+          <label><input type="checkbox" id="layer-fv-factor"> Factor de planta (capacidad)</label>
+
+          <p>
+            Este mapa está pensado para mostrar exclusivamente variables vinculadas
+            a la energía solar fotovoltaica. Más adelante podrás sustituir los datos
+            de ejemplo por resultados de tu modelo o de fuentes oficiales.
+          </p>
+        </div>
+
+        <div class="map-box">
+          <div id="map-fv"></div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <script>
+    // --- MAPA GENERAL ---
+    const mapGeneral = L.map("map-general").setView([23.5, -102], 5);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(mapGeneral);
+
+    // Radiación solar (ejemplo)
+    const radiacionLayer = L.layerGroup([
+      L.circle([25, -100], { radius: 90000 }).bindPopup("Alta radiación"),
+      L.circle([20, -99], { radius: 90000 }).bindPopup("Radiación media"),
+    ]).addTo(mapGeneral);
+
+    // Temperatura media (ejemplo)
+    const temperaturaGeojson = {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": { "nombre": "Zona cálida" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [-106, 18], [-96, 18], [-96, 24], [-106, 24], [-106, 18]
+            ]]
+          }
+        }
+      ]
+    };
+
+    const temperaturaLayer = L.geoJSON(temperaturaGeojson, {
+      style: { fillOpacity: 0.2 }
+    }).bindPopup("Zona con temperatura elevada").addTo(mapGeneral);
+
+    // Áreas Naturales Protegidas (ejemplo)
+    const anpLayer = L.layerGroup([
+      L.marker([19.5, -99.3]).bindPopup("ANP de ejemplo")
+    ]);
+
+    // Centrales fotovoltaicas (ejemplo)
+    const fvLayer = L.layerGroup([
+      L.marker([21, -101]).bindPopup("Central FV 1 (ejemplo)"),
+      L.marker([28, -111]).bindPopup("Central FV 2 (ejemplo)")
+    ]);
+
+    // --- MAPA FV ---
+    const mapFV = L.map("map-fv").setView([23.5, -102], 5);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(mapFV);
+
+    // Radiación FV (ejemplo)
+    const fvRadLayer = L.layerGroup([
+      L.circle([24, -103], { radius: 100000 }).bindPopup("Zona con alta radiación FV"),
+      L.circle([19, -99], { radius: 80000 }).bindPopup("Zona con radiación media FV")
+    ]).addTo(mapFV);
+
+    // Potencial FV (ejemplo)
+    const fvPotencialGeojson = {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": { "nombre": "Alto potencial PV" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [-110, 22], [-100, 22], [-100, 28], [-110, 28], [-110, 22]
+            ]]
+          }
+        }
+      ]
+    };
+
+    const fvPotencialLayer = L.geoJSON(fvPotencialGeojson, {
+      style: { fillOpacity: 0.25 }
+    }).bindPopup("Región con alto potencial fotovoltaico");
+
+    // Factor de planta (ejemplo)
+    const fvFactorLayer = L.layerGroup([
+      L.marker([23, -104]).bindPopup("Factor de planta ≈ 24%"),
+      L.marker([27, -108]).bindPopup("Factor de planta ≈ 26%")
+    ]);
+
+    // Función para enlazar checkboxes con capas
+    function toggleLayer(checkboxId, layer, mapObj) {
+      const checkbox = document.getElementById(checkboxId);
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          layer.addTo(mapObj);
+        } else {
+          mapObj.removeLayer(layer);
+        }
+      });
+    }
+
+    // Enlaces mapa general
+    toggleLayer("layer-radiacion", radiacionLayer, mapGeneral);
+    toggleLayer("layer-temperatura", temperaturaLayer, mapGeneral);
+    toggleLayer("layer-anp", anpLayer, mapGeneral);
+    toggleLayer("layer-fv", fvLayer, mapGeneral);
+
+    // Enlaces mapa FV
+    toggleLayer("layer-fv-rad", fvRadLayer, mapFV);
+    toggleLayer("layer-fv-pot", fvPotencialLayer, mapFV);
+    toggleLayer("layer-fv-factor", fvFactorLayer, mapFV);
+
+    // --- Lógica de pestañas (botones de mapas) ---
+    const tabButtons = document.querySelectorAll(".tab-button");
+    const sections = document.querySelectorAll(".map-section");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        // activar botón
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // mostrar sección correspondiente
+        const targetId = btn.getAttribute("data-target");
+        sections.forEach(sec => {
+          if (sec.id === targetId) {
+            sec.classList.add("active");
+          } else {
+            sec.classList.remove("active");
+          }
+        });
+
+        // Arreglar tamaño de mapas al cambiar de pestaña
+        setTimeout(() => {
+          mapGeneral.invalidateSize();
+          mapFV.invalidateSize();
+        }, 200);
+      });
+    });
+  </script>
 </body>
 </html>
