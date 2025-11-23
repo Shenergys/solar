@@ -129,8 +129,13 @@ body {
   background-image: url("sandbox:/mnt/data/d859d729-8605-409f-bbc4-cb490a7303ee.png");
   background-size: cover;
   background-position: center;
-  transform: scale(1.05);
-  animation: heroZoom 18s ease-in-out infinite alternate;
+  animation: heroMove 22s linear infinite;
+  filter: brightness(0.75);
+}
+
+@keyframes heroMove {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
 /* capa oscura para que se lea bien el texto */
