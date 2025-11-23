@@ -17,28 +17,35 @@
     .title-bar {
       display:flex;
       align-items:center;
-      justify-content:space-between;
+      justify-content:center;
+      gap:1rem;
+      position:relative;
     }
 
-    .logo-shenergys {
-      padding:0.5rem 1rem;
-      background:#222;
-      color:#ffcc00;
+    /* LOGO SOL */
+    .logo-sol {
+      width:52px;
+      height:52px;
+      background:#ffbb00;
+      border-radius:50%;
+      box-shadow:0 0 10px rgba(255,200,0,0.6),
+                  0 0 20px rgba(255,200,0,0.4);
+      position:absolute;
+      left:1.5rem;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:1.8rem;
       font-weight:bold;
-      font-size:1.2rem;
-      border-radius:6px;
-      letter-spacing:1px;
-      flex-shrink:0;
+      color:#222;
     }
 
     .title-text h1 {
       margin:0;
-      text-align:center;
-      width:100%;
       font-size:2rem;
       color:#222;
-      position:relative;
-      left:-2%;
+      text-align:center;
+      width:100%;
     }
 
     /* MENÚ */
@@ -59,7 +66,7 @@
     }
     .main-nav a:hover { text-decoration:underline; }
 
-    /* HERO FOTOVOLTAICO CON ANIMACIÓN */
+    /* HERO */
     .hero {
       position:relative;
       height:260px;
@@ -88,15 +95,14 @@
 
     .hero-overlay h2 {
       margin:0 0 0.7rem 0;
-      font-size:1.9rem;
+      font-size:2.1rem;
       font-weight:bold;
     }
 
     .hero-overlay p {
       margin:0;
-      font-size:1.1rem;
-      max-width:560px;
-      line-height:1.5;
+      font-size:1.15rem;
+      max-width:580px;
     }
 
     /* CONTENIDO */
@@ -117,7 +123,6 @@
     h3 { margin-top:1.8rem; }
 
     p { line-height:1.6; }
-
     ul { margin-top:0.3rem; padding-left:1.3rem; }
 
     /* FOOTER */
@@ -128,11 +133,6 @@
       color:#555;
       background:#f0f0f0;
     }
-
-    @media (max-width:600px){
-      .title-text h1 { left:0; font-size:1.6rem; }
-      .hero-overlay { padding:0 1.5rem; }
-    }
   </style>
 </head>
 
@@ -141,13 +141,17 @@
   <!-- HEADER -->
   <header class="site-header">
     <div class="title-bar">
-      <div class="logo-shenergys">Shenergys</div>
 
+      <!-- LOGO CÍRCULO (SOL) -->
+      <div class="logo-sol"></div>
+
+      <!-- TÍTULO CENTRADO -->
       <div class="title-text">
         <h1>Energía Solar para Todos</h1>
       </div>
     </div>
 
+    <!-- MENÚ -->
     <nav class="main-nav">
       <a href="index.html">Inicio</a>
       <a href="mapa.html">Mapa Interactivo</a>
@@ -157,7 +161,7 @@
     </nav>
   </header>
 
-  <!-- HERO NUEVO -->
+  <!-- HERO CON NUEVO TEXTO (SOLO EL QUE PEDISTE) -->
   <section class="hero">
     <div class="hero-overlay">
       <h2>Explora el potencial de la energía solar</h2>
@@ -173,32 +177,31 @@
       <p>
         <b>Energía Solar para Todos</b> es una plataforma interactiva que integra información
         sobre clima, demanda eléctrica, potencial fotovoltaico y emisiones para facilitar
-        la toma de decisiones, la investigación y la educación en energía sostenible.
+        la toma de decisiones y la investigación.
       </p>
 
       <h3>Objetivo</h3>
       <p>
-        Ofrecer una herramienta visual, actualizada y de libre acceso que permita
-        comprender el potencial solar del país y su relación con la demanda eléctrica
-        y las emisiones.
+        Ofrecer una herramienta visual, actualizada y accesible para comprender el potencial
+        solar del país y su relación con la demanda eléctrica y las emisiones.
       </p>
 
       <h3>Visión</h3>
       <p>
-        Ser una plataforma nacional de referencia en análisis energético, unificando datos
-        climáticos, energéticos y ambientales en un solo espacio intuitivo.
+        Ser una plataforma nacional de referencia en análisis energético, integrando datos
+        climáticos, energéticos y ambientales en un entorno intuitivo.
       </p>
 
       <h3>Misión</h3>
       <p>
-        Integrar datos abiertos, mapas, indicadores energéticos y visualizaciones
+        Integrar información climática, energética y ambiental mediante herramientas
         interactivas para:
       </p>
 
       <ul>
         <li>Identificar regiones con alto potencial fotovoltaico.</li>
-        <li>Entender la relación entre clima, demanda eléctrica y emisiones.</li>
-        <li>Facilitar el acceso a información técnica de forma clara y accesible.</li>
+        <li>Relacionar clima, demanda eléctrica y emisiones.</li>
+        <li>Simplificar información técnica para distintos públicos.</li>
       </ul>
 
     </section>
@@ -210,9 +213,6 @@
 
 </body>
 </html>
-
-
-
 
 
 
