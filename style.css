@@ -167,4 +167,112 @@ footer {
     padding: 1.5rem;
     margin-top: auto;
 }
+/* --- Estilos Generales para Páginas Internas --- */
+.main-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
 
+.section-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-size: 2rem;
+}
+
+/* Tarjetas para gráficas (Reutilizando estilo card pero adaptado) */
+.graph-card {
+    background: white;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-top: 4px solid #FFD700;
+}
+
+.graph-card h2 {
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+/* --- Controles (Selectores y Botones) --- */
+.controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: #f9f9f9;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.controls-row label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+select {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Botones */
+.view-toggle {
+    margin-bottom: 1rem;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn.primary {
+    background-color: #FFD700; /* Amarillo */
+    border-color: #e6c200;
+    color: #000;
+    font-weight: bold;
+}
+
+/* --- Grillas para gráficas (para poner 2 en fila) --- */
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+/* --- Tablas de Datos --- */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.data-table th, .data-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.data-table th {
+    background-color: #FFD700;
+    color: #000;
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.data-table tr:hover {
+    background-color: #fff8c4; /* Amarillo muy pálido al pasar mouse */
+}
