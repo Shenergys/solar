@@ -1,4 +1,11 @@
-/* ----- ESTILOS GENERALES ----- */
+/* --------- ESTILOS GENERALES --------- */
+
+:root {
+  --yellow: #ffcc00;
+  --dark: #222222;
+  --bg: #f5f5f5;
+  --card-bg: #ffffff;
+}
 
 * {
   box-sizing: border-box;
@@ -7,236 +14,250 @@
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, sans-serif;
-  background: #f5f5f5;
-  color: #111;
+    Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: #111111;
 }
 
-a {
-  text-decoration: none;
-}
-
-/* Contenedor general para secciones blancas */
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
-}
-
-/* ----- ENCABEZADO SUPERIOR ----- */
+/* --------- ENCABEZADO --------- */
 
 .site-header {
-  background: #ffcc00;
-  color: #111;
+  background: var(--yellow);
+  color: #111111;
 }
 
-/* Franja amarilla con logo a la izquierda y título centrado */
-.branding-bar {
+/* Barra amarilla superior con logo a la izquierda y título centrado */
+.top-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: center; /* para que el título quede centrado */
+  justify-content: center; /* centramos el título */
   position: relative;
-  padding: 0.75rem 2rem;
 }
 
-/* Logo SP-ENERGY alineado a la izquierda usando position absolute */
-.logo-sp {
+/* Logo SP-energy (solo lado izquierdo, sin mover el resto) */
+.brand-logo {
   position: absolute;
-  left: 2rem;
+  left: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-weight: 700;
+  gap: 0.4rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.9rem;
 }
 
-/* Parte vertical: SP arriba y sol abajo */
-.logo-sp-icon {
+/* Bloque “SP” arriba y sol debajo */
+.logo-mark {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-/* Letras SP */
-.logo-sp-top {
-  font-size: 1rem;
   line-height: 1;
 }
 
-/* Sol debajo de SP */
+.logo-sp {
+  font-size: 0.8rem;
+}
+
+/* “Sol” debajo del SP */
 .logo-sun {
   margin-top: 0.15rem;
   width: 22px;
   height: 22px;
   border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+      #fffbe0 0,
+      #ffe56b 40%,
+      #f6bd00 75%,
+      #e38a00 100%);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.9);
   position: relative;
-  background: radial-gradient(circle at 30% 30%, #ffffff 0, #ffffff 25%, #ffe066 55%, #f5a623 90%);
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
 }
 
-/* Rayos del sol (conic-gradient alrededor del círculo) */
+/* Halo / rayos suaves alrededor del sol */
 .logo-sun::before {
   content: "";
   position: absolute;
-  inset: -6px;
+  inset: -7px;
   border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    rgba(255, 215, 0, 0.65) 0deg 10deg,
-    transparent 10deg 20deg
-  );
-  opacity: 0.85;
+  border: 2px solid rgba(255, 235, 150, 0.9);
+  box-shadow:
+    0 0 0 3px rgba(255, 235, 150, 0.6),
+    0 0 18px rgba(255, 215, 0, 0.7);
 }
 
-/* Texto SP-ENERGY a la derecha del sol */
-.logo-sp-text {
-  font-size: 0.85rem;
+.logo-name {
+  font-size: 0.9rem;
 }
 
-/* Título centrado de la página */
+/* Título centrado */
 .site-title {
-  font-size: clamp(1.5rem, 2.2vw + 1rem, 2.3rem);
   margin: 0;
+  font-size: 1.9rem;
+  font-weight: 700;
   text-align: center;
 }
 
-/* ----- MENÚ PRINCIPAL ----- */
+/* Espaciador derecho para que el título quede realmente centrado
+   (mismo ancho visual que el logo) */
+.top-bar-spacer {
+  width: 120px; /* si el logo cambia mucho de ancho, ajusta este valor */
+}
+
+/* --------- MENÚ DE NAVEGACIÓN --------- */
 
 .main-nav {
-  background: #222;
+  background: var(--dark);
   display: flex;
   justify-content: center;
   gap: 2.5rem;
-  padding: 0.9rem 1rem;
+  padding: 0.75rem 1.5rem;
 }
 
 .main-nav a {
   color: #ffffff;
+  text-decoration: none;
   font-weight: 600;
-  font-size: 0.98rem;
-  position: relative;
+  padding-bottom: 0.1rem;
 }
 
-/* subrayado amarillo al pasar el mouse / activo */
-.main-nav a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.4rem;
-  height: 3px;
-  background: #ffcc00;
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.2s ease-out;
+.main-nav a:hover,
+.main-nav a.active {
+  border-bottom: 3px solid var(--yellow);
 }
 
-.main-nav a:hover::after,
-.main-nav a.active::after {
-  transform: scaleX(1);
-}
-
-/* ----- HERO (IMAGEN SUPERIOR CON TEXTO) ----- */
+/* --------- HERO CON IMAGEN DE PANELES --------- */
 
 .hero {
   position: relative;
   height: 320px;
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
-    url("https://images.pexels.com/photos/159397/solar-panel-array-power-sun-159397.jpeg");
+  /* ⬇⬇⬇ CAMBIA ESTA RUTA POR LA DE TU IMAGEN ORIGINAL ⬇⬇⬇ */
+  background-image: url("img/hero_solar.jpg");
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #ffffff;
 }
 
-.hero-overlay {
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0.4)
+  );
+}
+
+.hero-content {
+  position: relative;
   text-align: center;
-  color: #ffffff;
+  max-width: 900px;
   padding: 0 1.5rem;
 }
 
-.hero-title {
-  max-width: 900px;
-  margin: 0 auto;
-  font-size: clamp(1.6rem, 2.4vw + 1rem, 2.4rem);
-  font-weight: 700;
+.hero-content h2 {
+  margin: 0 0 1rem;
+  font-size: 2.2rem;
 }
 
-/* ----- SECCIÓN DE CONTENIDO (DESCRIPCIÓN, OBJETIVO, VISIÓN, MISIÓN) ----- */
+.hero-content p {
+  margin: 0;
+  font-size: 1.05rem;
+}
 
-.home-content {
-  background: #ffffff;
-  margin-top: -40px;
+/* --------- CONTENIDO PRINCIPAL --------- */
+
+.container {
+  max-width: 1200px;
+  margin: 2rem auto 3rem;
+  padding: 0 1.5rem;
+}
+
+/* Tarjetas blancas con sombra (como en tu captura) */
+.section-card {
+  background: var(--card-bg);
   border-radius: 16px;
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.12);
+  padding: 2rem 2.5rem;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
 }
 
-.section-title {
-  font-size: 1.6rem;
+.section-card h2,
+.section-card h3 {
   margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-/* Tarjetas */
-.card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 1.4rem 1.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #ebebeb;
-}
-
-.card h3 {
+.section-card p {
   margin-top: 0;
-  margin-bottom: 0.6rem;
+  line-height: 1.6;
 }
 
-/* Grid de dos columnas para Objetivo y Visión */
-.cards-grid {
+/* Dos columnas (objetivo / visión) en escritorio */
+.grid-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
 }
 
-/* Listas dentro de las tarjetas */
-.card ul {
-  padding-left: 1.4rem;
-  margin-top: 0.4rem;
+/* Listas dentro de tarjetas */
+.section-card ul {
+  padding-left: 1.2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-/* ----- FOOTER ----- */
+/* --------- PIE DE PÁGINA --------- */
 
 .footer {
   text-align: center;
-  padding: 1.5rem 1rem 2rem;
+  padding: 1.5rem;
+  background: #eeeeee;
   font-size: 0.85rem;
-  color: #444;
+  color: #444444;
 }
 
-/* ----- RESPONSIVE ----- */
+/* --------- RESPONSIVO --------- */
 
 @media (max-width: 768px) {
-  .branding-bar {
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 1rem;
+  .top-bar {
+    padding: 0.75rem 1rem;
   }
 
-  .logo-sp {
-    position: static;
-    margin-bottom: 0.4rem;
+  .site-title {
+    font-size: 1.5rem;
   }
 
-  .cards-grid {
+  .top-bar-spacer {
+    width: 90px;
+  }
+
+  .main-nav {
+    flex-wrap: wrap;
+    gap: 1.2rem;
+  }
+
+  .hero {
+    height: 260px;
+  }
+
+  .hero-content h2 {
+    font-size: 1.6rem;
+  }
+
+  .grid-2 {
     grid-template-columns: 1fr;
   }
 
-  .home-content {
-    margin-top: -20px;
+  .section-card {
+    padding: 1.5rem 1.6rem;
   }
 }
+
