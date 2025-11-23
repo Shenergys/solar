@@ -1,263 +1,206 @@
-/* --------- ESTILOS GENERALES --------- */
+/* =========================
+   ESTILOS GENERALES
+   ========================= */
 
 :root {
-  --yellow: #ffcc00;
+  --yellow: #ffc800;
   --dark: #222222;
-  --bg: #f5f5f5;
+  --dark-soft: #333333;
+  --light-bg: #f5f5f5;
   --card-bg: #ffffff;
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg);
+    sans-serif;
+  background: var(--light-bg);
   color: #111111;
 }
 
-/* --------- ENCABEZADO --------- */
+/* =========================
+   CABECERA
+   ========================= */
 
 .site-header {
-  background: var(--yellow);
-  color: #111111;
+  width: 100%;
 }
 
-/* Barra amarilla superior con logo a la izquierda y título centrado */
+/* Barra amarilla superior */
 .top-bar {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0.5rem 1.5rem;
+  background: var(--yellow);
   display: flex;
   align-items: center;
-  justify-content: center; /* centramos el título */
-  position: relative;
+  justify-content: space-between;
+  padding: 0.6rem 2.5rem;
 }
 
-/* Logo SP-energy (solo lado izquierdo, sin mover el resto) */
-.brand-logo {
-  position: absolute;
-  left: 1.5rem;
-  display: flex;
+/* LOGO SP-ENERGY + SOL AL FINAL */
+.logo {
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  font-size: 0.85rem;
+  gap: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+  font-size: 0.95rem;
+  color: #222222;
 }
 
-/* Bloque “SP” arriba y sol debajo */
-.logo-mark {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1;
+.logo-text {
+  white-space: nowrap;
 }
 
-.logo-sp {
-  font-size: 0.8rem;
-}
-
-/* “Sol” debajo del SP */
+/* Sol al final del texto */
 .logo-sun {
-  margin-top: 0.15rem;
-  width: 22px;
-  height: 22px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%,
-      #fffbe0 0,
-      #ffe56b 40%,
-      #f6bd00 75%,
-      #e38a00 100%);
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.9);
-  position: relative;
-}
-
-/* Halo / rayos suaves alrededor del sol */
-.logo-sun::before {
-  content: "";
-  position: absolute;
-  inset: -7px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 235, 150, 0.9);
-  box-shadow:
-    0 0 0 3px rgba(255, 235, 150, 0.6),
-    0 0 18px rgba(255, 215, 0, 0.7);
-}
-
-.logo-name {
-  font-size: 0.9rem;
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #ffe66b 40%, #ffb300 70%, #ff9800 100%);
+  box-shadow: 0 0 15px rgba(255, 230, 100, 0.9);
 }
 
 /* Título centrado */
 .site-title {
-  margin: 0;
+  flex: 1;
+  text-align: center;
   font-size: 1.9rem;
   font-weight: 700;
-  text-align: center;
+  color: #222222;
+  margin-right: 34px; /* para compensar el ancho aproximado del logo */
 }
 
-/* Espaciador derecho para que el título quede realmente centrado
-   (mismo ancho visual que el logo) */
-.top-bar-spacer {
-  width: 120px; /* si el logo cambia mucho de ancho, ajusta este valor */
-}
-
-/* --------- MENÚ DE NAVEGACIÓN --------- */
+/* =========================
+   MENÚ
+   ========================= */
 
 .main-nav {
-  background: var(--dark);
+  background: var(--dark-soft);
   display: flex;
-  justify-content: center;
-  gap: 2.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 2rem;
+  padding: 0.9rem 2.5rem;
 }
 
 .main-nav a {
-  color: #ffffff;
+  color: #f2f2f2;
   text-decoration: none;
   font-weight: 600;
-  padding-bottom: 0.1rem;
+  font-size: 0.98rem;
+  position: relative;
 }
 
-.main-nav a:hover,
-.main-nav a.active {
-  border-bottom: 3px solid var(--yellow);
+.main-nav a:hover {
+  color: #ffffff;
 }
 
-/* --------- HERO CON IMAGEN DE PANELES --------- */
+.main-nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.35rem;
+  width: 100%;
+  height: 3px;
+  background: var(--yellow);
+  border-radius: 999px;
+}
+
+/* =========================
+   HERO CON FONDO ANIMADO
+   ========================= */
 
 .hero {
   position: relative;
-  height: 320px;
-  /* ⬇⬇⬇ CAMBIA ESTA RUTA POR LA DE TU IMAGEN ORIGINAL ⬇⬇⬇ */
-  background-image: url("img/hero_solar.jpg");
+  height: 55vh;
+  min-height: 320px;
+  max-height: 520px;
+
+  /* Cambia esta ruta por la de tu imagen de paneles solares
+     (la que se movía antes) */
+  background-image:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.75)),
+    url("img/tu_imagen_solar.jpg");
+
   background-size: cover;
-  background-position: center;
+  background-repeat: no-repeat;
+  background-position: center center;
+  animation: hero-pan 22s linear infinite alternate;
+}
+
+/* Movimiento suave del fondo */
+@keyframes hero-pan {
+  0% {
+    background-position: center top;
+  }
+  50% {
+    background-position: center center;
+  }
+  100% {
+    background-position: center bottom;
+  }
+}
+
+.hero-overlay {
+  width: 100%;
+  height: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  color: #ffffff;
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.5),
-    rgba(0, 0, 0, 0.4)
-  );
-}
-
-.hero-content {
-  position: relative;
+  align-items: center;
   text-align: center;
+  padding: 0 2rem;
+}
+
+.hero-title {
   max-width: 900px;
-  padding: 0 1.5rem;
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
-.hero-content h2 {
-  margin: 0 0 1rem;
-  font-size: 2.2rem;
-}
-
-.hero-content p {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-/* --------- CONTENIDO PRINCIPAL --------- */
+/* =========================
+   CONTENIDO PRINCIPAL
+   ========================= */
 
 .container {
   max-width: 1200px;
-  margin: 2rem auto 3rem;
-  padding: 0 1.5rem;
+  margin: 2.5rem auto 3rem;
+  padding: 0 1.5rem 2rem;
 }
 
-/* Tarjetas blancas con sombra (como en tu captura) */
+/* Si quieres usar tarjetas para Descripción, Objetivo, etc.
+   puedes reutilizar estas clases: */
+
 .section-card {
   background: var(--card-bg);
-  border-radius: 16px;
-  padding: 2rem 2.5rem;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
-  margin-bottom: 2rem;
+  border-radius: 14px;
+  padding: 1.8rem 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.8rem;
 }
 
-.section-card h2,
-.section-card h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
+.section-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
 }
 
-.section-card p {
-  margin-top: 0;
+.section-card p,
+.section-card li {
   line-height: 1.6;
+  font-size: 0.98rem;
 }
 
-/* Dos columnas (objetivo / visión) en escritorio */
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
-}
-
-/* Listas dentro de tarjetas */
-.section-card ul {
-  padding-left: 1.2rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-/* --------- PIE DE PÁGINA --------- */
+/* =========================
+   PIE DE PÁGINA
+   ========================= */
 
 .footer {
   text-align: center;
-  padding: 1.5rem;
-  background: #eeeeee;
+  padding: 1.2rem 1rem 1.8rem;
   font-size: 0.85rem;
-  color: #444444;
+  color: #555555;
 }
-
-/* --------- RESPONSIVO --------- */
-
-@media (max-width: 768px) {
-  .top-bar {
-    padding: 0.75rem 1rem;
-  }
-
-  .site-title {
-    font-size: 1.5rem;
-  }
-
-  .top-bar-spacer {
-    width: 90px;
-  }
-
-  .main-nav {
-    flex-wrap: wrap;
-    gap: 1.2rem;
-  }
-
-  .hero {
-    height: 260px;
-  }
-
-  .hero-content h2 {
-    font-size: 1.6rem;
-  }
-
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .section-card {
-    padding: 1.5rem 1.6rem;
-  }
-}
-
