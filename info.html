@@ -2,13 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Información del Proyecto</title>
+  <title>Contacto</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body { margin:0; font-family: Arial, sans-serif; background:#f5f5f5; }
     header { background:#ffcc00; padding:1.5rem; text-align:center; }
     header h1 { margin:0; }
+    header p.subtitle { margin:0.3rem 0 0; }
     nav {
       background:#333; padding:1rem; text-align:center;
     }
@@ -21,50 +22,98 @@
       padding:2rem; border-radius:8px;
       line-height:1.6;
     }
+
+    .contact-info p { margin:0.2rem 0; }
+
+    form.contact-form {
+      margin-top:1.5rem;
+      display:flex;
+      flex-direction:column;
+      gap:0.8rem;
+    }
+    form.contact-form label {
+      font-weight:bold;
+    }
+    form.contact-form input,
+    form.contact-form textarea {
+      width:100%;
+      padding:0.5rem;
+      border-radius:4px;
+      border:1px solid #ccc;
+      font-family:inherit;
+      font-size:0.95rem;
+    }
+    form.contact-form button {
+      align-self:flex-start;
+      padding:0.6rem 1.4rem;
+      border:none;
+      border-radius:4px;
+      background:#333;
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    form.contact-form button:hover {
+      background:#555;
+    }
   </style>
 </head>
 
 <body>
   <header class="site-header">
-  <div class="title-bar">
-    <h1>Energía Solar para Todos</h1>
-    <p class="subtitle">
-      Explora el potencial de la energía solar y contribuye a un futuro sostenible.
-    </p>
-  </div>
+    <div class="title-bar">
+      <h1>Energía Solar para Todos</h1>
+      <p class="subtitle">
+        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
+      </p>
+    </div>
 
-  <nav class="main-nav">
-    <a href="index.html">Inicio</a>
-    <a href="mapa.html">Mapa Interactivo</a>
-    <a href="graficas.html">Gráficas y Tablas</a>
-    <a href="info.html">Información y Guía</a>
-  </nav>
-</header>
+    <nav class="main-nav">
+      <a href="index.html">Inicio</a>
+      <a href="mapa.html">Mapa Interactivo</a>
+      <a href="graficas.html">Gráficas y Tablas</a>
+      <a href="emisiones.html">Emisiones</a>
+      <a href="info.html">Contacto</a>
+    </nav>
+  </header>
 
   <main>
-    <h2>Descripción General</h2>
-    <p>
-      Esta plataforma muestra información relacionada con energía solar, demanda energética,
-      temperatura y otros indicadores relevantes para la planeación energética sostenible.
-    </p>
-
-    <h2>Metodología</h2>
-    <p>
-      Aquí podrás agregar cómo generas tus datos, modelos utilizados (XGBoost, SARIMA, etc.),
-      fuentes oficiales y procedimientos de análisis.
-    </p>
-
-    <h2>Guía de Uso</h2>
-    <ul>
-      <li><b>Mapa Interactivo:</b> Visualiza capas de radiación, temperatura, ANP, suelo, etc.</li>
-      <li><b>Gráficos:</b> Consulta series de tiempo y comparaciones regionales.</li>
-      <li><b>Datos:</b> Próximamente podrás descargar archivos CSV/Excel.</li>
-    </ul>
-
     <h2>Contacto</h2>
     <p>
-      Aquí podrás agregar tu correo, ORCID, redes o lo que prefieras.
+      Si deseas más información sobre el proyecto, colaborar o hacer sugerencias,
+      puedes utilizar los datos de contacto o dejar un comentario en el formulario.
     </p>
+
+    <div class="contact-info">
+      <p><b>Correo electrónico:</b> tu_correo@ejemplo.com</p>
+      <p><b>ORCID:</b> 0000-0000-0000-0000</p>
+      <p><b>Institución:</b> Nombre de tu institución / laboratorio</p>
+    </div>
+
+    <h3>Comentarios</h3>
+    <p>
+      Envía tus dudas, sugerencias o comentarios sobre la plataforma. Esta sección
+      puede conectarse más adelante a un backend o a un servicio de correo.
+    </p>
+
+    <form class="contact-form">
+      <div>
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" placeholder="Escribe tu nombre">
+      </div>
+
+      <div>
+        <label for="email">Correo electrónico</label>
+        <input id="email" type="email" placeholder="tu@correo.com">
+      </div>
+
+      <div>
+        <label for="mensaje">Comentario</label>
+        <textarea id="mensaje" rows="5" placeholder="Escribe aquí tu mensaje"></textarea>
+      </div>
+
+      <button type="submit">Enviar comentario</button>
+    </form>
   </main>
 </body>
 </html>
