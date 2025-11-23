@@ -2,217 +2,101 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Energía Solar para Todos – Inicio</title>
+  <title>SP-energy – Energía Solar para Todos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-    body { margin:0; font-family: Arial, sans-serif; background:#f5f5f5; }
-
-    /* HEADER */
-    .site-header {
-      background:#ffcc00;
-      padding:1.2rem 1.5rem 0.6rem;
-    }
-
-    .title-bar {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:1rem;
-      position:relative;
-    }
-
-    /* LOGO SOL */
-    .logo-sol {
-      width:52px;
-      height:52px;
-      background:#ffbb00;
-      border-radius:50%;
-      box-shadow:0 0 10px rgba(255,200,0,0.6),
-                  0 0 20px rgba(255,200,0,0.4);
-      position:absolute;
-      left:1.5rem;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      font-size:1.8rem;
-      font-weight:bold;
-      color:#222;
-    }
-
-    .title-text h1 {
-      margin:0;
-      font-size:2rem;
-      color:#222;
-      text-align:center;
-      width:100%;
-    }
-
-    /* MENÚ */
-    .main-nav {
-      background:#333;
-      padding:0.9rem 1rem;
-      margin-top:0.9rem;
-      display:flex;
-      justify-content:center;
-      gap:2rem;
-      flex-wrap:wrap;
-    }
-
-    .main-nav a {
-      color:white;
-      text-decoration:none;
-      font-weight:bold;
-    }
-    .main-nav a:hover { text-decoration:underline; }
-
-    /* HERO */
-    .hero {
-      position:relative;
-      height:260px;
-      background-image:
-        linear-gradient(to bottom right, rgba(0,0,0,0.55), rgba(0,0,0,0.3)),
-        url("https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1600&q=80");
-      background-size:cover;
-      background-position:center top;
-      animation:heroMove 26s ease-in-out infinite alternate;
-    }
-
-    @keyframes heroMove {
-      from { background-position:center top; }
-      to   { background-position:center bottom; }
-    }
-
-    .hero-overlay {
-      position:absolute;
-      inset:0;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      padding:0 8%;
-      color:white;
-    }
-
-    .hero-overlay h2 {
-      margin:0 0 0.7rem 0;
-      font-size:2.1rem;
-      font-weight:bold;
-    }
-
-    .hero-overlay p {
-      margin:0;
-      font-size:1.15rem;
-      max-width:580px;
-    }
-
-    /* CONTENIDO */
-    .container {
-      max-width:1100px;
-      margin:2rem auto;
-      padding:0 1rem 2.5rem;
-    }
-
-    .panel {
-      background:white;
-      padding:2rem 2.5rem;
-      border-radius:10px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.04);
-    }
-
-    h2 { margin-top:0.3rem; }
-    h3 { margin-top:1.8rem; }
-
-    p { line-height:1.6; }
-    ul { margin-top:0.3rem; padding-left:1.3rem; }
-
-    /* FOOTER */
-    .footer {
-      text-align:center;
-      padding:1rem;
-      font-size:0.85rem;
-      color:#555;
-      background:#f0f0f0;
-    }
-  </style>
+  <!-- Estilos generales -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-
-  <!-- HEADER -->
+  <!-- Barra superior -->
   <header class="site-header">
-    <div class="title-bar">
-
-      <!-- LOGO CÍRCULO (SOL) -->
-      <div class="logo-sol"></div>
-
-      <!-- TÍTULO CENTRADO -->
-      <div class="title-text">
-        <h1>Energía Solar para Todos</h1>
+    <div class="header-top">
+      <!-- LOGO SP-energy -->
+      <div class="logo">
+        <div class="logo-symbol">
+          <span class="logo-sp">SP</span>
+          <span class="logo-sun"></span>
+        </div>
+        <span class="logo-text">SP-energy</span>
       </div>
+
+      <!-- Título centrado -->
+      <h1 class="site-title">Energía Solar para Todos</h1>
+      <!-- Espacio vacío para ayudar a centrar el título -->
+      <div class="header-spacer"></div>
     </div>
 
-    <!-- MENÚ -->
+    <!-- Menú -->
     <nav class="main-nav">
-      <a href="index.html">Inicio</a>
+      <a href="index.html" class="active">Inicio</a>
       <a href="mapa.html">Mapa Interactivo</a>
       <a href="graficas.html">Gráficas y Tablas</a>
       <a href="emisiones.html">Emisiones</a>
-      <a href="info.html">Contacto</a>
+      <a href="contacto.html">Contacto</a>
     </nav>
   </header>
 
-  <!-- HERO CON NUEVO TEXTO (SOLO EL QUE PEDISTE) -->
+  <!-- Hero con imagen de fondo y texto -->
   <section class="hero">
     <div class="hero-overlay">
-      <h2>Explora el potencial de la energía solar</h2>
-      <p>Contribuye a un futuro sostenible mediante análisis accesibles y visuales.</p>
+      <h2 class="hero-title">
+        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
+      </h2>
     </div>
   </section>
 
-  <!-- CONTENIDO PRINCIPAL -->
+  <!-- Contenido principal de inicio -->
   <main class="container">
-    <section class="panel">
+    <section class="info-grid">
+      <article class="info-card">
+        <h3>Descripción general</h3>
+        <p>
+          SP-energy es una plataforma interactiva que acerca la información sobre energía solar
+          a cualquier persona interesada en entender cómo el sol puede aportar a un sistema
+          eléctrico más limpio, resiliente y accesible.
+        </p>
+      </article>
 
-      <h2>Descripción general de la plataforma</h2>
-      <p>
-        <b>Energía Solar para Todos</b> es una plataforma interactiva que integra información
-        sobre clima, demanda eléctrica, potencial fotovoltaico y emisiones para facilitar
-        la toma de decisiones y la investigación.
-      </p>
+      <article class="info-card">
+        <h3>Objetivo</h3>
+        <p>
+          Facilitar la visualización de mapas, datos y gráficos relacionados con energía solar,
+          demanda eléctrica y variables climáticas, para apoyar la toma de decisiones en
+          planeación energética y promover la transición hacia fuentes renovables.
+        </p>
+      </article>
 
-      <h3>Objetivo</h3>
-      <p>
-        Ofrecer una herramienta visual, actualizada y accesible para comprender el potencial
-        solar del país y su relación con la demanda eléctrica y las emisiones.
-      </p>
+      <article class="info-card">
+        <h3>Visión</h3>
+        <p>
+          Convertirse en una referencia accesible y confiable sobre el potencial solar,
+          contribuyendo a un futuro en el que la energía limpia sea la base del bienestar
+          social y el desarrollo sostenible.
+        </p>
+      </article>
 
-      <h3>Visión</h3>
-      <p>
-        Ser una plataforma nacional de referencia en análisis energético, integrando datos
-        climáticos, energéticos y ambientales en un entorno intuitivo.
-      </p>
-
-      <h3>Misión</h3>
-      <p>
-        Integrar información climática, energética y ambiental mediante herramientas
-        interactivas para:
-      </p>
-
-      <ul>
-        <li>Identificar regiones con alto potencial fotovoltaico.</li>
-        <li>Relacionar clima, demanda eléctrica y emisiones.</li>
-        <li>Simplificar información técnica para distintos públicos.</li>
-      </ul>
-
+      <article class="info-card">
+        <h3>Misión</h3>
+        <p>
+          Integrar información científica, técnica y visual en una sola plataforma clara
+          y amigable, que permita a estudiantes, investigadores, tomadores de decisiones
+          y ciudadanía explorar el papel de la energía solar en la reducción de emisiones
+          y en la mejora de la calidad de vida.
+        </p>
+      </article>
     </section>
   </main>
 
+  <!-- Pie de página -->
   <footer class="footer">
-    <small>© 2024 Shenergys – Plataforma de energía solar. Todos los derechos reservados.</small>
+    <small>© 2024 SP-energy – Plataforma de energía solar. Todos los derechos reservados.</small>
   </footer>
-
 </body>
 </html>
+
+
 
 
 
