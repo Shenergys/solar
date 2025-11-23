@@ -1,173 +1,241 @@
-/* ============================
-   ESTILOS GENERALES
-============================ */
+/* ----- ESTILO GENERAL ----- */
+
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  font-family: system-ui, Arial, sans-serif;
-  background: #f5f5f5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  background-color: #f5f5f5;
   color: #222;
 }
 
-/* ============================
-   CABECERA
-============================ */
+/* ----- CABECERA ----- */
 
 .site-header {
-  width: 100%;
-  background: #ffcc00;
+  background-color: #ffcc00; /* amarillo */
+  color: #111;
 }
 
-/* Barra amarilla con logo a la izq y título centrado */
+/* barra superior con logo + título */
 .top-bar {
   display: flex;
   align-items: center;
-  padding: 0.8rem 2rem;
-  position: relative;
+  justify-content: space-between;
+  padding: 0.8rem 2.5rem;
 }
 
-/* ----- LOGO ----- */
+/* LOGO SP-ENERGY + sol */
 .logo {
-  position: absolute;
-  left: 2rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .logo-text {
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 0.95rem;
   text-transform: uppercase;
 }
 
-/* ----- SOL AL FINAL DEL LOGO ----- */
+/* sol estilizado, no solo círculo */
 .logo-sun {
-  width: 22px;
-  height: 22px;
+  position: relative;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fffbe0, #ffe066, #f5a623);
-  box-shadow: 0 0 8px rgba(255, 200, 0, 0.75);
+  background: radial-gradient(circle at 30% 30%, #ffffff 0, #ffeaa7 35%, #fdb813 70%, #f39c12 100%);
+  box-shadow: 0 0 10px rgba(253, 184, 19, 0.85);
 }
 
-/* ----- TÍTULO CENTRADO ----- */
+/* “rayos” alrededor del sol */
+.logo-sun::before,
+.logo-sun::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px solid rgba(253, 184, 19, 0.65);
+  box-shadow: 0 0 8px rgba(253, 184, 19, 0.7);
+}
+
+.logo-sun::after {
+  transform: rotate(45deg);
+}
+
+/* título centrado en la barra amarilla */
 .site-title {
   flex: 1;
   text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
 }
 
-.site-title h1 {
-  margin: 0;
-  font-size: 1.9rem;
-  font-weight: 800;
-}
-
-.header-spacer {
-  width: 80px; /* equilibra el título con el logo */
-}
-
-/* ============================
-   MENÚ
-============================ */
+/* ----- MENÚ ----- */
 
 .main-nav {
-  background: #333;
-  padding: 0.7rem 2rem;
+  background-color: #222; /* barra negra */
   display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: 2.5rem;
+  padding: 0.7rem 1rem;
 }
 
 .main-nav a {
-  color: #fff;
+  color: #f5f5f5;
   text-decoration: none;
   font-weight: 600;
+  padding-bottom: 0.3rem;
+  position: relative;
+}
+
+.main-nav a:hover {
+  color: #ffcc00;
 }
 
 .main-nav a.active {
-  border-bottom: 3px solid #ffcc00;
+  color: #ffcc00;
 }
 
-/* ============================
-   HERO CON FONDO ANIMADO
-============================ */
+.main-nav a.active::after,
+.main-nav a:hover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.25rem;
+  margin: 0 auto;
+  width: 70%;
+  height: 2px;
+  background-color: #ffcc00;
+}
+
+/* ----- HERO CON IMAGEN DE FONDO ----- */
 
 .hero {
   position: relative;
-  height: 260px;
+  height: 340px;
+  overflow: hidden;
+}
 
-  /* FONDO ANIMADO (el mismo que pusimos antes) */
-  background-image:
-    linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
-    url("https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?auto=format&fit=crop&w=1400&q=80");
-  
+/* imagen de paneles solares que ya habíamos usado */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("sandbox:/mnt/data/d859d729-8605-409f-bbc4-cb490a7303ee.png");
   background-size: cover;
   background-position: center;
-  animation: heroMove 18s ease-in-out infinite alternate;
+  transform: scale(1.05);
+  animation: heroZoom 18s ease-in-out infinite alternate;
 }
 
-@keyframes heroMove {
-  0%   { background-position: center top; }
-  100% { background-position: center bottom; }
-}
-
+/* capa oscura para que se lea bien el texto */
 .hero-overlay {
-  width: 100%;
+  position: relative;
+  z-index: 1;
   height: 100%;
+  width: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.35)
+  );
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1rem;
 }
 
 .hero-title {
-  color: #fff;
-  font-size: 1.9rem;
-  font-weight: 800;
-  text-align: center;
-  text-shadow: 0 3px 10px rgba(0,0,0,0.5);
+  color: #ffffff;
+  font-size: 2rem;
+  max-width: 900px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* ============================
-   CONTENIDO PRINCIPAL
-============================ */
+/* animación suave de zoom para que sea dinámica */
+@keyframes heroZoom {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+/* ----- CONTENIDO PRINCIPAL ----- */
 
 .container {
   max-width: 1100px;
-  margin: 2.5rem auto;
-  padding: 0 1.5rem;
+  margin: 2.5rem auto 3rem;
+  padding: 0 1.5rem 3rem;
 }
 
+/* tarjetas blancas */
 .section-card {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-  margin-bottom: 2rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 1.8rem 2rem;
+  margin-bottom: 1.8rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
 }
 
+.section-card h2,
+.section-card h3 {
+  margin-bottom: 0.8rem;
+}
+
+.section-card p {
+  line-height: 1.6;
+}
+
+/* lista en misión */
+.section-card ul {
+  margin: 0.8rem 0 0.8rem 1.3rem;
+  line-height: 1.6;
+}
+
+/* grid para Objetivo / Visión */
 .grid-2 {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
-  grid-template-columns: 1fr 1fr;
 }
 
-ul {
-  margin-top: 0.7rem;
-  padding-left: 1.2rem;
-}
-
-/* ============================
-   FOOTER
-============================ */
+/* ----- FOOTER ----- */
 
 .footer {
-  background: #eee;
-  padding: 1.3rem;
   text-align: center;
+  padding: 1rem;
+  background-color: #222;
+  color: #eee;
   font-size: 0.85rem;
-  color: #555;
+}
+
+/* ----- RESPONSIVE ----- */
+
+@media (max-width: 900px) {
+  .top-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .site-title {
+    text-align: left;
+    font-size: 1.3rem;
+  }
+
+  .hero-title {
+    font-size: 1.6rem;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
 }
