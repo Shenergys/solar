@@ -11,89 +11,91 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        /* --- Estilos específicos del Mapa --- */
+        /* --- Estilos Mapa --- */
         .map-container {
             position: relative;
-            height: 600px; /* Altura del mapa */
+            height: 600px;
             width: 100%;
             border: 2px solid #ccc;
             border-radius: 5px;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             z-index: 1;
         }
 
-        /* Panel de Control de Capas (3 Columnas) */
+        /* Controles de Capas */
         .layers-panel {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 4px solid #FFD700;
             margin-bottom: 2rem;
         }
 
-        .layer-group {
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-top: 4px solid #FFD700;
-        }
-
-        .layer-group h3 {
+        .layer-category h3 {
             margin-top: 0;
             font-size: 1.1rem;
             color: #2c3e50;
             border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
         }
 
         .layer-item {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
             font-size: 0.95rem;
             color: #555;
+            padding: 5px;
+            background: #f9f9f9;
+            border-radius: 4px;
         }
+
+        .layer-item:hover { background: #f0f0f0; }
 
         .layer-item input {
             margin-right: 10px;
-            transform: scale(1.2); /* Checkbox un poco más grande */
+            transform: scale(1.2);
             cursor: pointer;
+            accent-color: #FFD700;
         }
 
-        /* Botón Glosario */
+        /* Tabla de Datos (Oculta por defecto) */
+        #tableSection {
+            display: none;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        /* Glosario */
         .glossary-section {
             margin-top: 3rem;
-            border-top: 1px solid #ccc;
+            border-top: 1px solid #ddd;
             padding-top: 2rem;
         }
-
         #glossaryContent {
-            display: none; /* Oculto por defecto */
-            background: #f9f9f9;
+            display: none;
+            background: #222;
+            color: #ddd;
             padding: 20px;
             border-radius: 5px;
             margin-top: 15px;
-            border-left: 5px solid #2980b9;
         }
-
-        .glossary-item {
-            margin-bottom: 10px;
-        }
-        .glossary-term { font-weight: bold; color: #333; }
-        .glossary-def { margin-left: 10px; color: #666; }
-
+        .glossary-item { margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        .term { color: #FFD700; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header class="main-header">
-        <div class="logo-container">
-            <span class="logo-text">SP-ENERGY <span class="sun-icon">☀️</span></span>
-        </div>
-        <div class="slogan-container">
-            <h1>Energía Solar para Todos</h1>
-        </div>
+        <div class="logo-container"><span class="logo-text">SP-ENERGY <span class="sun-icon">☀️</span></span></div>
+        <div class="slogan-container"><h1>Energía Solar para Todos</h1></div>
         <div class="spacer"></div> 
     </header>
 
@@ -111,151 +113,186 @@
         
         <h2 class="section-title">Visualizador Geográfico</h2>
 
-        <section class="graph-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3>Selecciona el tipo de visualización:</h3>
+        <section class="graph-card" style="padding-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap:10px;">
                 <div class="view-toggle">
                     <button id="btnGeneral" class="btn primary">Mapa General</button>
                     <button id="btnPV" class="btn">Mapa Fotovoltaico</button>
                 </div>
-            </div>
-
-            <div id="map" class="map-container"></div>
-
-            <div class="layers-panel">
-                
-                <div class="layer-group">
-                    <h3>☀️ Energía Fotovoltaica</h3>
-                    <div class="layer-item"><input type="checkbox" id="layerRad" value="radiacion"><label for="layerRad">Radiación Solar</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerPot" value="potencial"><label for="layerPot">Potencial Fotovoltaico</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerCent" value="centrales"><label for="layerCent">Centrales Fotovoltaicas</label></div>
-                </div>
-
-                <div class="layer-group">
-                    <h3>🌍 Territorio y Clima</h3>
-                    <div class="layer-item"><input type="checkbox" id="layerTempLow" value="tempBaja"><label for="layerTempLow">Temperatura Baja</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerTempMid" value="tempMedia"><label for="layerTempMid">Temperatura Media</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerTempHigh" value="tempAlta"><label for="layerTempHigh">Temperatura Alta</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerANP" value="anp"><label for="layerANP">Áreas Naturales Protegidas (ANP)</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerHuman" value="asentamientos"><label for="layerHuman">Asentamientos Humanos</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerWater" value="agua"><label for="layerWater">Cuerpos de Agua</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerRelief" value="relieve"><label for="layerRelief">Relieve / Topografía</label></div>
-                </div>
-
-                <div class="layer-group">
-                    <h3>⚡ Infraestructura SEN</h3>
-                    <div class="layer-item"><input type="checkbox" id="layerReg" value="regiones"><label for="layerReg">División de Regiones</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerTx" value="transmision"><label for="layerTx">Líneas de Transmisión</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerDx" value="distribucion"><label for="layerDx">Líneas de Distribución</label></div>
-                    <div class="layer-item"><input type="checkbox" id="layerSub" value="subestaciones"><label for="layerSub">Subestaciones Eléctricas</label></div>
-                </div>
-
+                <button id="btnShowTable" class="btn" style="background-color: #2c3e50; color: white;">Ver Tabla de Datos</button>
             </div>
         </section>
 
+        <div id="map" class="map-container"></div>
+
+        <div id="controlsGeneral" class="layers-panel">
+            <div class="layer-category">
+                <h3>Capas: Mapa General (Territorio e Infraestructura)</h3>
+                <div class="checkbox-grid">
+                    <div class="layer-item"><input type="checkbox" value="rad"><label>Radiación Solar</label></div>
+                    <div class="layer-item"><input type="checkbox" value="temp"><label>Temperatura (Baja/Media/Alta)</label></div>
+                    <div class="layer-item"><input type="checkbox" value="anp"><label>Áreas Naturales Protegidas (ANP)</label></div>
+                    <div class="layer-item"><input type="checkbox" value="relieve"><label>Relieve / Topografía</label></div>
+                    <div class="layer-item"><input type="checkbox" value="agua"><label>Cuerpos de Agua</label></div>
+                    <div class="layer-item"><input type="checkbox" value="human"><label>Asentamientos Humanos</label></div>
+                    <div class="layer-item"><input type="checkbox" value="tx"><label>Líneas de Transmisión</label></div>
+                    <div class="layer-item"><input type="checkbox" value="dx"><label>Líneas de Distribución</label></div>
+                    <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones Eléctricas</label></div>
+                    <div class="layer-item"><input type="checkbox" value="divReg"><label>División de Regiones</label></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="controlsPV" class="layers-panel" style="display:none;">
+            <div class="layer-category">
+                <h3>Capas: Mapa Fotovoltaico (Regional y Potencial)</h3>
+                <div class="checkbox-grid">
+                    <div class="layer-item"><input type="checkbox" value="pot"><label>Potencial Fotovoltaico</label></div>
+                    <div class="layer-item"><input type="checkbox" value="cent"><label>Centrales Fotovoltaicas</label></div>
+                    <div class="layer-item"><input type="checkbox" value="fp"><label>Factor de Potencia / Planta</label></div>
+                    
+                    <div class="layer-item" style="border-left: 4px solid #e67e22;"><input type="checkbox" value="capReg"><label>Capacidad Instalada (Por Región)</label></div>
+                    <div class="layer-item" style="border-left: 4px solid #e67e22;"><input type="checkbox" value="genReg"><label>Generación Eléctrica (Por Región)</label></div>
+                    <div class="layer-item" style="border-left: 4px solid #e67e22;"><input type="checkbox" value="demReg"><label>Demanda Máxima (Por Región)</label></div>
+                </div>
+                <p style="margin-top:10px; font-size:0.85rem; color:#777;">* Las capas naranjas colorean el mapa según la intensidad de la variable en cada región.</p>
+            </div>
+        </div>
+
+        <section id="tableSection" class="graph-card">
+            <h3>Datos Regionales (Cierre 2024)</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Región</th>
+                        <th>Capacidad (MW)</th>
+                        <th>Generación (GWh)</th>
+                        <th>Demanda Máx (MW)</th>
+                        <th>Factor Planta Estimado (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyRegional">
+                    </tbody>
+            </table>
+        </section>
+
         <section class="glossary-section">
-            <button id="btnGlossary" class="btn" style="background:#333; color:white; width:100%;">Ver Glosario de Términos</button>
-            
+            <button id="btnGlossary" class="btn" style="background:#444; color:white; width:100%;">Ver Glosario de Términos</button>
             <div id="glossaryContent">
-                <h3>Glosario de Términos</h3>
-                <div class="glossary-item"><span class="glossary-term">ANP:</span> <span class="glossary-def">Áreas Naturales Protegidas. Zonas del territorio nacional sobre las que la nación ejerce su soberanía y jurisdicción.</span></div>
-                <div class="glossary-item"><span class="glossary-term">SEN:</span> <span class="glossary-def">Sistema Eléctrico Nacional. Conjunto de redes, centrales y equipos para generar, transmitir y distribuir energía.</span></div>
-                <div class="glossary-item"><span class="glossary-term">Radiación Solar:</span> <span class="glossary-def">Energía emitida por el Sol que se propaga en todas las direcciones a través del espacio mediante ondas electromagnéticas (kWh/m²).</span></div>
-                <div class="glossary-item"><span class="glossary-term">Potencial Fotovoltaico:</span> <span class="glossary-def">Capacidad de una región para generar electricidad mediante paneles solares, considerando clima y radiación.</span></div>
-                <div class="glossary-item"><span class="glossary-term">Líneas de Transmisión:</span> <span class="glossary-def">Red de cables de alta tensión que transportan energía desde las centrales hasta las subestaciones.</span></div>
-                <div class="glossary-item"><span class="glossary-term">Subestación:</span> <span class="glossary-def">Instalación encargada de modificar los niveles de tensión de la energía eléctrica para su transmisión o distribución.</span></div>
+                <div class="glossary-item"><span class="term">ANP:</span> Áreas Naturales Protegidas bajo jurisdicción federal.</div>
+                <div class="glossary-item"><span class="term">Potencial Fotovoltaico:</span> Estimación de la energía generable (kWh/kWp) considerando irradiancia y temperatura.</div>
+                <div class="glossary-item"><span class="term">Factor de Planta:</span> Porcentaje de tiempo que una central opera a su capacidad nominal equivalente.</div>
+                <div class="glossary-item"><span class="term">Demanda Máxima:</span> El valor pico de consumo de potencia eléctrica en un intervalo de tiempo.</div>
+                <div class="glossary-item"><span class="term">SEN:</span> Sistema Eléctrico Nacional.</div>
             </div>
         </section>
 
     </main>
 
-    <footer>
-        <p>&copy; 2025 SP-Energy. Visualización de datos energéticos.</p>
-    </footer>
+    <footer><p>&copy; 2025 SP-Energy.</p></footer>
 
     <script>
-        // 1. INICIALIZAR MAPA (Centrado en México)
+        // 1. INICIALIZAR MAPA
         const map = L.map('map').setView([23.6345, -102.5528], 5);
-
-        // 2. CAPA BASE (OpenStreetMap - Limpio)
-        const baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 19
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap, &copy; CARTO'
         }).addTo(map);
 
-        // 3. DEFINICIÓN DE CAPAS (Placeholders)
-        // NOTA: Aquí es donde conectarías tus archivos GeoJSON reales.
-        // Por ahora, crearé grupos vacíos para que los checkbox funcionen visualmente.
-        
-        const layers = {
-            radiacion: L.layerGroup(), // Aquí cargarías tu capa de radiación
-            potencial: L.layerGroup(),
-            centrales: L.layerGroup(),
-            tempBaja: L.layerGroup(),
-            tempMedia: L.layerGroup(),
-            tempAlta: L.layerGroup(),
-            anp: L.layerGroup(),
-            asentamientos: L.layerGroup(),
-            agua: L.layerGroup(),
-            relieve: L.layerGroup(),
-            regiones: L.layerGroup(),
-            transmision: L.layerGroup(),
-            distribucion: L.layerGroup(),
-            subestaciones: L.layerGroup()
-        };
-
-        // 4. LÓGICA DE CHECKBOXES
-        const checkboxes = document.querySelectorAll('.layer-item input[type="checkbox"]');
-        
-        checkboxes.forEach(box => {
-            box.addEventListener('change', function() {
-                const layerId = this.value;
-                if (this.checked) {
-                    map.addLayer(layers[layerId]);
-                    console.log("Capa activada: " + layerId);
-                    // Simulación visual (Solo para demo)
-                    // alert("Se activaría la capa: " + layerId); 
-                } else {
-                    map.removeLayer(layers[layerId]);
-                    console.log("Capa desactivada: " + layerId);
-                }
-            });
-        });
-
-        // 5. LÓGICA DE BOTONES (General vs PV)
+        // 2. CONTROL DE MODOS (General vs Fotovoltaico)
         const btnGen = document.getElementById('btnGeneral');
         const btnPV = document.getElementById('btnPV');
+        const ctrlGen = document.getElementById('controlsGeneral');
+        const ctrlPV = document.getElementById('controlsPV');
 
         btnGen.addEventListener('click', () => {
             btnGen.classList.add('primary');
             btnPV.classList.remove('primary');
-            // Aquí podrías resetear la vista o activar capas por defecto del mapa general
-            map.setView([23.6345, -102.5528], 5);
+            ctrlGen.style.display = 'block';
+            ctrlPV.style.display = 'none';
+            // Aquí podrías resetear capas si quisieras
         });
 
         btnPV.addEventListener('click', () => {
             btnPV.classList.add('primary');
             btnGen.classList.remove('primary');
-            // Aquí podrías hacer zoom a zonas solares o activar radiación automáticamente
-            document.getElementById('layerRad').click(); // Truco: simula click en radiación
+            ctrlGen.style.display = 'none';
+            ctrlPV.style.display = 'block';
         });
 
-        // 6. LÓGICA GLOSARIO
-        const btnGlossary = document.getElementById('btnGlossary');
-        const glossaryContent = document.getElementById('glossaryContent');
+        // 3. LOGICA DE TABLA (Datos Mockup basados en tus Excels 2024)
+        // Como no tengo el dato exacto de Factor de Planta en tus excels, lo calculo aprox (Gen / (Cap*8760)) * 100
+        const regionsData = [
+            { id: "CEN", cap: "En proceso", gen: "En proceso", dem: 8848 },
+            { id: "ORI", cap: "En proceso", gen: "En proceso", dem: 9034 },
+            { id: "OCC", cap: "En proceso", gen: "En proceso", dem: 11834 },
+            { id: "NOR", cap: "En proceso", gen: "En proceso", dem: 5909 },
+            { id: "NTE", cap: "En proceso", gen: "En proceso", dem: 5540 },
+            { id: "NES", cap: "En proceso", gen: "En proceso", dem: 11109 },
+            { id: "PEN", cap: "En proceso", gen: "En proceso", dem: 2969 },
+            { id: "SIBC", cap: "En proceso", gen: "En proceso", dem: 3635 },
+            { id: "SIBCS", cap: "En proceso", gen: "En proceso", dem: 689 },
+            { id: "SIMUL", cap: "En proceso", gen: "En proceso", dem: 34 },
+            { id: "SIN", cap: 90543, gen: 352305, dem: 55243 } // Dato nacional ejemplo
+        ];
+        // NOTA: Puse "En proceso" en Cap/Gen regional porque esos excels no los subiste desglosados por región, 
+        // solo subiste Demanda y Consumo por región. Si tienes los datos, solo reemplaza el texto.
 
-        btnGlossary.addEventListener('click', () => {
-            if (glossaryContent.style.display === "block") {
-                glossaryContent.style.display = "none";
-                btnGlossary.textContent = "Ver Glosario de Términos";
+        const btnTable = document.getElementById('btnShowTable');
+        const tableSec = document.getElementById('tableSection');
+        const tableBody = document.getElementById('tableBodyRegional');
+
+        // Llenar tabla
+        regionsData.forEach(reg => {
+            tableBody.innerHTML += `
+                <tr>
+                    <td><strong>${reg.id}</strong></td>
+                    <td>${typeof reg.cap === 'number' ? reg.cap.toLocaleString() : reg.cap}</td>
+                    <td>${typeof reg.gen === 'number' ? reg.gen.toLocaleString() : reg.gen}</td>
+                    <td>${reg.dem.toLocaleString()}</td>
+                    <td>-</td>
+                </tr>
+            `;
+        });
+
+        btnTable.addEventListener('click', () => {
+            if(tableSec.style.display === 'block') {
+                tableSec.style.display = 'none';
+                btnTable.textContent = 'Ver Tabla de Datos';
             } else {
-                glossaryContent.style.display = "block";
-                btnGlossary.textContent = "Ocultar Glosario";
+                tableSec.style.display = 'block';
+                btnTable.textContent = 'Ocultar Tabla';
+                // Scroll suave hacia la tabla
+                tableSec.scrollIntoView({ behavior: 'smooth' });
             }
         });
 
-    </script>
+        // 4. LOGICA GLOSARIO
+        const btnGloss = document.getElementById('btnGlossary');
+        const divGloss = document.getElementById('glossaryContent');
+        btnGloss.addEventListener('click', () => {
+            if(divGloss.style.display === 'block') {
+                divGloss.style.display = 'none';
+                btnGloss.textContent = 'Ver Glosario de Términos';
+            } else {
+                divGloss.style.display = 'block';
+                btnGloss.textContent = 'Ocultar Glosario';
+            }
+        });
 
+        // 5. SIMULACIÓN DE CAPAS (Aquí conectarías tus GeoJSON)
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(chk => {
+            chk.addEventListener('change', (e) => {
+                if(e.target.checked) {
+                    console.log("Cargar capa: " + e.target.value);
+                    // map.addLayer(layers[e.target.value]); 
+                } else {
+                    console.log("Quitar capa: " + e.target.value);
+                    // map.removeLayer(layers[e.target.value]);
+                }
+            });
+        });
+
+    </script>
 </body>
 </html>
