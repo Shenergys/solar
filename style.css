@@ -130,27 +130,35 @@ body {
     background-color: #e6c200;
 }
 
-/* --- Sección de Tarjetas (Grid) --- */
+/* --- Sección de Tarjetas (Grid 2x2) --- */
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsivo automático */
+    /* AQUÍ ESTÁ EL CAMBIO: Forzamos 2 columnas */
+    grid-template-columns: repeat(2, 1fr); 
     gap: 2rem;
     padding: 3rem 2rem;
     max-width: 1200px;
     margin: 0 auto;
 }
 
+/* Agregamos esto para que en celulares se vea 1 sola columna (Responsive) */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .card {
     background: white;
     padding: 2rem;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra suave */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.3s, box-shadow 0.3s;
-    border-top: 4px solid #FFD700; /* Detalle de color arriba */
+    border-top: 4px solid #FFD700;
 }
 
 .card:hover {
-    transform: translateY(-5px); /* Se levanta un poco al pasar el mouse */
+    transform: translateY(-5px);
     box-shadow: 0 10px 15px rgba(0,0,0,0.15);
 }
 
