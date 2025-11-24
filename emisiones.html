@@ -6,57 +6,43 @@
     <title>SP-Energy | Emisiones</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Computer+Modern+Serif:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        /* Estilos generales (mismos que graficas.html) */
+        /* Layout Gráfica + Info */
         .chart-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 1rem; }
         .chart-area { flex: 3; min-width: 300px; height: 400px; }
         .info-area { 
-            flex: 1; min-width: 250px; background: #fff; padding: 20px; 
-            border-radius: 8px; border-left: 5px solid #FFD700; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            flex: 1; min-width: 250px; background: #fff; padding: 25px; 
+            border-radius: 8px; border-top: 5px solid #FFD700; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
         }
-        .info-area h4 { margin-top: 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .info-area p { font-size: 0.95rem; line-height: 1.5; color: #555; }
-        .highlight { color: #d35400; font-weight: bold; font-size: 1.1em; }
+        .info-area h4 { margin-top: 0; color: #333; font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .info-area p { font-size: 1rem; line-height: 1.6; color: #555; margin-bottom: 10px; }
+        .highlight { color: #d35400; font-weight: bold; }
 
-        /* DISEÑO MEJORADO DE FÓRMULA */
-        .equation-container {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+        /* Fórmula Limpia */
+        .formula-box {
+            background-color: #fdfdfd;
+            border: 1px solid #ddd;
+            border-left: 4px solid #2980b9;
             padding: 20px;
             margin-bottom: 25px;
+            border-radius: 4px;
             text-align: center;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+            font-family: 'Roboto', sans-serif;
+            color: #444;
         }
-        .equation-title {
-            font-size: 0.9rem;
-            color: #777;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            display: block;
-        }
-        .math-formula {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 1.5rem;
-            color: #2c3e50;
-            font-style: italic;
-        }
-        .variable { color: #2980b9; font-weight: bold; }
-        .operator { color: #7f8c8d; margin: 0 10px; }
-        .unit-desc { font-size: 0.8rem; color: #999; margin-top: 5px; font-family: 'Roboto', sans-serif; font-style: normal; }
+        .formula-text { font-size: 1.2rem; font-weight: 500; letter-spacing: 0.5px; }
+        .formula-sub { display: block; margin-top: 5px; font-size: 0.9rem; color: #777; }
 
         /* Referencias */
-        .references { background: #222; color: #eee; padding: 40px 20px; margin-top: 50px; font-size: 0.9rem; }
-        .references h3 { color: #FFD700; margin-bottom: 20px; border-bottom: 1px solid #444; display: inline-block; }
+        .references { background: #2c3e50; color: #fff; padding: 40px 20px; margin-top: 50px; }
+        .references h3 { color: #FFD700; border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 20px; }
         .references ul { list-style: none; padding: 0; }
-        .references li { margin-bottom: 15px; line-height: 1.4; }
-        .references a { color: #ddd; text-decoration: none; font-weight: bold; }
-        .references a:hover { color: #FFD700; text-decoration: underline; }
+        .references li { margin-bottom: 15px; }
+        .references a { color: #fff; text-decoration: underline; }
+        .references a:hover { color: #FFD700; }
     </style>
 </head>
 <body>
@@ -88,22 +74,21 @@
                     <button id="btnFactorTable" class="btn">Ver tabla</button>
                 </div>
             </div>
-            <p>Datos históricos reales del factor de emisión eléctrico según reportes oficiales.</p>
+            <p>Evolución histórica del factor de emisión eléctrico (tCO₂e/MWh).</p>
 
             <div id="factorChartContainer">
                 <div class="chart-wrapper">
                     <div class="chart-area"><canvas id="chartFactor"></canvas></div>
                     <div class="info-area">
-                        <h4>Análisis del Factor</h4>
-                        <p>El factor de emisión cerró 2024 en <span class="highlight" id="valFactor24"></span> tCO₂e/MWh.</p>
-                        <p>Se observa una tendencia a la baja respecto al pico de 2018, indicando una paulatina descarbonización de la red.</p>
+                        <h4>Dato Actual</h4>
+                        <p>El factor de emisión eléctrico en 2024 es de <span class="highlight" id="valFactor24"></span> tCO₂e/MWh.</p>
                     </div>
                 </div>
             </div>
 
             <div id="factorTableContainer" style="display:none; overflow-x:auto;">
                 <table class="data-table">
-                    <thead><tr><th>Año</th><th>Factor de Emisión (tCO₂e/MWh)</th></tr></thead>
+                    <thead><tr><th>Año</th><th>Factor (tCO₂e/MWh)</th></tr></thead>
                     <tbody id="factorTableBody"></tbody>
                 </table>
             </div>
@@ -112,35 +97,28 @@
         <section class="graph-card">
             <h2>Emisiones Totales Asociadas a la Generación</h2>
             
-            <div class="equation-container">
-                <span class="equation-title">Metodología de Cálculo</span>
-                <div class="math-formula">
-                    <span class="variable">Emisiones</span> 
-                    <span class="operator">=</span> 
-                    <span class="variable">Consumo Bruto</span> 
-                    <span class="operator">×</span> 
-                    <span class="variable">Factor de Emisión</span>
-                </div>
-                <div class="unit-desc">(tCO₂e) = (MWh) × (tCO₂e/MWh)</div>
+            <div class="formula-box">
+                <span class="formula-text">Emisiones (tCO₂e) = Consumo Bruto (MWh) × Factor de Emisión (tCO₂e/MWh)</span>
+                <span class="formula-sub">Cálculo de emisiones totales generadas por el Sistema Eléctrico Nacional.</span>
             </div>
 
             <div class="chart-wrapper">
                 <div class="chart-area"><canvas id="chartEmissions"></canvas></div>
                 <div class="info-area" id="emissionsInfo">
-                    <h4>Evolución 2015-2024</h4>
+                    <h4>Evolución al 2024</h4>
                     </div>
             </div>
         </section>
 
         <section class="graph-card" style="border-top: 5px solid #27ae60;">
-            <h2>Impacto Positivo: Emisiones Evitadas por Energía Solar</h2>
-            <p>Toneladas de CO₂ equivalente que se dejaron de emitir gracias a la generación fotovoltaica en el periodo 2015-2024.</p>
+            <h2>Impacto Positivo: Emisiones Evitadas</h2>
+            <p>Estimación de CO₂e no emitido gracias a la generación solar fotovoltaica.</p>
             
             <div class="chart-wrapper">
                 <div class="chart-area"><canvas id="chartAvoided"></canvas></div>
                 <div class="info-area">
-                    <h4>Beneficio Ambiental 2024</h4>
-                    <p>Solo en el año 2024, la energía solar evitó la emisión de aproximadamente <span class="highlight" id="valAvoided24"></span> millones de toneladas de CO₂e.</p>
+                    <h4>Ahorro Ambiental</h4>
+                    <p>En 2024, la generación solar fotovoltaica evitó la emisión de aproximadamente <span class="highlight" id="valAvoided24"></span> Millones de Toneladas de CO₂e.</p>
                 </div>
             </div>
         </section>
@@ -151,10 +129,10 @@
         <div style="max-width: 1200px; margin: 0 auto;">
             <h3>Referencias Bibliográficas</h3>
             <ul>
-                <li>Centro Nacional de Control de Energía (CENACE) <a href="https://www.cenace.gob.mx/Paginas/SIM/Reportes/EnergiaGeneradaTipoTec.aspx" target="_blank">https://www.cenace.gob.mx/Paginas/SIM/Reportes/EnergiaGeneradaTipoTec.aspx</a></li>
+                <li>Centro Nacional de Control de Energía (CENACE) <a href="https://www.cenace.gob.mx/Paginas/SIM/Reportes/EnergiaGeneradaTipoTec.aspx" target="_blank">Ver reporte</a></li>
                 <li>Plan de Desarrollo del Sector Eléctrico (PDSE)</li>
-                <li>Programa de Desarrollo del Sistema Eléctrico Nacional (PRODESEN) <a href="https://www.cenace.gob.mx/Docs/16_MARCOREGULATORIO/Prodecen/20%202024-2038%20Cap%C3%ADtulos%201%20al%206.pdf" target="_blank">https://www.cenace.gob.mx/Docs/16_MARCOREGULATORIO/Prodecen/20%202024-2038%20Cap%C3%ADtulos%201%20al%206.pdf</a></li>
-                <li>Sistema de Información Energética (SIE) <a href="https://sie.energia.gob.mx/inicio/" target="_blank">https://sie.energia.gob.mx/inicio/</a></li>
+                <li>Programa de Desarrollo del Sistema Eléctrico Nacional (PRODESEN) <a href="https://www.cenace.gob.mx/Docs/16_MARCOREGULATORIO/Prodecen/20%202024-2038%20Cap%C3%ADtulos%201%20al%206.pdf" target="_blank">Ver documento</a></li>
+                <li>Sistema de Información Energética (SIE) <a href="https://sie.energia.gob.mx/inicio/" target="_blank">Ir al sitio</a></li>
             </ul>
         </div>
     </div>
@@ -162,30 +140,18 @@
     <footer><p>&copy; 2025 SP-Energy.</p></footer>
 
     <script>
-        // 1. DATOS EXACTOS (Transcritus de tu imagen)
-        // Solo usamos 2015-2024 porque es donde tienes el Factor Real.
         const years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
         
-        // TUS DATOS REALES (Imagen image_658547.png)
-        const factorEmision = [0.456, 0.458, 0.496, 0.527, 0.505, 0.494, 0.423, 0.435, 0.438, 0.425];
+        // 1. DATOS CORRECTOS (Proporcionados por ti)
+        const factorEmision = [0.454, 0.582, 0.582, 0.527, 0.505, 0.494, 0.423, 0.435, 0.438, 0.444];
 
-        // CONSUMO BRUTO (Filtrado para 2015-2024 de tus datos originales)
-        // Original completo: [253460, 269831, 275033, 275497, 280161, 288224 (2015), 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807]
-        const consumoBrutoSubset = [288224, 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807];
-
-        // GENERACIÓN SOLAR (Filtrado para 2015-2024)
-        // Original completo: [..., 45 (2015), 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640]
-        const genSolarSubset = [45, 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640];
+        // Datos Consumo y Generación (2015-2024)
+        const consumoBruto = [288224, 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807];
+        const genSolar = [45, 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640];
 
         // CÁLCULOS
-        // Emisiones = (GWh * 1000) * Factor / 1,000,000 (Para Millones de Toneladas)
-        const emisionesTotales = consumoBrutoSubset.map((cons, i) => {
-            return (cons * 1000 * factorEmision[i]) / 1000000;
-        });
-
-        const emisionesEvitadas = genSolarSubset.map((gen, i) => {
-            return (gen * 1000 * factorEmision[i]) / 1000000;
-        });
+        const emisionesTotales = consumoBruto.map((c, i) => (c * 1000 * factorEmision[i]) / 1000000);
+        const emisionesEvitadas = genSolar.map((g, i) => (g * 1000 * factorEmision[i]) / 1000000);
 
         // --- GRÁFICAS ---
 
@@ -196,58 +162,39 @@
                 data: {
                     labels: years,
                     datasets: [{
-                        label: 'Factor de Emisión (tCO₂e/MWh)',
+                        label: 'Factor (tCO₂e/MWh)',
                         data: factorEmision,
-                        borderColor: '#d35400', // Color óxido
-                        backgroundColor: 'rgba(211, 84, 0, 0.2)',
+                        borderColor: '#d35400',
+                        backgroundColor: 'rgba(211, 84, 0, 0.1)',
                         borderWidth: 2,
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointHitRadius: 20
+                        tension: 0.2,
+                        pointRadius: 4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'nearest', intersect: true },
-                    plugins: { legend: { display: false } },
-                    scales: { y: { title: { display: true, text: 'tCO₂e / MWh' } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false } }
             });
 
-            // Tabla Factor
+            // Tabla
             const tbody = document.getElementById('factorTableBody');
-            years.forEach((y, i) => {
-                tbody.innerHTML += `<tr><td>${y}</td><td>${factorEmision[i].toFixed(3)}</td></tr>`;
-            });
+            years.forEach((y, i) => { tbody.innerHTML += `<tr><td>${y}</td><td>${factorEmision[i]}</td></tr>`; });
             document.getElementById('valFactor24').innerText = factorEmision[factorEmision.length-1];
         }
 
         function initEmissionsChart() {
             const ctx = document.getElementById('chartEmissions');
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar', // Barra Vertical
                 data: {
                     labels: years,
                     datasets: [{
-                        label: 'Emisiones GEI (Millones tCO₂e)',
+                        label: 'Emisiones (Millones tCO₂e)',
                         data: emisionesTotales,
+                        backgroundColor: 'rgba(192, 57, 43, 0.7)',
                         borderColor: '#c0392b',
-                        backgroundColor: 'rgba(192, 57, 43, 0.2)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointHitRadius: 20
+                        borderWidth: 1
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'nearest', intersect: true },
-                    scales: { y: { title: { display: true, text: 'Millones Toneladas' } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
 
             // Texto Evolución
@@ -258,7 +205,7 @@
 
             document.getElementById('emissionsInfo').innerHTML = `
                 <h4>Evolución al 2024</h4>
-                <p>Las emisiones totales estimadas pasaron de <strong>${start.toFixed(1)}</strong> Millones tCO₂e en 2015 a <strong>${end.toFixed(1)}</strong> Millones en 2024.</p>
+                <p>Las emisiones totales del SEN pasaron de <strong>${start.toFixed(1)}</strong> Millones tCO₂e en 2015 a <strong>${end.toFixed(1)}</strong> Millones en 2024.</p>
                 <p>Variación en el periodo: <span class="highlight">${sign}${pct.toFixed(1)}%</span>.</p>
             `;
         }
@@ -266,23 +213,17 @@
         function initAvoidedChart() {
             const ctx = document.getElementById('chartAvoided');
             new Chart(ctx, {
-                type: 'bar',
+                type: 'bar', // Barra Vertical
                 data: {
                     labels: years,
                     datasets: [{
-                        label: 'Emisiones Evitadas (Millones tCO₂e)',
+                        label: 'Evitadas (Millones tCO₂e)',
                         data: emisionesEvitadas,
-                        backgroundColor: 'rgba(39, 174, 96, 0.6)',
-                        borderColor: '#27ae60',
-                        borderWidth: 1
+                        backgroundColor: '#27ae60',
+                        borderRadius: 4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'nearest', intersect: true },
-                    scales: { y: { title: { display: true, text: 'Millones Toneladas' } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
             document.getElementById('valAvoided24').innerText = emisionesEvitadas[emisionesEvitadas.length - 1].toFixed(2);
         }
@@ -292,14 +233,13 @@
             initEmissionsChart();
             initAvoidedChart();
 
-            // Toggle Botones
-            const btnChart = document.getElementById('btnFactorChart');
-            const btnTable = document.getElementById('btnFactorTable');
-            const divChart = document.getElementById('factorChartContainer');
-            const divTable = document.getElementById('factorTableContainer');
+            const btnC = document.getElementById('btnFactorChart');
+            const btnT = document.getElementById('btnFactorTable');
+            const divC = document.getElementById('factorChartContainer');
+            const divT = document.getElementById('factorTableContainer');
 
-            btnChart.onclick = () => { divChart.style.display=''; divTable.style.display='none'; btnChart.classList.add('primary'); btnTable.classList.remove('primary'); };
-            btnTable.onclick = () => { divChart.style.display='none'; divTable.style.display=''; btnTable.classList.add('primary'); btnChart.classList.remove('primary'); };
+            btnC.onclick = () => { divC.style.display=''; divT.style.display='none'; btnC.classList.add('primary'); btnT.classList.remove('primary'); };
+            btnT.onclick = () => { divC.style.display='none'; divT.style.display=''; btnT.classList.add('primary'); btnC.classList.remove('primary'); };
         };
     </script>
 </body>
