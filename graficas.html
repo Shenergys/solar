@@ -1,4 +1,60 @@
-<section class="graph-card">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SP-Energy | Gráficas y Tablas</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo-container">
+            <span class="logo-text">SP-ENERGY <span class="sun-icon">☀️</span></span>
+        </div>
+        <div class="slogan-container">
+            <h1>Energía Solar para Todos</h1>
+        </div>
+        <div class="spacer"></div> 
+    </header>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="mapa.html">Mapa Interactivo</a></li>
+            <li><a href="graficas.html" class="active">Gráficas y Tablas</a></li>
+            <li><a href="emisiones.html">Emisiones</a></li>
+            <li><a href="info.html">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-container">
+        
+        <h2 class="section-title">Análisis de Datos del SEN</h2>
+
+        <section class="graph-card">
+            <h2>Capacidad y generación solar fotovoltaica (2010–2024)</h2>
+            <p>
+                Estas dos gráficas muestran la <strong>capacidad instalada</strong> (MW)
+                y la <strong>generación eléctrica</strong> (GWh) de la tecnología
+                <strong>Solar Fotovoltaica</strong> en el SEN. Se incluye la participación porcentual en el total nacional.
+            </p>
+
+            <div class="grid-2">
+                <div>
+                    <h3>Capacidad instalada FV (MW) y participación (%)</h3>
+                    <canvas id="chartCapSolar"></canvas>
+                </div>
+                <div>
+                    <h3>Generación FV (GWh) y participación (%)</h3>
+                    <canvas id="chartGenSolar"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="graph-card">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
                 <h2>Evolución por Tecnología (2010–2024)</h2>
                 <div class="view-toggle">
@@ -7,9 +63,330 @@
                 </div>
             </div>
             
-            <p>Visualiza cómo ha cambiado la composición de la matriz energética del país, dividida por tipo de tecnología.</p>
+            <p>Visualiza cómo ha cambiado la composición de la matriz energética del país, desglosada por tipo de tecnología (datos reales SEN).</p>
             
             <div style="height: 500px; width: 100%;">
                 <canvas id="chartTechStack"></canvas>
             </div>
         </section>
+
+        <section class="graph-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <h2>Indicadores Generales del SEN</h2>
+                <div class="view-toggle">
+                    <button id="btnViewCharts" class="btn primary">Ver gráficas</button>
+                    <button id="btnViewTable" class="btn">Ver tabla</button>
+                </div>
+            </div>
+
+            <p>Elige qué variable agregada del Sistema Eléctrico Nacional deseas visualizar.</p>
+
+            <div id="mixCharts">
+                <div class="controls-row">
+                    <label>Variable del SEN:</label>
+                    <select id="senVariableSelect">
+                        <option value="capacidad">Capacidad total (MW)</option>
+                        <option value="generacion">Generación total (GWh)</option>
+                        <option value="demanda">Demanda máxima integrada (MW)</option>
+                        <option value="consumo">Consumo bruto y final (GWh)</option>
+                    </select>
+                </div>
+                <div style="max-height: 500px;">
+                    <canvas id="chartSEN"></canvas>
+                </div>
+            </div>
+
+            <div id="mixTable" style="display:none; overflow-x:auto;">
+                <h3>Tabla de datos del SEN (2010–2024)</h3>
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Año</th>
+                        <th>Capacidad (MW)</th>
+                        <th>Generación (GWh)</th>
+                        <th>Demanda Máx (MW)</th>
+                        <th>Consumo Bruto (GWh)</th>
+                        <th>Consumo Final (GWh)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="mixTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="graph-card">
+            <h2>Series por región del SEN</h2>
+            <p>Visualiza el comportamiento histórico por regiones geográficas de control.</p>
+
+            <div class="controls-row">
+                <div>
+                    <label>Región:</label>
+                    <select id="regionSelect">
+                        <option value="CEN">CEN</option>
+                        <option value="ORI">ORI</option>
+                        <option value="OCC">OCC</option>
+                        <option value="NOR">NOR</option>
+                        <option value="NTE">NTE</option>
+                        <option value="NES">NES</option>
+                        <option value="PEN">PEN</option>
+                        <option value="SIBC">SIBC</option>
+                        <option value="SIBCS">SIBCS</option>
+                        <option value="SIMUL">SIMUL</option>
+                        <option value="SIN">SIN</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Variable:</label>
+                    <select id="variableSelect">
+                        <option value="demanda">Demanda máxima (MW)</option>
+                        <option value="consumoBruto">Consumo bruto (GWh)</option>
+                        <option value="consumoFinal">Consumo final (GWh)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="max-height: 500px;">
+                <canvas id="chartRegion"></canvas>
+            </div>
+
+            <h3>Datos detallados de la región</h3>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Año</th>
+                        <th>Valor Región</th>
+                        <th>Valor SEN</th>
+                        <th>Participación (%)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="regionTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SP-Energy. Visualización de datos energéticos.</p>
+    </footer>
+
+    <script>
+    const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+
+    /* =========================================
+       DATOS POR TECNOLOGÍA (Stacked Chart)
+       Extraídos de CAPACIDAD.xlsx y GENERACIÓN.xlsx
+       ========================================= */
+    
+    // Paleta de colores oficial por tecnología
+    const techColors = {
+        "Carboeléctrica": "#2c3e50",        // Gris Oscuro/Negro
+        "Térmica Convencional": "#7f8c8d",  // Gris
+        "Combustión interna": "#34495e",    // Azul Grisaceo Oscuro
+        "Turbogás": "#d35400",              // Naranja Quemado
+        "Ciclo combinado": "#c0392b",       // Rojo
+        "Nucleoeléctrica": "#e67e22",       // Naranja
+        "Cogeneración eficiente": "#8e44ad",// Morado
+        "Hidroeléctrica": "#2980b9",        // Azul
+        "Geotérmica": "#9b59b6",            // Violeta
+        "Eólica": "#27ae60",                // Verde
+        "Solar fotovoltaica": "#f1c40f",    // Amarillo
+        "Híbrido FV / Solar Baterías": "#f39c12", // Amarillo/Naranja
+        "Bioenergía": "#16a085"             // Verde Agua
+    };
+
+    const techDataCapacidad = {
+        "Carboeléctrica": [5393, 5393, 5419, 5419, 5463, 5463, 5378, 5463, 5463, 5463, 5463, 5463, 5463, 5463, 5463],
+        "Térmica Convencional": [12876, 12560, 11923, 11923, 12665, 12665, 13174, 12665, 12315, 11831, 11809, 11793, 11343, 11300, 11300],
+        "Combustión interna": [241, 238, 281, 290, 540, 540, 1453, 739, 880, 891, 850, 701, 728, 729, 717],
+        "Turbogás": [2914, 2873, 3355, 2510, 2399, 2849, 5052, 2960, 2960, 2960, 3545, 3744, 3815, 3888, 3953],
+        "Ciclo combinado": [19283, 19290, 19424, 21755, 22699, 22949, 27274, 25340, 27393, 30402, 31948, 33640, 34413, 35178, 35669],
+        "Nucleoeléctrica": [1365, 1365, 1610, 1400, 1400, 1510, 1608, 1608, 1608, 1608, 1608, 1608, 1608, 1608, 1608],
+        "Cogeneración eficiente": [0, 0, 0, 0, 819, 943, 1036, 1322, 1709, 1710, 2305, 2305, 2308, 2322, 2293],
+        "Hidroeléctrica": [11586, 11582, 11685, 11762, 12552, 12560, 12589, 12612, 12612, 12612, 12612, 12614, 12613, 12612, 12612],
+        "Geotérmica": [965, 887, 812, 823, 874, 899, 909, 899, 899, 899, 951, 976, 976, 976, 976],
+        "Eólica": [449, 450, 1097, 1431, 2660, 2877, 3735, 3898, 4866, 6050, 6504, 6977, 6921, 7055, 7512],
+        "Solar fotovoltaica": [0, 0, 1, 11, 55, 57, 145, 171, 1878, 3646, 5149, 5955, 6515, 7437, 7961],
+        "Híbrido FV / Solar Baterías": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 32, 92],
+        "Bioenergía": [18, 18, 85, 89, 233, 233, 889, 374, 375, 375, 378, 378, 408, 407, 387]
+    };
+
+    const techDataGeneracion = {
+        "Carboeléctrica": [35371, 35631, 35019, 34642, 33613, 33599, 34208, 28665, 27347, 21611, 12525, 8704, 14194, 14230, 12968],
+        "Térmica Convencional": [47376, 51640, 58402, 53770, 37682, 39713, 40795, 42884, 39345, 38020, 22405, 22196, 20001, 30358, 28228],
+        "Combustión interna": [1364, 1404, 1541, 1677, 1499, 1740, 1915, 2306, 2589, 3187, 2841, 2121, 1834, 3621, 3847],
+        "Turbogás": [2217, 2123, 3168, 2611, 3422, 6301, 8183, 8435, 9508, 10904, 8664, 11150, 10471, 12336, 12017],
+        "Ciclo combinado": [130269, 129577, 130741, 140777, 139350, 144624, 150597, 159163, 163877, 175506, 185638, 186715, 198355, 205598, 212819],
+        "Nucleoeléctrica": [6019, 9640, 8193, 11389, 9677, 11577, 10567, 10572, 13200, 10881, 10864, 11606, 10539, 12043, 11978],
+        "Cogeneración eficiente": [1926, 1924, 1928, 1921, 2634, 3519, 4310, 2054, 2310, 3259, 4188, 3349, 1376, 4136, 3912],
+        "Hidroeléctrica": [38684, 37639, 32835, 28869, 38875, 30858, 30847, 31664, 32234, 23602, 26817, 34717, 35561, 20609, 23800],
+        "Geotérmica": [6934, 6615, 5887, 6152, 6000, 6331, 6150, 5747, 5065, 5061, 4575, 4243, 4412, 4161, 3576],
+        "Eólica": [1298, 1675, 3688, 4243, 7189, 8991, 10295, 10456, 12435, 16727, 19703, 21075, 20314, 20700, 19987],
+        "Solar fotovoltaica": [0, 0, 3, 20, 83, 45, 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640],
+        "Bioenergía": [25, 26, 140, 147, 341, 362, 408, 585, 600, 669, 600, 582, 617, 499, 533]
+    };
+
+    /* DATOS GENERALES (SOLAR ESPECÍFICO) */
+    const capSolar = techDataCapacidad["Solar fotovoltaica"];
+    const genSolar = techDataGeneracion["Solar fotovoltaica"];
+    // Participación aproximada calculada previamente (puedes ajustar si deseas recalcular con el total)
+    const capShare = [0.0, 0.0, 0.0, 0.02, 0.09, 0.09, 0.2, 0.25, 2.57, 4.65, 6.19, 6.91, 7.48, 8.36, 8.79];
+    const genShare = [0.0, 0.0, 0.0, 0.01, 0.03, 0.02, 0.05, 0.12, 0.7, 2.64, 4.33, 5.28, 4.88, 5.26, 5.29];
+
+    /* DATOS TOTALES SEN */
+    const capTotal    = [55090, 54656, 55692, 57413, 62359, 63545, 73242, 68051, 72958, 78447, 83122, 86154, 87131, 89007, 90543];
+    const genTotal    = [271483, 277894, 281545, 286218, 280365, 287660, 298426, 302880, 310686, 317821, 312348, 323527, 333964, 346501, 352305];
+    const yearsDem    = years.slice();
+    const demandaSen  = [41750, 43324, 43920, 44323, 44398, 45601, 47348, 49049, 50825, 52340, 51225, 52686, 54489, 57958, 59601];
+    const consumoBrutoSen = [253460, 269831, 275033, 275497, 280161, 288224, 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807];
+    const consumoFinalSen = [199713, 214098, 219994, 222830, 228635, 237200, 248195, 258895, 268701, 274915, 266238, 277259, 288687, 298599, 304012];
+
+    /* DATOS REGIONALES */
+    const regiones = ["CEN","ORI","OCC","NOR","NTE","NES","PEN","SIBC","SIBCS","SIMUL","SIN"];
+    // (Aquí usamos los mismos datos que ya tenías cargados de regiones)
+    const demandaRegion = { "CEN": [9004, 8844, 8651, 8411, 8192, 8151, 8567, 8705, 8805, 8754, 8717, 8450, 8466, 8619, 8848], "ORI": [6356, 6577, 6626, 6709, 6767, 6960, 7128, 7299, 7594, 7923, 7461, 7868, 8203, 8783, 9034], "OCC": [8175, 8669, 8975, 9207, 9104, 9374, 9351, 9842, 10373, 10096, 9763, 10292, 10537, 11478, 11834], "NOR": [3617, 3772, 3870, 4087, 4034, 4154, 4350, 4582, 4759, 5310, 5220, 5343, 5342, 5808, 5909], "NTE": [3385, 3682, 3725, 3841, 3955, 3986, 4258, 4608, 4639, 4851, 4976, 5042, 5343, 5446, 5540], "NES": [7070, 7587, 7798, 7781, 7876, 8248, 8710, 8846, 9202, 9707, 9399, 9674, 10237, 10962, 11109], "PEN": [1520, 1544, 1558, 1628, 1664, 1789, 1893, 1955, 2061, 2246, 2014, 2210, 2372, 2698, 2969], "SIBC": [2229, 2237, 2302, 2225, 2350, 2479, 2621, 2699, 2863, 2887, 3132, 3215, 3361, 3457, 3635], "SIBCS": [368, 385, 389, 407, 428, 432, 442, 484, 500, 536, 513, 560, 596, 675, 689], "SIMUL": [26, 27, 26, 27, 28, 28, 28, 29, 29, 30, 30, 32, 32, 32, 34], "SIN": [39127, 40675, 41203, 41664, 41592, 42662, 44257, 45837, 47433, 48887, 47550, 48879, 50500, 53794, 55243] };
+    const consumoBrutoRegion = { "CEN": [58422, 59303, 59061, 58086, 57423, 57844, 59103, 60685, 61293, 60853, 57429, 58272, 59866, 60160, 60059], "ORI": [40098, 42447, 43835, 44224, 44901, 46587, 47642, 48583, 50285, 51655, 50436, 53051, 54643, 56633, 58547], "OCC": [51407, 55871, 57470, 57779, 59345, 61025, 62808, 66696, 68107, 69697, 68154, 70900, 73763, 76564, 77541], "NOR": [17339, 19251, 20097, 20466, 21089, 21642, 23389, 24293, 24684, 24966, 26104, 26449, 26332, 28259, 29126], "NTE": [20403, 22116, 22484, 22679, 23150, 23734, 24696, 25949, 27000, 28868, 29291, 29808, 30596, 31905, 32711], "NES": [43442, 47379, 47776, 47581, 48559, 50114, 52895, 54423, 56426, 57411, 54239, 57901, 60806, 62170, 64080], "PEN": [9206, 9735, 9938, 10300, 10635, 11610, 12129, 12498, 12989, 13872, 12497, 13613, 14677, 16054, 16930], "SIBC": [10991, 11426, 12020, 11996, 12598, 13122, 13438, 13825, 14535, 14621, 14938, 15966, 16686, 16346, 17218], "SIBCS": [2016, 2165, 2209, 2239, 2310, 2400, 2541, 2622, 2759, 2823, 2722, 2911, 3080, 3328, 3425], "SIMUL": [136, 138, 143, 147, 151, 146, 151, 152, 155, 155, 159, 161, 164, 165, 170], "SIN": [240317, 256103, 260661, 261115, 265101, 272557, 282662, 293127, 300783, 307321, 298150, 309994, 320683, 331744, 338994] };
+    const consumoFinalRegion = { "CEN": [34789, 36540, 37792, 38818, 39064, 40364, 45070, 46423, 48269, 48590, 46362, 47262, 48988, 49709, 49411], "ORI": [31734, 33567, 34836, 35292, 35986, 37286, 38423, 39607, 41840, 42709, 40722, 42530, 44503, 46528, 48022], "OCC": [45144, 48599, 49959, 50428, 51952, 53884, 53290, 57743, 58995, 60871, 59536, 61885, 64629, 66822, 67732], "NOR": [14567, 16264, 16895, 17263, 17796, 18497, 20017, 20823, 21277, 21441, 22247, 22332, 22580, 24037, 24651], "NTE": [17052, 18340, 18656, 18743, 19596, 20368, 21231, 22466, 23565, 24592, 24508, 24699, 25268, 25909, 26592], "NES": [37261, 40608, 40941, 40989, 41947, 43231, 45455, 45957, 47973, 48723, 45613, 49321, 51806, 53160, 53876], "PEN": [7732, 8142, 8354, 8660, 9032, 9730, 10342, 11055, 11399, 12425, 11204, 11827, 13043, 14414, 14934], "SIBC": [9605, 10044, 10514, 10554, 11122, 11618, 12005, 12429, 12798, 12937, 13521, 14671, 14991, 14879, 15565], "SIBCS": [1722, 1882, 1932, 1965, 2016, 2098, 2239, 2267, 2460, 2501, 2394, 2597, 2742, 2995, 3079], "SIMUL": [107, 112, 115, 118, 124, 124, 123, 125, 125, 126, 131, 135, 137, 146, 150], "SIN": [188279, 202060, 207433, 210192, 215373, 223360, 233828, 244073, 253318, 259352, 250193, 259855, 270817, 280579, 285218] };
+    const demandaShare = { "CEN": [21.57, 20.41, 19.7, 18.98, 18.45, 17.87, 18.09, 17.75, 17.32, 16.73, 17.02, 16.04, 15.54, 14.87, 14.85], "ORI": [15.22, 15.18, 15.09, 15.14, 15.24, 15.26, 15.05, 14.88, 14.94, 15.14, 14.57, 14.93, 15.05, 15.15, 15.16], "OCC": [19.58, 20.01, 20.43, 20.77, 20.51, 20.56, 19.75, 20.07, 20.41, 19.29, 19.06, 19.53, 19.34, 19.8, 19.86], "NOR": [8.66, 8.71, 8.81, 9.22, 9.09, 9.11, 9.19, 9.34, 9.36, 10.15, 10.19, 10.14, 9.8, 10.02, 9.91], "NTE": [8.11, 8.5, 8.48, 8.67, 8.91, 8.74, 8.99, 9.39, 9.13, 9.27, 9.71, 9.57, 9.81, 9.4, 9.3], "NES": [16.93, 17.51, 17.76, 17.56, 17.74, 18.09, 18.4, 18.04, 18.11, 18.55, 18.35, 18.36, 18.79, 18.91, 18.64], "PEN": [3.64, 3.56, 3.55, 3.67, 3.75, 3.92, 4.0, 3.99, 4.06, 4.29, 3.93, 4.19, 4.35, 4.66, 4.98], "SIBC": [5.34, 5.16, 5.24, 5.02, 5.29, 5.44, 5.54, 5.5, 5.63, 5.52, 6.11, 6.1, 6.17, 5.96, 6.1], "SIBCS": [0.88, 0.89, 0.89, 0.92, 0.96, 0.95, 0.93, 0.99, 0.98, 1.02, 1.0, 1.06, 1.09, 1.16, 1.16], "SIMUL": [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06], "SIN": [93.72, 93.89, 93.81, 94.0, 93.68, 93.55, 93.47, 93.45, 93.33, 93.4, 92.83, 92.77, 92.68, 92.82, 92.69] };
+    const consumoBrutoShare = { "CEN": [23.05, 21.98, 21.47, 21.08, 20.5, 20.07, 19.78, 19.59, 19.26, 18.73, 18.18, 17.71, 17.58, 17.11, 16.69], "ORI": [15.82, 15.73, 15.94, 16.05, 16.03, 16.16, 15.94, 15.69, 15.8, 15.9, 15.96, 16.12, 16.04, 16.11, 16.27], "OCC": [20.28, 20.71, 20.9, 20.97, 21.18, 21.17, 21.02, 21.53, 21.4, 21.45, 21.57, 21.55, 21.66, 21.78, 21.55], "NOR": [6.84, 7.13, 7.31, 7.43, 7.53, 7.51, 7.83, 7.84, 7.76, 7.68, 8.26, 8.04, 7.73, 8.04, 8.09], "NTE": [8.05, 8.2, 8.18, 8.23, 8.26, 8.23, 8.27, 8.38, 8.48, 8.88, 9.27, 9.06, 8.98, 9.07, 9.09], "NES": [17.14, 17.56, 17.37, 17.27, 17.33, 17.39, 17.7, 17.57, 17.73, 17.67, 17.17, 17.6, 17.85, 17.68, 17.81], "PEN": [3.63, 3.61, 3.61, 3.74, 3.8, 4.03, 4.06, 4.04, 4.08, 4.27, 3.96, 4.14, 4.31, 4.57, 4.71], "SIBC": [4.34, 4.23, 4.37, 4.35, 4.5, 4.55, 4.5, 4.46, 4.57, 4.5, 4.73, 4.85, 4.9, 4.65, 4.79], "SIBCS": [0.8, 0.8, 0.8, 0.81, 0.82, 0.83, 0.85, 0.85, 0.87, 0.87, 0.86, 0.88, 0.9, 0.95, 0.95], "SIMUL": [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05], "SIN": [94.81, 94.91, 94.77, 94.78, 94.62, 94.56, 94.6, 94.64, 94.52, 94.58, 94.36, 94.21, 94.15, 94.36, 94.22] };
+    const consumoFinalShare = { "CEN": [17.42, 17.07, 17.18, 17.42, 17.09, 17.02, 18.16, 17.93, 17.96, 17.67, 17.41, 17.05, 16.97, 16.65, 16.25], "ORI": [15.89, 15.68, 15.83, 15.84, 15.74, 15.72, 15.48, 15.3, 15.57, 15.54, 15.3, 15.34, 15.42, 15.58, 15.8], "OCC": [22.6, 22.7, 22.71, 22.63, 22.72, 22.72, 21.47, 22.3, 21.96, 22.14, 22.36, 22.32, 22.39, 22.38, 22.28], "NOR": [7.29, 7.6, 7.68, 7.75, 7.78, 7.8, 8.07, 8.04, 7.92, 7.8, 8.36, 8.05, 7.82, 8.05, 8.11], "NTE": [8.54, 8.57, 8.48, 8.41, 8.57, 8.59, 8.55, 8.68, 8.77, 8.95, 9.21, 8.91, 8.75, 8.68, 8.75], "NES": [18.66, 18.97, 18.61, 18.39, 18.35, 18.23, 18.31, 17.75, 17.85, 17.72, 17.13, 17.79, 17.95, 17.8, 17.72], "PEN": [3.87, 3.8, 3.8, 3.89, 3.95, 4.1, 4.17, 4.27, 4.24, 4.52, 4.21, 4.27, 4.52, 4.83, 4.91], "SIBC": [4.81, 4.69, 4.78, 4.74, 4.86, 4.9, 4.84, 4.8, 4.76, 4.71, 5.08, 5.29, 5.19, 4.98, 5.12], "SIBCS": [0.86, 0.88, 0.88, 0.88, 0.88, 0.88, 0.9, 0.88, 0.92, 0.91, 0.9, 0.94, 0.95, 1.0, 1.01], "SIMUL": [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05], "SIN": [94.27, 94.38, 94.29, 94.33, 94.2, 94.17, 94.21, 94.27, 94.28, 94.34, 93.97, 93.72, 93.81, 93.97, 93.82] };
+
+    /* --- LÓGICA DE GRÁFICAS --- */
+    function makeDualSolarChart(ctx, labels, serieValor, serieShare, labelValor, yLabelIzq) {
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: labelValor, data: serieValor, yAxisID: 'y', fill: true, tension: 0.25 },
+                    { label: 'Participación FV en el total (%)', data: serieShare, yAxisID: 'y1', fill: false, tension: 0.25, borderDash: [5,4] }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { position: 'top' }, tooltip: { mode: 'index', intersect: false } },
+                scales: {
+                    x: { title: { display: true, text: 'Año' } },
+                    y: { title: { display: true, text: yLabelIzq }, position: 'left' },
+                    y1: { title: { display: true, text: '% de participación' }, position: 'right', grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    }
+
+    /* NUEVO: Lógica del Stacked Chart (Área Apilada) */
+    let chartTechStack;
+    function initTechStackChart() {
+        const ctx = document.getElementById('chartTechStack');
+        const btnCap = document.getElementById('btnTechCap');
+        const btnGen = document.getElementById('btnTechGen');
+
+        function buildDatasets(sourceData) {
+            return Object.keys(sourceData).map(tech => ({
+                label: tech,
+                data: sourceData[tech],
+                backgroundColor: techColors[tech] || '#999',
+                borderColor: '#fff',
+                borderWidth: 0.5,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 4
+            }));
+        }
+
+        function updateChart(type) {
+            if(type === 'capacidad') {
+                btnCap.classList.add('primary');
+                btnGen.classList.remove('primary');
+            } else {
+                btnGen.classList.add('primary');
+                btnCap.classList.remove('primary');
+            }
+
+            const dataSrc = (type === 'capacidad') ? techDataCapacidad : techDataGeneracion;
+            const titleText = (type === 'capacidad') ? 'Capacidad Instalada (MW)' : 'Generación Eléctrica (GWh)';
+            const unit = (type === 'capacidad') ? 'MW' : 'GWh';
+
+            if(chartTechStack) chartTechStack.destroy();
+
+            chartTechStack = new Chart(ctx, {
+                type: 'line',
+                data: { labels: years, datasets: buildDatasets(dataSrc) },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'nearest', axis: 'x', intersect: false },
+                    plugins: {
+                        title: { display: true, text: titleText, font: { size: 16 } },
+                        tooltip: { callbacks: { label: function(context) { return ' ' + context.dataset.label + ': ' + context.raw.toLocaleString('es-MX') + ' ' + unit; } } },
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Año' } },
+                        y: { stacked: true, title: { display: true, text: unit } }
+                    }
+                }
+            });
+        }
+        btnCap.addEventListener('click', () => updateChart('capacidad'));
+        btnGen.addEventListener('click', () => updateChart('generacion'));
+        updateChart('capacidad');
+    }
+
+    let chartCapSolar, chartGenSolar, chartSEN, chartRegion;
+
+    window.addEventListener('load', () => {
+        // 1. Gráficas Solares
+        chartCapSolar = makeDualSolarChart(document.getElementById('chartCapSolar'), years, capSolar, capShare, 'Capacidad FV (MW)', 'MW');
+        chartGenSolar = makeDualSolarChart(document.getElementById('chartGenSolar'), years, genSolar, genShare, 'Generación FV (GWh)', 'GWh');
+
+        // 2. Gráfica Stacked (NUEVA)
+        initTechStackChart();
+
+        // 3. Tabla Nacional
+        const tbody = document.getElementById('mixTableBody');
+        years.forEach((year, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${year}</td><td>${capTotal[idx].toLocaleString('es-MX')}</td><td>${genTotal[idx].toLocaleString('es-MX')}</td><td>${demandaSen[idx].toLocaleString('es-MX')}</td><td>${consumoBrutoSen[idx].toLocaleString('es-MX')}</td><td>${consumoFinalSen[idx].toLocaleString('es-MX')}</td>`;
+            tbody.appendChild(tr);
+        });
+
+        // 4. Botones Ver gráficas / Ver tabla
+        const btnCharts = document.getElementById('btnViewCharts');
+        const btnTable  = document.getElementById('btnViewTable');
+        const mixCharts = document.getElementById('mixCharts');
+        const mixTable  = document.getElementById('mixTable');
+        btnCharts.addEventListener('click', () => {
+            mixCharts.style.display = ''; mixTable.style.display = 'none';
+            btnCharts.classList.add('primary'); btnTable.classList.remove('primary');
+        });
+        btnTable.addEventListener('click', () => {
+            mixCharts.style.display = 'none'; mixTable.style.display = '';
+            btnTable.classList.add('primary'); btnCharts.classList.remove('primary');
+        });
+
+        // 5. Gráfica SEN
+        const senSelect = document.getElementById('senVariableSelect');
+        senSelect.addEventListener('change', updateSenChart);
+        updateSenChart(); 
+
+        // 6. Sección de regiones
+        initRegionSection();
+    });
+
+    function updateSenChart() {
+        const variable = document.getElementById('senVariableSelect').value;
+        const ctx = document.getElementById('chartSEN');
+        if (chartSEN) chartSEN.destroy();
+        let datasets = []; let yLabel = ''; let titulo = '';
+        if (variable === 'capacidad') { titulo = 'Capacidad total instalada del SEN (MW)'; yLabel = 'MW'; datasets.push({ label: 'Capacidad total (MW)', data: capTotal, fill: true, tension: 0.25 }); }
+        else if (variable === 'generacion') { titulo = 'Generación total del SEN (GWh)'; yLabel = 'GWh'; datasets.push({ label: 'Generación total (GWh)', data: genTotal, fill: true, tension: 0.25 }); }
+        else if (variable === 'demanda') { titulo = 'Demanda máxima integrada del SEN (MW)'; yLabel = 'MW'; datasets.push({ label: 'Demanda máx. integrada (MW)', data: demandaSen, fill: true, tension: 0.25 }); }
+        else { titulo = 'Consumo bruto y final del SEN (GWh)'; yLabel = 'GWh'; datasets.push({ label: 'Consumo bruto (GWh)', data: consumoBrutoSen, fill: true, tension: 0.25 }, { label: 'Consumo final (GWh)', data: consumoFinalSen, fill: false, tension: 0.25 }); }
+        chartSEN = new Chart(ctx, { type: 'line', data: { labels: years, datasets: datasets }, options: { responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: titulo } }, interaction: { mode: 'index', intersect: false }, scales: { x: { title: { display: true, text: 'Año' } }, y: { title: { display: true, text: yLabel } } } } });
+    }
+
+    function getRegionData(variable, region) {
+        let serieRegion, serieShare, serieSen;
