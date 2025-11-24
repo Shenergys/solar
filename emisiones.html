@@ -6,9 +6,11 @@
     <title>SP-Energy | Emisiones</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Computer+Modern+Serif:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        /* Estilos generales (mismos que graficas.html) */
         .chart-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 1rem; }
         .chart-area { flex: 3; min-width: 300px; height: 400px; }
         .info-area { 
@@ -18,21 +20,37 @@
         }
         .info-area h4 { margin-top: 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .info-area p { font-size: 0.95rem; line-height: 1.5; color: #555; }
-        .highlight { color: #d35400; font-weight: bold; }
-        
-        /* Estilo especial para la ecuación */
-        .equation-box {
-            background-color: #2c3e50;
-            color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: center;
-            font-family: 'Courier New', Courier, monospace;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
+        .highlight { color: #d35400; font-weight: bold; font-size: 1.1em; }
 
-        /* Referencias (Estilo Oscuro) */
+        /* DISEÑO MEJORADO DE FÓRMULA */
+        .equation-container {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        }
+        .equation-title {
+            font-size: 0.9rem;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .math-formula {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-style: italic;
+        }
+        .variable { color: #2980b9; font-weight: bold; }
+        .operator { color: #7f8c8d; margin: 0 10px; }
+        .unit-desc { font-size: 0.8rem; color: #999; margin-top: 5px; font-family: 'Roboto', sans-serif; font-style: normal; }
+
+        /* Referencias */
         .references { background: #222; color: #eee; padding: 40px 20px; margin-top: 50px; font-size: 0.9rem; }
         .references h3 { color: #FFD700; margin-bottom: 20px; border-bottom: 1px solid #444; display: inline-block; }
         .references ul { list-style: none; padding: 0; }
@@ -64,20 +82,21 @@
 
         <section class="graph-card">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                <h2>Factor de Emisión del SEN (tCO₂e/MWh)</h2>
+                <h2>Factor de Emisión del SEN (2015–2024)</h2>
                 <div class="view-toggle">
                     <button id="btnFactorChart" class="btn primary">Ver gráfica</button>
                     <button id="btnFactorTable" class="btn">Ver tabla</button>
                 </div>
             </div>
-            <p>El Factor de Emisión Eléctrico representa la cantidad de gases de efecto invernadero emitidos por cada MWh de electricidad generado en el país.</p>
+            <p>Datos históricos reales del factor de emisión eléctrico según reportes oficiales.</p>
 
             <div id="factorChartContainer">
                 <div class="chart-wrapper">
                     <div class="chart-area"><canvas id="chartFactor"></canvas></div>
                     <div class="info-area">
-                        <h4>Tendencia del Factor</h4>
-                        <p>El factor de emisión oscila dependiendo de la mezcla de combustibles fósiles y renovables. En 2024, se estima un valor de <span class="highlight" id="valFactor24"></span> tCO₂e/MWh.</p>
+                        <h4>Análisis del Factor</h4>
+                        <p>El factor de emisión cerró 2024 en <span class="highlight" id="valFactor24"></span> tCO₂e/MWh.</p>
+                        <p>Se observa una tendencia a la baja respecto al pico de 2018, indicando una paulatina descarbonización de la red.</p>
                     </div>
                 </div>
             </div>
@@ -93,32 +112,35 @@
         <section class="graph-card">
             <h2>Emisiones Totales Asociadas a la Generación</h2>
             
-            <div class="equation-box">
-                
-
-[Image of Formula for Emissions Calculation]
- 
-                Emisiones (tCO₂e) = Consumo Bruto (MWh) × Factor de Emisión (tCO₂e/MWh)
+            <div class="equation-container">
+                <span class="equation-title">Metodología de Cálculo</span>
+                <div class="math-formula">
+                    <span class="variable">Emisiones</span> 
+                    <span class="operator">=</span> 
+                    <span class="variable">Consumo Bruto</span> 
+                    <span class="operator">×</span> 
+                    <span class="variable">Factor de Emisión</span>
+                </div>
+                <div class="unit-desc">(tCO₂e) = (MWh) × (tCO₂e/MWh)</div>
             </div>
 
             <div class="chart-wrapper">
                 <div class="chart-area"><canvas id="chartEmissions"></canvas></div>
                 <div class="info-area" id="emissionsInfo">
-                    <h4>Evolución al 2024</h4>
+                    <h4>Evolución 2015-2024</h4>
                     </div>
             </div>
         </section>
 
         <section class="graph-card" style="border-top: 5px solid #27ae60;">
             <h2>Impacto Positivo: Emisiones Evitadas por Energía Solar</h2>
-            <p>Estimación de las toneladas de CO₂ equivalente que se dejaron de emitir a la atmósfera gracias a la generación solar fotovoltaica en el SEN.</p>
+            <p>Toneladas de CO₂ equivalente que se dejaron de emitir gracias a la generación fotovoltaica en el periodo 2015-2024.</p>
             
             <div class="chart-wrapper">
                 <div class="chart-area"><canvas id="chartAvoided"></canvas></div>
                 <div class="info-area">
-                    <h4>Contribución Solar</h4>
-                    <p>Gracias a la generación fotovoltaica en 2024, se evitaron aproximadamente <span class="highlight" id="valAvoided24"></span> millones de toneladas de CO₂e.</p>
-                    <p style="margin-top:10px; font-size:0.85rem; color:#777;">*Cálculo: Generación Solar (MWh) × Factor de Emisión del año correspondiente.</p>
+                    <h4>Beneficio Ambiental 2024</h4>
+                    <p>Solo en el año 2024, la energía solar evitó la emisión de aproximadamente <span class="highlight" id="valAvoided24"></span> millones de toneladas de CO₂e.</p>
                 </div>
             </div>
         </section>
@@ -140,33 +162,33 @@
     <footer><p>&copy; 2025 SP-Energy.</p></footer>
 
     <script>
-        // 1. DATOS
-        const years = [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+        // 1. DATOS EXACTOS (Transcritus de tu imagen)
+        // Solo usamos 2015-2024 porque es donde tienes el Factor Real.
+        const years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
         
-        // Consumo Bruto (GWh) - Importado de tus datos anteriores
-        const consumoBrutoSen = [253460,269831,275033,275497,280161,288224,298792,309726,318233,324921,315969,329032,340613,351584,359807];
-        
-        // Generación Solar (GWh)
-        const genSolar = [0,0,3,20,83,45,151,349,2176,8394,13528,17069,16290,18210,18640];
+        // TUS DATOS REALES (Imagen image_658547.png)
+        const factorEmision = [0.456, 0.458, 0.496, 0.527, 0.505, 0.494, 0.423, 0.435, 0.438, 0.425];
 
-        // Factor de Emisión Estimado (tCO2e/MWh) - Basado en tendencia histórica MX
-        const factorEmision = [0.485, 0.490, 0.495, 0.502, 0.485, 0.465, 0.458, 0.496, 0.510, 0.490, 0.475, 0.465, 0.455, 0.432, 0.425];
+        // CONSUMO BRUTO (Filtrado para 2015-2024 de tus datos originales)
+        // Original completo: [253460, 269831, 275033, 275497, 280161, 288224 (2015), 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807]
+        const consumoBrutoSubset = [288224, 298792, 309726, 318233, 324921, 315969, 329032, 340613, 351584, 359807];
 
-        // CÁLCULOS MATEMÁTICOS
-        // 1. Emisiones Totales (Millones de Toneladas)
-        // Formula: GWh * 1000 = MWh.  MWh * Factor = Toneladas.  / 1,000,000 = Millones de Toneladas
-        const emisionesTotales = consumoBrutoSen.map((cons, i) => {
-            return (cons * 1000 * factorEmision[i]) / 1000000; 
+        // GENERACIÓN SOLAR (Filtrado para 2015-2024)
+        // Original completo: [..., 45 (2015), 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640]
+        const genSolarSubset = [45, 151, 349, 2176, 8394, 13528, 17069, 16290, 18210, 18640];
+
+        // CÁLCULOS
+        // Emisiones = (GWh * 1000) * Factor / 1,000,000 (Para Millones de Toneladas)
+        const emisionesTotales = consumoBrutoSubset.map((cons, i) => {
+            return (cons * 1000 * factorEmision[i]) / 1000000;
         });
 
-        // 2. Emisiones Evitadas (Millones de Toneladas)
-        const emisionesEvitadas = genSolar.map((gen, i) => {
+        const emisionesEvitadas = genSolarSubset.map((gen, i) => {
             return (gen * 1000 * factorEmision[i]) / 1000000;
         });
 
-        // --- GENERACIÓN DE GRÁFICAS ---
+        // --- GRÁFICAS ---
 
-        // A. Gráfica Factor de Emisión
         function initFactorChart() {
             const ctx = document.getElementById('chartFactor');
             new Chart(ctx, {
@@ -176,8 +198,8 @@
                     datasets: [{
                         label: 'Factor de Emisión (tCO₂e/MWh)',
                         data: factorEmision,
-                        borderColor: '#e67e22', // Naranja óxido
-                        backgroundColor: 'rgba(230, 126, 34, 0.2)',
+                        borderColor: '#d35400', // Color óxido
+                        backgroundColor: 'rgba(211, 84, 0, 0.2)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.3,
@@ -194,43 +216,41 @@
                 }
             });
 
-            // Llenar tabla
+            // Tabla Factor
             const tbody = document.getElementById('factorTableBody');
             years.forEach((y, i) => {
                 tbody.innerHTML += `<tr><td>${y}</td><td>${factorEmision[i].toFixed(3)}</td></tr>`;
             });
-            // Dato 2024 en texto
-            document.getElementById('valFactor24').innerText = factorEmision[factorEmision.length-1].toFixed(3);
+            document.getElementById('valFactor24').innerText = factorEmision[factorEmision.length-1];
         }
 
-        // B. Gráfica Emisiones Totales
         function initEmissionsChart() {
             const ctx = document.getElementById('chartEmissions');
             new Chart(ctx, {
-                type: 'line', // Usamos Area chart
+                type: 'line',
                 data: {
                     labels: years,
                     datasets: [{
                         label: 'Emisiones GEI (Millones tCO₂e)',
                         data: emisionesTotales,
-                        borderColor: '#c0392b', // Rojo oscuro
+                        borderColor: '#c0392b',
                         backgroundColor: 'rgba(192, 57, 43, 0.2)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.3,
-                        pointRadius: 3,
+                        pointRadius: 4,
                         pointHitRadius: 20
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: { y: { title: { display: true, text: 'Millones Toneladas CO₂e' } } }
+                    interaction: { mode: 'nearest', intersect: true },
+                    scales: { y: { title: { display: true, text: 'Millones Toneladas' } } }
                 }
             });
 
-            // Cálculo de Evolución
+            // Texto Evolución
             const start = emisionesTotales[0];
             const end = emisionesTotales[emisionesTotales.length - 1];
             const pct = ((end - start) / start) * 100;
@@ -238,22 +258,21 @@
 
             document.getElementById('emissionsInfo').innerHTML = `
                 <h4>Evolución al 2024</h4>
-                <p>Las emisiones totales del SEN pasaron de <strong>${start.toFixed(1)}</strong> Millones de tCO₂e en 2010 a <strong>${end.toFixed(1)}</strong> Millones en 2024.</p>
-                <p>Esto representa una variación del <span class="highlight">${sign}${pct.toFixed(1)}%</span> en el periodo.</p>
+                <p>Las emisiones totales estimadas pasaron de <strong>${start.toFixed(1)}</strong> Millones tCO₂e en 2015 a <strong>${end.toFixed(1)}</strong> Millones en 2024.</p>
+                <p>Variación en el periodo: <span class="highlight">${sign}${pct.toFixed(1)}%</span>.</p>
             `;
         }
 
-        // C. Gráfica Emisiones Evitadas
         function initAvoidedChart() {
             const ctx = document.getElementById('chartAvoided');
             new Chart(ctx, {
-                type: 'bar', // Barra se ve mejor para "ahorro"
+                type: 'bar',
                 data: {
                     labels: years,
                     datasets: [{
                         label: 'Emisiones Evitadas (Millones tCO₂e)',
                         data: emisionesEvitadas,
-                        backgroundColor: 'rgba(39, 174, 96, 0.6)', // Verde
+                        backgroundColor: 'rgba(39, 174, 96, 0.6)',
                         borderColor: '#27ae60',
                         borderWidth: 1
                     }]
@@ -261,22 +280,19 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: { y: { title: { display: true, text: 'Millones Toneladas CO₂e' } } }
+                    interaction: { mode: 'nearest', intersect: true },
+                    scales: { y: { title: { display: true, text: 'Millones Toneladas' } } }
                 }
             });
-
-            // Dato 2024 en texto
             document.getElementById('valAvoided24').innerText = emisionesEvitadas[emisionesEvitadas.length - 1].toFixed(2);
         }
 
-        // Inicialización
         window.onload = function() {
             initFactorChart();
             initEmissionsChart();
             initAvoidedChart();
 
-            // Botones Toggle Factor
+            // Toggle Botones
             const btnChart = document.getElementById('btnFactorChart');
             const btnTable = document.getElementById('btnFactorTable');
             const divChart = document.getElementById('factorChartContainer');
