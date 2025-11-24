@@ -11,7 +11,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        /* Estilos del Mapa */
+        /* --- Estilos Mapa --- */
         .map-container {
             position: relative;
             height: 600px;
@@ -22,71 +22,73 @@
             z-index: 1;
         }
 
-        /* --- PANEL DE CAPAS (DISEÑO RESTAURADO DE 3 COLUMNAS) --- */
+        /* --- PANEL DE CAPAS (CORREGIDO: 3 COLUMNAS FIJAS) --- */
         .layers-panel {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            /* AQUÍ ESTÁ LA CORRECCIÓN: 3 columnas del mismo tamaño siempre */
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 25px;
             margin-bottom: 2rem;
+            align-items: start; /* Alineación superior para que se vean ordenadas */
         }
 
+        /* Solo en celulares se vuelve 1 columna */
+        @media (max-width: 900px) {
+            .layers-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ESTILO DE LAS TARJETAS DE CAPAS (DISEÑO BONITO) */
         .layer-group {
             background: #fff;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-top: 4px solid #FFD700; /* El borde amarillo que te gustaba */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra suave */
+            border-top: 5px solid #FFD700; /* Línea amarilla SP-Energy */
+            border-left: 1px solid #eee;
+            border-right: 1px solid #eee;
+            border-bottom: 1px solid #eee;
         }
 
         .layer-group h3 {
             margin-top: 0;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: #2c3e50;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
         }
 
         .layer-item {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 0.95rem;
-            color: #555;
+            color: #444;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .layer-item:hover {
+            background-color: #f9f9f9;
         }
 
         .layer-item input {
-            margin-right: 10px;
-            transform: scale(1.2);
+            margin-right: 12px;
+            transform: scale(1.3); /* Checkbox visible */
             cursor: pointer;
             accent-color: #FFD700;
         }
 
-        /* Estilos de la Tabla (Oculta por defecto) */
-        #tableSection {
-            display: none; 
-            margin-top: 2rem;
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Glosario */
-        .glossary-section {
-            margin-top: 3rem;
-            border-top: 1px solid #ccc;
-            padding-top: 2rem;
-        }
-        #glossaryContent {
-            display: none;
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 15px;
-            border-left: 5px solid #2c3e50;
-        }
+        /* Tabla y Glosario (Igual que antes) */
+        #tableSection { display: none; margin-top: 2rem; }
+        .glossary-section { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 2rem; }
+        #glossaryContent { display: none; background: #f4f4f4; padding: 20px; border-radius: 5px; margin-top: 15px; border-left: 5px solid #2c3e50; }
         .glossary-item { margin-bottom: 10px; }
-        .glossary-term { font-weight: bold; color: #333; }
-        .glossary-def { margin-left: 10px; color: #666; }
+        .term { font-weight: bold; color: #d35400; }
     </style>
 </head>
 <body>
@@ -126,7 +128,7 @@
         <div id="panelGeneral" class="layers-panel">
             
             <div class="layer-group">
-                <h3>☀️ Energía</h3>
+                <h3>☀️ Energía (Capas Base)</h3>
                 <div class="layer-item"><input type="checkbox" value="rad"><label>Radiación Solar</label></div>
                 <div class="layer-item"><input type="checkbox" value="pot"><label>Potencial Fotovoltaico</label></div>
                 <div class="layer-item"><input type="checkbox" value="cent"><label>Centrales Fotovoltaicas</label></div>
@@ -155,27 +157,27 @@
         <div id="panelPV" class="layers-panel" style="display:none;">
             
             <div class="layer-group">
-                <h3>☀️ Indicadores Solares</h3>
+                <h3>☀️ Indicadores Técnicos</h3>
                 <div class="layer-item"><input type="checkbox" value="potPV"><label>Potencial Fotovoltaico</label></div>
                 <div class="layer-item"><input type="checkbox" value="centPV"><label>Centrales Fotovoltaicas</label></div>
                 <div class="layer-item"><input type="checkbox" value="fp"><label>Factor de Planta</label></div>
             </div>
 
             <div class="layer-group">
-                <h3>📊 Datos por Región</h3>
-                <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad Instalada (Región)</label></div>
-                <div class="layer-item"><input type="checkbox" value="genReg"><label>Generación Eléctrica (Región)</label></div>
-                <div class="layer-item"><input type="checkbox" value="demReg"><label>Demanda Máxima (Región)</label></div>
+                <h3>📊 Datos Regionales (Color)</h3>
+                <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad Instalada</label></div>
+                <div class="layer-item"><input type="checkbox" value="genReg"><label>Generación Eléctrica</label></div>
+                <div class="layer-item"><input type="checkbox" value="demReg"><label>Demanda Máxima</label></div>
             </div>
 
             <div class="layer-group">
                 <h3>📍 Referencia</h3>
-                <div class="layer-item"><input type="checkbox" value="regPV" checked disabled><label>División de Regiones (Base)</label></div>
+                <div class="layer-item"><input type="checkbox" value="regPV" checked disabled><label>División de Regiones</label></div>
             </div>
         </div>
 
         <section id="tableSection" class="graph-card">
-            <h3>Datos Regionales del SEN</h3>
+            <h3>Datos Regionales (Cierre 2024)</h3>
             <table class="data-table">
                 <thead>
                     <tr>
@@ -185,20 +187,18 @@
                         <th>Demanda Máx (MW)</th>
                     </tr>
                 </thead>
-                <tbody id="tableBodyData">
-                    </tbody>
+                <tbody id="tableBodyData"></tbody>
             </table>
         </section>
 
         <section class="glossary-section">
             <button id="btnGlossary" class="btn" style="background:#333; color:white; width:100%;">Ver Glosario de Términos</button>
-            
             <div id="glossaryContent">
                 <h3>Glosario</h3>
-                <div class="glossary-item"><span class="glossary-term">ANP:</span> <span class="glossary-def">Áreas Naturales Protegidas.</span></div>
-                <div class="glossary-item"><span class="glossary-term">Factor de Planta:</span> <span class="glossary-def">Eficiencia real de generación respecto a la capacidad instalada.</span></div>
-                <div class="glossary-item"><span class="glossary-term">Potencial Fotovoltaico:</span> <span class="glossary-def">Irradiación solar disponible para generación eléctrica.</span></div>
-                <div class="glossary-item"><span class="glossary-term">SEN:</span> <span class="glossary-def">Sistema Eléctrico Nacional.</span></div>
+                <div class="glossary-item"><span class="term">ANP:</span> Áreas Naturales Protegidas.</div>
+                <div class="glossary-item"><span class="term">Factor de Planta:</span> Eficiencia real de generación.</div>
+                <div class="glossary-item"><span class="term">Potencial Fotovoltaico:</span> Irradiación disponible.</div>
+                <div class="glossary-item"><span class="term">SEN:</span> Sistema Eléctrico Nacional.</div>
             </div>
         </section>
 
@@ -207,86 +207,50 @@
     <footer><p>&copy; 2025 SP-Energy.</p></footer>
 
     <script>
-        // Inicializar Mapa
         const map = L.map('map').setView([23.6345, -102.5528], 5);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap, &copy; CARTO'
-        }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap, &copy; CARTO' }).addTo(map);
 
-        // --- Lógica de Botones (General vs Fotovoltaico) ---
         const btnGen = document.getElementById('btnGeneral');
         const btnPV = document.getElementById('btnPV');
         const panelGen = document.getElementById('panelGeneral');
         const panelPV = document.getElementById('panelPV');
 
         btnGen.addEventListener('click', () => {
-            btnGen.classList.add('primary');
-            btnPV.classList.remove('primary');
-            panelGen.style.display = 'grid'; // Vuelve a mostrar grid de 3 columnas
-            panelPV.style.display = 'none';
+            btnGen.classList.add('primary'); btnPV.classList.remove('primary');
+            panelGen.style.display = 'grid'; panelPV.style.display = 'none';
         });
 
         btnPV.addEventListener('click', () => {
-            btnPV.classList.add('primary');
-            btnGen.classList.remove('primary');
-            panelGen.style.display = 'none';
-            panelPV.style.display = 'grid'; // Muestra grid de columnas
+            btnPV.classList.add('primary'); btnGen.classList.remove('primary');
+            panelGen.style.display = 'none'; panelPV.style.display = 'grid';
         });
 
-        // --- Lógica de Tabla ---
+        // Tabla
         const btnTable = document.getElementById('btnShowTable');
         const tableSec = document.getElementById('tableSection');
         const tbody = document.getElementById('tableBodyData');
-
-        // Datos Mockup (Aquí podrías poner tus datos reales de regiones si los tienes a mano)
         const dataRegiones = [
-            {r: "CEN", c: "En proceso", g: "En proceso", d: 8848},
-            {r: "ORI", c: "En proceso", g: "En proceso", d: 9034},
-            {r: "OCC", c: "En proceso", g: "En proceso", d: 11834},
-            {r: "NOR", c: "En proceso", g: "En proceso", d: 5909},
-            {r: "NTE", c: "En proceso", g: "En proceso", d: 5540},
-            {r: "NES", c: "En proceso", g: "En proceso", d: 11109},
-            {r: "PEN", c: "En proceso", g: "En proceso", d: 2969},
-            {r: "SIBC", c: "En proceso", g: "En proceso", d: 3635},
-            {r: "SIBCS", c: "En proceso", g: "En proceso", d: 689},
-            {r: "SIMUL", c: "En proceso", g: "En proceso", d: 34},
+            {r: "CEN", c: "En proceso", g: "En proceso", d: 8848}, {r: "ORI", c: "En proceso", g: "En proceso", d: 9034},
+            {r: "OCC", c: "En proceso", g: "En proceso", d: 11834}, {r: "NOR", c: "En proceso", g: "En proceso", d: 5909},
+            {r: "NTE", c: "En proceso", g: "En proceso", d: 5540}, {r: "NES", c: "En proceso", g: "En proceso", d: 11109},
+            {r: "PEN", c: "En proceso", g: "En proceso", d: 2969}, {r: "SIBC", c: "En proceso", g: "En proceso", d: 3635},
+            {r: "SIBCS", c: "En proceso", g: "En proceso", d: 689}, {r: "SIMUL", c: "En proceso", g: "En proceso", d: 34},
             {r: "SIN", c: 90543, g: 352305, d: 55243}
         ];
-
-        dataRegiones.forEach(d => {
-            tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>${d.c.toLocaleString()}</td><td>${d.g.toLocaleString()}</td><td>${d.d.toLocaleString()}</td></tr>`;
-        });
+        dataRegiones.forEach(d => { tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>${d.c.toLocaleString()}</td><td>${d.g.toLocaleString()}</td><td>${d.d.toLocaleString()}</td></tr>`; });
 
         btnTable.addEventListener('click', () => {
-            if(tableSec.style.display === 'block'){
-                tableSec.style.display = 'none';
-                btnTable.textContent = 'Ver Tabla de Datos';
-            } else {
-                tableSec.style.display = 'block';
-                btnTable.textContent = 'Ocultar Tabla';
-            }
+            if(tableSec.style.display === 'block'){ tableSec.style.display = 'none'; btnTable.textContent = 'Ver Tabla de Datos'; }
+            else { tableSec.style.display = 'block'; btnTable.textContent = 'Ocultar Tabla'; }
         });
 
-        // --- Lógica Glosario ---
+        // Glosario
         const btnGlos = document.getElementById('btnGlossary');
         const divGlos = document.getElementById('glossaryContent');
         btnGlos.addEventListener('click', () => {
-            if(divGlos.style.display === 'block') {
-                divGlos.style.display = 'none';
-                btnGlos.textContent = 'Ver Glosario de Términos';
-            } else {
-                divGlos.style.display = 'block';
-                btnGlos.textContent = 'Ocultar Glosario';
-            }
+            if(divGlos.style.display === 'block') { divGlos.style.display = 'none'; btnGlos.textContent = 'Ver Glosario de Términos'; }
+            else { divGlos.style.display = 'block'; btnGlos.textContent = 'Ocultar Glosario'; }
         });
-
-        // Simulación de Checkboxes (Solo consola)
-        document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
-            chk.addEventListener('change', (e) => {
-                console.log((e.target.checked ? "Activado: " : "Desactivado: ") + e.target.value);
-            });
-        });
-
     </script>
 </body>
 </html>
