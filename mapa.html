@@ -1,317 +1,261 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Mapa Interactivo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SP-Energy | Mapas</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Estilos generales (mismo estilo amarillo) -->
-  <style>
-    body { margin:0; font-family: Arial, sans-serif; background:#f5f5f5; }
-    header { background:#ffcc00; padding:1.5rem; text-align:center; }
-    header h1 { margin:0; }
-    header p.subtitle { margin:0.3rem 0 0; }
-    nav {
-      background:#333; padding:1rem; text-align:center;
-    }
-    nav a {
-      color:white; margin:0 1rem; text-decoration:none; font-weight:bold;
-    }
-    nav a:hover { text-decoration:underline; }
-    main {
-      max-width:1100px; margin:2rem auto; background:white;
-      padding:2rem; border-radius:8px;
-    }
+    <style>
+        /* --- Estilos específicos del Mapa --- */
+        .map-container {
+            position: relative;
+            height: 600px; /* Altura del mapa */
+            width: 100%;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+            z-index: 1;
+        }
 
-    .map-tabs {
-      display:flex;
-      gap:1rem;
-      margin-bottom:1.5rem;
-      flex-wrap:wrap;
-    }
-    .map-tabs button {
-      border:none;
-      padding:0.6rem 1.2rem;
-      border-radius:4px;
-      cursor:pointer;
-      font-weight:bold;
-      background:#e0e0e0;
-    }
-    .map-tabs button.active {
-      background:#333;
-      color:#fff;
-    }
+        /* Panel de Control de Capas (3 Columnas) */
+        .layers-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 2rem;
+        }
 
-    .map-section { display:none; }
-    .map-section.active { display:block; }
+        .layer-group {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-top: 4px solid #FFD700;
+        }
 
-    .map-layout {
-      display:flex;
-      flex-wrap:wrap;
-      gap:1.5rem;
-    }
-    .map-sidebar {
-      flex:1 1 260px;
-      font-size:0.95rem;
-    }
-    .map-sidebar h3 { margin-top:0; }
-    .map-sidebar label {
-      display:block;
-      margin-bottom:0.4rem;
-    }
-    .map-sidebar p {
-      font-size:0.85rem;
-      color:#555;
-      margin-top:1rem;
-    }
-    .map-box {
-      flex:2 1 420px;
-      height:450px;
-    }
-    #map-general, #map-fv {
-      width:100%;
-      height:100%;
-      border-radius:8px;
-      border:1px solid #ddd;
-    }
-  </style>
+        .layer-group h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
 
-  <!-- Leaflet (mapas) -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+        .layer-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .layer-item input {
+            margin-right: 10px;
+            transform: scale(1.2); /* Checkbox un poco más grande */
+            cursor: pointer;
+        }
+
+        /* Botón Glosario */
+        .glossary-section {
+            margin-top: 3rem;
+            border-top: 1px solid #ccc;
+            padding-top: 2rem;
+        }
+
+        #glossaryContent {
+            display: none; /* Oculto por defecto */
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 5px solid #2980b9;
+        }
+
+        .glossary-item {
+            margin-bottom: 10px;
+        }
+        .glossary-term { font-weight: bold; color: #333; }
+        .glossary-def { margin-left: 10px; color: #666; }
+
+    </style>
 </head>
-
 <body>
-  <header class="site-header">
-    <div class="title-bar">
-      <h1>Energía Solar para Todos</h1>
-      <p class="subtitle">
-        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
-      </p>
-    </div>
 
-    <nav class="main-nav">
-      <a href="index.html">Inicio</a>
-      <a href="mapa.html">Mapa Interactivo</a>
-      <a href="graficas.html">Gráficas y Tablas</a>
-      <a href="emisiones.html">Emisiones</a>
-      <a href="info.html">Contacto</a>
+    <header class="main-header">
+        <div class="logo-container">
+            <span class="logo-text">SP-ENERGY <span class="sun-icon">☀️</span></span>
+        </div>
+        <div class="slogan-container">
+            <h1>Energía Solar para Todos</h1>
+        </div>
+        <div class="spacer"></div> 
+    </header>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="mapa.html" class="active">Mapas</a></li>
+            <li><a href="graficas.html">Gráficas y Tablas</a></li>
+            <li><a href="emisiones.html">Emisiones</a></li>
+            <li><a href="info.html">Contacto</a></li>
+        </ul>
     </nav>
-  </header>
 
-  <main>
-    <h2>Mapa Interactivo</h2>
-    <p>
-      Selecciona el tipo de mapa que deseas explorar. El mapa general muestra variables
-      de clima y territorio; el mapa fotovoltaico se enfoca en radiación y potencial solar.
-    </p>
+    <main class="main-container">
+        
+        <h2 class="section-title">Visualizador Geográfico</h2>
 
-    <!-- Botones para cambiar entre mapas -->
-    <div class="map-tabs">
-      <button class="tab-button active" data-target="section-general">
-        Mapa general (radiación, temperatura, ANP, FV)
-      </button>
-      <button class="tab-button" data-target="section-fv">
-        Mapa fotovoltaico (radiación, potencial, factor de planta)
-      </button>
-    </div>
+        <section class="graph-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3>Selecciona el tipo de visualización:</h3>
+                <div class="view-toggle">
+                    <button id="btnGeneral" class="btn primary">Mapa General</button>
+                    <button id="btnPV" class="btn">Mapa Fotovoltaico</button>
+                </div>
+            </div>
 
-    <!-- SECCIÓN 1: MAPA GENERAL -->
-    <section id="section-general" class="map-section active">
-      <h3>Mapa general del sistema</h3>
-      <div class="map-layout">
-        <div class="map-sidebar">
-          <h3>Capas disponibles</h3>
+            <div id="map" class="map-container"></div>
 
-          <label><input type="checkbox" id="layer-radiacion" checked> Radiación solar (kWh/m²)</label>
-          <label><input type="checkbox" id="layer-temperatura" checked> Temperatura media (°C)</label>
-          <label><input type="checkbox" id="layer-anp"> Áreas Naturales Protegidas</label>
-          <label><input type="checkbox" id="layer-fv"> Centrales fotovoltaicas</label>
+            <div class="layers-panel">
+                
+                <div class="layer-group">
+                    <h3>☀️ Energía Fotovoltaica</h3>
+                    <div class="layer-item"><input type="checkbox" id="layerRad" value="radiacion"><label for="layerRad">Radiación Solar</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerPot" value="potencial"><label for="layerPot">Potencial Fotovoltaico</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerCent" value="centrales"><label for="layerCent">Centrales Fotovoltaicas</label></div>
+                </div>
 
-          <p>
-            Más adelante podrás conectar estos controles con tus capas reales
-            (GeoJSON, WMS, etc.). Por ahora se usan datos de ejemplo.
-          </p>
-        </div>
+                <div class="layer-group">
+                    <h3>🌍 Territorio y Clima</h3>
+                    <div class="layer-item"><input type="checkbox" id="layerTempLow" value="tempBaja"><label for="layerTempLow">Temperatura Baja</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerTempMid" value="tempMedia"><label for="layerTempMid">Temperatura Media</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerTempHigh" value="tempAlta"><label for="layerTempHigh">Temperatura Alta</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerANP" value="anp"><label for="layerANP">Áreas Naturales Protegidas (ANP)</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerHuman" value="asentamientos"><label for="layerHuman">Asentamientos Humanos</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerWater" value="agua"><label for="layerWater">Cuerpos de Agua</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerRelief" value="relieve"><label for="layerRelief">Relieve / Topografía</label></div>
+                </div>
 
-        <div class="map-box">
-          <div id="map-general"></div>
-        </div>
-      </div>
-    </section>
+                <div class="layer-group">
+                    <h3>⚡ Infraestructura SEN</h3>
+                    <div class="layer-item"><input type="checkbox" id="layerReg" value="regiones"><label for="layerReg">División de Regiones</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerTx" value="transmision"><label for="layerTx">Líneas de Transmisión</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerDx" value="distribucion"><label for="layerDx">Líneas de Distribución</label></div>
+                    <div class="layer-item"><input type="checkbox" id="layerSub" value="subestaciones"><label for="layerSub">Subestaciones Eléctricas</label></div>
+                </div>
 
-    <!-- SECCIÓN 2: MAPA FOTOVOLTAICO -->
-    <section id="section-fv" class="map-section">
-      <h3>Mapa de energía fotovoltaica</h3>
-      <div class="map-layout">
-        <div class="map-sidebar">
-          <h3>Capas FV</h3>
+            </div>
+        </section>
 
-          <label><input type="checkbox" id="layer-fv-rad" checked> Radiación global</label>
-          <label><input type="checkbox" id="layer-fv-pot"> Potencial fotovoltaico estimado</label>
-          <label><input type="checkbox" id="layer-fv-factor"> Factor de planta (capacidad)</label>
+        <section class="glossary-section">
+            <button id="btnGlossary" class="btn" style="background:#333; color:white; width:100%;">Ver Glosario de Términos</button>
+            
+            <div id="glossaryContent">
+                <h3>Glosario de Términos</h3>
+                <div class="glossary-item"><span class="glossary-term">ANP:</span> <span class="glossary-def">Áreas Naturales Protegidas. Zonas del territorio nacional sobre las que la nación ejerce su soberanía y jurisdicción.</span></div>
+                <div class="glossary-item"><span class="glossary-term">SEN:</span> <span class="glossary-def">Sistema Eléctrico Nacional. Conjunto de redes, centrales y equipos para generar, transmitir y distribuir energía.</span></div>
+                <div class="glossary-item"><span class="glossary-term">Radiación Solar:</span> <span class="glossary-def">Energía emitida por el Sol que se propaga en todas las direcciones a través del espacio mediante ondas electromagnéticas (kWh/m²).</span></div>
+                <div class="glossary-item"><span class="glossary-term">Potencial Fotovoltaico:</span> <span class="glossary-def">Capacidad de una región para generar electricidad mediante paneles solares, considerando clima y radiación.</span></div>
+                <div class="glossary-item"><span class="glossary-term">Líneas de Transmisión:</span> <span class="glossary-def">Red de cables de alta tensión que transportan energía desde las centrales hasta las subestaciones.</span></div>
+                <div class="glossary-item"><span class="glossary-term">Subestación:</span> <span class="glossary-def">Instalación encargada de modificar los niveles de tensión de la energía eléctrica para su transmisión o distribución.</span></div>
+            </div>
+        </section>
 
-          <p>
-            Este mapa está pensado para mostrar exclusivamente variables vinculadas
-            a la energía solar fotovoltaica. Más adelante podrás sustituir los datos
-            de ejemplo por resultados de tu modelo o de fuentes oficiales.
-          </p>
-        </div>
+    </main>
 
-        <div class="map-box">
-          <div id="map-fv"></div>
-        </div>
-      </div>
-    </section>
-  </main>
+    <footer>
+        <p>&copy; 2025 SP-Energy. Visualización de datos energéticos.</p>
+    </footer>
 
-  <script>
-    // --- MAPA GENERAL ---
-    const mapGeneral = L.map("map-general").setView([23.5, -102], 5);
+    <script>
+        // 1. INICIALIZAR MAPA (Centrado en México)
+        const map = L.map('map').setView([23.6345, -102.5528], 5);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "© OpenStreetMap contributors"
-    }).addTo(mapGeneral);
+        // 2. CAPA BASE (OpenStreetMap - Limpio)
+        const baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
 
-    // Radiación solar (ejemplo)
-    const radiacionLayer = L.layerGroup([
-      L.circle([25, -100], { radius: 90000 }).bindPopup("Alta radiación"),
-      L.circle([20, -99], { radius: 90000 }).bindPopup("Radiación media"),
-    ]).addTo(mapGeneral);
+        // 3. DEFINICIÓN DE CAPAS (Placeholders)
+        // NOTA: Aquí es donde conectarías tus archivos GeoJSON reales.
+        // Por ahora, crearé grupos vacíos para que los checkbox funcionen visualmente.
+        
+        const layers = {
+            radiacion: L.layerGroup(), // Aquí cargarías tu capa de radiación
+            potencial: L.layerGroup(),
+            centrales: L.layerGroup(),
+            tempBaja: L.layerGroup(),
+            tempMedia: L.layerGroup(),
+            tempAlta: L.layerGroup(),
+            anp: L.layerGroup(),
+            asentamientos: L.layerGroup(),
+            agua: L.layerGroup(),
+            relieve: L.layerGroup(),
+            regiones: L.layerGroup(),
+            transmision: L.layerGroup(),
+            distribucion: L.layerGroup(),
+            subestaciones: L.layerGroup()
+        };
 
-    // Temperatura media (ejemplo)
-    const temperaturaGeojson = {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "properties": { "nombre": "Zona cálida" },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [[
-              [-106, 18], [-96, 18], [-96, 24], [-106, 24], [-106, 18]
-            ]]
-          }
-        }
-      ]
-    };
-
-    const temperaturaLayer = L.geoJSON(temperaturaGeojson, {
-      style: { fillOpacity: 0.2 }
-    }).bindPopup("Zona con temperatura elevada").addTo(mapGeneral);
-
-    // Áreas Naturales Protegidas (ejemplo)
-    const anpLayer = L.layerGroup([
-      L.marker([19.5, -99.3]).bindPopup("ANP de ejemplo")
-    ]);
-
-    // Centrales fotovoltaicas (ejemplo)
-    const fvLayer = L.layerGroup([
-      L.marker([21, -101]).bindPopup("Central FV 1 (ejemplo)"),
-      L.marker([28, -111]).bindPopup("Central FV 2 (ejemplo)")
-    ]);
-
-    // --- MAPA FV ---
-    const mapFV = L.map("map-fv").setView([23.5, -102], 5);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "© OpenStreetMap contributors"
-    }).addTo(mapFV);
-
-    // Radiación FV (ejemplo)
-    const fvRadLayer = L.layerGroup([
-      L.circle([24, -103], { radius: 100000 }).bindPopup("Zona con alta radiación FV"),
-      L.circle([19, -99], { radius: 80000 }).bindPopup("Zona con radiación media FV")
-    ]).addTo(mapFV);
-
-    // Potencial FV (ejemplo)
-    const fvPotencialGeojson = {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "properties": { "nombre": "Alto potencial PV" },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [[
-              [-110, 22], [-100, 22], [-100, 28], [-110, 28], [-110, 22]
-            ]]
-          }
-        }
-      ]
-    };
-
-    const fvPotencialLayer = L.geoJSON(fvPotencialGeojson, {
-      style: { fillOpacity: 0.25 }
-    }).bindPopup("Región con alto potencial fotovoltaico");
-
-    // Factor de planta (ejemplo)
-    const fvFactorLayer = L.layerGroup([
-      L.marker([23, -104]).bindPopup("Factor de planta ≈ 24%"),
-      L.marker([27, -108]).bindPopup("Factor de planta ≈ 26%")
-    ]);
-
-    // Función para enlazar checkboxes con capas
-    function toggleLayer(checkboxId, layer, mapObj) {
-      const checkbox = document.getElementById(checkboxId);
-      checkbox.addEventListener("change", () => {
-        if (checkbox.checked) {
-          layer.addTo(mapObj);
-        } else {
-          mapObj.removeLayer(layer);
-        }
-      });
-    }
-
-    // Enlaces mapa general
-    toggleLayer("layer-radiacion", radiacionLayer, mapGeneral);
-    toggleLayer("layer-temperatura", temperaturaLayer, mapGeneral);
-    toggleLayer("layer-anp", anpLayer, mapGeneral);
-    toggleLayer("layer-fv", fvLayer, mapGeneral);
-
-    // Enlaces mapa FV
-    toggleLayer("layer-fv-rad", fvRadLayer, mapFV);
-    toggleLayer("layer-fv-pot", fvPotencialLayer, mapFV);
-    toggleLayer("layer-fv-factor", fvFactorLayer, mapFV);
-
-    // --- Lógica de pestañas (botones de mapas) ---
-    const tabButtons = document.querySelectorAll(".tab-button");
-    const sections = document.querySelectorAll(".map-section");
-
-    tabButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        // activar botón
-        tabButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        // mostrar sección correspondiente
-        const targetId = btn.getAttribute("data-target");
-        sections.forEach(sec => {
-          if (sec.id === targetId) {
-            sec.classList.add("active");
-          } else {
-            sec.classList.remove("active");
-          }
+        // 4. LÓGICA DE CHECKBOXES
+        const checkboxes = document.querySelectorAll('.layer-item input[type="checkbox"]');
+        
+        checkboxes.forEach(box => {
+            box.addEventListener('change', function() {
+                const layerId = this.value;
+                if (this.checked) {
+                    map.addLayer(layers[layerId]);
+                    console.log("Capa activada: " + layerId);
+                    // Simulación visual (Solo para demo)
+                    // alert("Se activaría la capa: " + layerId); 
+                } else {
+                    map.removeLayer(layers[layerId]);
+                    console.log("Capa desactivada: " + layerId);
+                }
+            });
         });
 
-        // Arreglar tamaño de mapas al cambiar de pestaña
-        setTimeout(() => {
-          mapGeneral.invalidateSize();
-          mapFV.invalidateSize();
-        }, 200);
-      });
-    });
-  </script>
+        // 5. LÓGICA DE BOTONES (General vs PV)
+        const btnGen = document.getElementById('btnGeneral');
+        const btnPV = document.getElementById('btnPV');
+
+        btnGen.addEventListener('click', () => {
+            btnGen.classList.add('primary');
+            btnPV.classList.remove('primary');
+            // Aquí podrías resetear la vista o activar capas por defecto del mapa general
+            map.setView([23.6345, -102.5528], 5);
+        });
+
+        btnPV.addEventListener('click', () => {
+            btnPV.classList.add('primary');
+            btnGen.classList.remove('primary');
+            // Aquí podrías hacer zoom a zonas solares o activar radiación automáticamente
+            document.getElementById('layerRad').click(); // Truco: simula click en radiación
+        });
+
+        // 6. LÓGICA GLOSARIO
+        const btnGlossary = document.getElementById('btnGlossary');
+        const glossaryContent = document.getElementById('glossaryContent');
+
+        btnGlossary.addEventListener('click', () => {
+            if (glossaryContent.style.display === "block") {
+                glossaryContent.style.display = "none";
+                btnGlossary.textContent = "Ver Glosario de Términos";
+            } else {
+                glossaryContent.style.display = "block";
+                btnGlossary.textContent = "Ocultar Glosario";
+            }
+        });
+
+    </script>
+
 </body>
 </html>
