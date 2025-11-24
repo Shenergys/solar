@@ -56,22 +56,6 @@
 
         <section class="graph-card">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                <h2>Evolución por Tecnología (2010–2024)</h2>
-                <div class="view-toggle">
-                    <button id="btnTechCap" class="btn primary">Capacidad (MW)</button>
-                    <button id="btnTechGen" class="btn">Generación (GWh)</button>
-                </div>
-            </div>
-            
-            <p>Visualiza cómo ha cambiado la composición de la matriz energética del país, desglosada por tipo de tecnología.</p>
-            
-            <div style="height: 500px; width: 100%;">
-                <canvas id="chartTechStack"></canvas>
-            </div>
-        </section>
-
-        <section class="graph-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
                 <h2>Indicadores Generales del SEN</h2>
                 <div class="view-toggle">
                     <button id="btnViewCharts" class="btn primary">Ver gráficas</button>
@@ -111,6 +95,22 @@
                     </thead>
                     <tbody id="mixTableBody"></tbody>
                 </table>
+            </div>
+        </section>
+
+        <section class="graph-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <h2>Evolución por Tecnología (2010–2024)</h2>
+                <div class="view-toggle">
+                    <button id="btnTechCap" class="btn primary">Capacidad (MW)</button>
+                    <button id="btnTechGen" class="btn">Generación (GWh)</button>
+                </div>
+            </div>
+            
+            <p>Visualiza cómo ha cambiado la composición de la matriz energética del país, desglosada por tipo de tecnología.</p>
+            
+            <div style="height: 500px; width: 100%;">
+                <canvas id="chartTechStack"></canvas>
             </div>
         </section>
 
@@ -175,7 +175,7 @@
     // 1. Años Base
     const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
 
-    // 2. Colores
+    // 2. Colores (Hexadecimales originales)
     const techColors = {
         "Carboeléctrica": "#2c3e50", "Térmica Convencional": "#7f8c8d", "Combustión interna": "#34495e",
         "Turbogás": "#d35400", "Ciclo combinado": "#c0392b", "Nucleoeléctrica": "#e67e22",
@@ -184,7 +184,21 @@
         "Bioenergía": "#16a085"
     };
 
-    // 3. DATOS REALES (Formateados en una sola línea para evitar errores de salto de línea)
+    // Función auxiliar para convertir Hex a RGBA (Transparencia)
+    function hexToRgba(hex, alpha) {
+        let c;
+        if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+            c= hex.substring(1).split('');
+            if(c.length== 3){
+                c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+            }
+            c= '0x'+c.join('');
+            return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+        }
+        return hex; // Si falla retorna el original
+    }
+
+    // 3. DATOS REALES
     const techDataCapacidad = {
         "Carboeléctrica": [5393, 5393, 5419, 5419, 5463, 5463, 5378, 5463, 5463, 5463, 5463, 5463, 5463, 5463, 5463],
         "Térmica Convencional": [12876, 12560, 11923, 11923, 12665, 12665, 13174, 12665, 12315, 11831, 11809, 11793, 11343, 11300, 11300],
@@ -232,47 +246,20 @@
         "PEN": [1520, 1544, 1558, 1628, 1664, 1789, 1893, 1955, 2061, 2246, 2014, 2210, 2372, 2698, 2969],
         "SIBC": [2229, 2237, 2302, 2225, 2350, 2479, 2621, 2699, 2863, 2887, 3132, 3215, 3361, 3457, 3635],
         "SIBCS": [368, 385, 389, 407, 428, 432, 442, 484, 500, 536, 513, 560, 596, 675, 689],
-        "SIMUL": [26, 27, 26, 27, 28, 28, 28, 29, 29, 30, 30, 32, 32, 32, 34],
-        "SIN": [39127, 40675, 41203, 41664, 41592, 42662, 44257, 45837, 47433, 48887, 47550, 48879, 50500, 53794, 55243]
-    };
-
-    const consumoBrutoRegion = {
-        "CEN": [58422, 59303, 59061, 58086, 57423, 57844, 59103, 60685, 61293, 60853, 57429, 58272, 59866, 60160, 60059],
-        "ORI": [40098, 42447, 43835, 44224, 44901, 46587, 47642, 48583, 50285, 51655, 50436, 53051, 54643, 56633, 58547],
-        "OCC": [51407, 55871, 57470, 57779, 59345, 61025, 62808, 66696, 68107, 69697, 68154, 70900, 73763, 76564, 77541],
-        "NOR": [17339, 19251, 20097, 20466, 21089, 21642, 23389, 24293, 24684, 24966, 26104, 26449, 26332, 28259, 29126],
-        "NTE": [20403, 22116, 22484, 22679, 23150, 23734, 24696, 25949, 27000, 28868, 29291, 29808, 30596, 31905, 32711],
-        "NES": [43442, 47379, 47776, 47581, 48559, 50114, 52895, 54423, 56426, 57411, 54239, 57901, 60806, 62170, 64080],
-        "PEN": [9206, 9735, 9938, 10300, 10635, 11610, 12129, 12498, 12989, 13872, 12497, 13613, 14677, 16054, 16930],
-        "SIBC": [10991, 11426, 12020, 11996, 12598, 13122, 13438, 13825, 14535, 14621, 14938, 15966, 16686, 16346, 17218],
-        "SIBCS": [2016, 2165, 2209, 2239, 2310, 2400, 2541, 2622, 2759, 2823, 2722, 2911, 3080, 3328, 3425],
         "SIMUL": [136, 138, 143, 147, 151, 146, 151, 152, 155, 155, 159, 161, 164, 165, 170],
-        "SIN": [240317, 256103, 260661, 261115, 265101, 272557, 282662, 293127, 300783, 307321, 298150, 309994, 320683, 331744, 338994]
-    };
-
-    const consumoFinalRegion = {
-        "CEN": [34789, 36540, 37792, 38818, 39064, 40364, 45070, 46423, 48269, 48590, 46362, 47262, 48988, 49709, 49411],
-        "ORI": [31734, 33567, 34836, 35292, 35986, 37286, 38423, 39607, 41840, 42709, 40722, 42530, 44503, 46528, 48022],
-        "OCC": [45144, 48599, 49959, 50428, 51952, 53884, 53290, 57743, 58995, 60871, 59536, 61885, 64629, 66822, 67732],
-        "NOR": [14567, 16264, 16895, 17263, 17796, 18497, 20017, 20823, 21277, 21441, 22247, 22332, 22580, 24037, 24651],
-        "NTE": [17052, 18340, 18656, 18743, 19596, 20368, 21231, 22466, 23565, 24592, 24508, 24699, 25268, 25909, 26592],
-        "NES": [37261, 40608, 40941, 40989, 41947, 43231, 45455, 45957, 47973, 48723, 45613, 49321, 51806, 53160, 53876],
-        "PEN": [7732, 8142, 8354, 8660, 9032, 9730, 10342, 11055, 11399, 12425, 11204, 11827, 13043, 14414, 14934],
-        "SIBC": [9605, 10044, 10514, 10554, 11122, 11618, 12005, 12429, 12798, 12937, 13521, 14671, 14991, 14879, 15565],
-        "SIBCS": [1722, 1882, 1932, 1965, 2016, 2098, 2239, 2267, 2460, 2501, 2394, 2597, 2742, 2995, 3079],
-        "SIMUL": [107, 112, 115, 118, 124, 124, 123, 125, 125, 126, 131, 135, 137, 146, 150],
         "SIN": [94.27, 94.38, 94.29, 94.33, 94.2, 94.17, 94.21, 94.27, 94.28, 94.34, 93.97, 93.72, 93.81, 93.97, 93.82]
     };
-
-    const capShare = [0.0, 0.0, 0.0, 0.02, 0.09, 0.09, 0.2, 0.25, 2.57, 4.65, 6.19, 6.91, 7.48, 8.36, 8.79];
-    const genShare = [0.0, 0.0, 0.0, 0.01, 0.03, 0.02, 0.05, 0.12, 0.7, 2.64, 4.33, 5.28, 4.88, 5.26, 5.29];
-    const demandaShare = { "CEN": [21.57, 20.41, 19.7, 18.98, 18.45, 17.87, 18.09, 17.75, 17.32, 16.73, 17.02, 16.04, 15.54, 14.87, 14.85], "ORI": [15.22, 15.18, 15.09, 15.14, 15.24, 15.26, 15.05, 14.88, 14.94, 15.14, 14.57, 14.93, 15.05, 15.15, 15.16], "OCC": [19.58, 20.01, 20.43, 20.77, 20.51, 20.56, 19.75, 20.07, 20.41, 19.29, 19.06, 19.53, 19.34, 19.8, 19.86], "NOR": [8.66, 8.71, 8.81, 9.22, 9.09, 9.11, 9.19, 9.34, 9.36, 10.15, 10.19, 10.14, 9.8, 10.02, 9.91], "NTE": [8.11, 8.5, 8.48, 8.67, 8.91, 8.74, 8.99, 9.39, 9.13, 9.27, 9.71, 9.57, 9.81, 9.4, 9.3], "NES": [16.93, 17.51, 17.76, 17.56, 17.74, 18.09, 18.4, 18.04, 18.11, 18.55, 18.35, 18.36, 18.79, 18.91, 18.64], "PEN": [3.64, 3.56, 3.55, 3.67, 3.75, 3.92, 4.0, 3.99, 4.06, 4.29, 3.93, 4.19, 4.35, 4.66, 4.98], "SIBC": [5.34, 5.16, 5.24, 5.02, 5.29, 5.44, 5.54, 5.5, 5.63, 5.52, 6.11, 6.1, 6.17, 5.96, 6.1], "SIBCS": [0.88, 0.89, 0.89, 0.92, 0.96, 0.95, 0.93, 0.99, 0.98, 1.02, 1.0, 1.06, 1.09, 1.16, 1.16], "SIMUL": [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06], "SIN": [93.72, 93.89, 93.81, 94.0, 93.68, 93.55, 93.47, 93.45, 93.33, 93.4, 92.83, 92.77, 92.68, 92.82, 92.69] };
 
     const capSolar = techDataCapacidad["Solar fotovoltaica"];
     const genSolar = techDataGeneracion["Solar fotovoltaica"];
     const yearsDem = years.slice();
+    const capShare = [0.0, 0.0, 0.0, 0.02, 0.09, 0.09, 0.2, 0.25, 2.57, 4.65, 6.19, 6.91, 7.48, 8.36, 8.79];
+    const genShare = [0.0, 0.0, 0.0, 0.01, 0.03, 0.02, 0.05, 0.12, 0.7, 2.64, 4.33, 5.28, 4.88, 5.26, 5.29];
+    const demandaShare = { "CEN": [21.57, 20.41, 19.7, 18.98, 18.45, 17.87, 18.09, 17.75, 17.32, 16.73, 17.02, 16.04, 15.54, 14.87, 14.85], "ORI": [15.22, 15.18, 15.09, 15.14, 15.24, 15.26, 15.05, 14.88, 14.94, 15.14, 14.57, 14.93, 15.05, 15.15, 15.16], "OCC": [19.58, 20.01, 20.43, 20.77, 20.51, 20.56, 19.75, 20.07, 20.41, 19.29, 19.06, 19.53, 19.34, 19.8, 19.86], "NOR": [8.66, 8.71, 8.81, 9.22, 9.09, 9.11, 9.19, 9.34, 9.36, 10.15, 10.19, 10.14, 9.8, 10.02, 9.91], "NTE": [8.11, 8.5, 8.48, 8.67, 8.91, 8.74, 8.99, 9.39, 9.13, 9.27, 9.71, 9.57, 9.81, 9.4, 9.3], "NES": [16.93, 17.51, 17.76, 17.56, 17.74, 18.09, 18.4, 18.04, 18.11, 18.55, 18.35, 18.36, 18.79, 18.91, 18.64], "PEN": [3.64, 3.56, 3.55, 3.67, 3.75, 3.92, 4.0, 3.99, 4.06, 4.29, 3.93, 4.19, 4.35, 4.66, 4.98], "SIBC": [5.34, 5.16, 5.24, 5.02, 5.29, 5.44, 5.54, 5.5, 5.63, 5.52, 6.11, 6.1, 6.17, 5.96, 6.1], "SIBCS": [0.88, 0.89, 0.89, 0.92, 0.96, 0.95, 0.93, 0.99, 0.98, 1.02, 1.0, 1.06, 1.09, 1.16, 1.16], "SIMUL": [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06], "SIN": [93.72, 93.89, 93.81, 94.0, 93.68, 93.55, 93.47, 93.45, 93.33, 93.4, 92.83, 92.77, 92.68, 92.82, 92.69] };
+    const consumoBrutoShare = { "CEN": [23.05, 21.98, 21.47, 21.08, 20.5, 20.07, 19.78, 19.59, 19.26, 18.73, 18.18, 17.71, 17.58, 17.11, 16.69], "ORI": [15.82, 15.73, 15.94, 16.05, 16.03, 16.16, 15.94, 15.69, 15.8, 15.9, 15.96, 16.12, 16.04, 16.11, 16.27], "OCC": [20.28, 20.71, 20.9, 20.97, 21.18, 21.17, 21.02, 21.53, 21.4, 21.45, 21.57, 21.55, 21.66, 21.78, 21.55], "NOR": [6.84, 7.13, 7.31, 7.43, 7.53, 7.51, 7.83, 7.84, 7.76, 7.68, 8.26, 8.04, 7.73, 8.04, 8.09], "NTE": [8.05, 8.2, 8.18, 8.23, 8.26, 8.23, 8.27, 8.38, 8.48, 8.88, 9.27, 9.06, 8.98, 9.07, 9.09], "NES": [17.14, 17.56, 17.37, 17.27, 17.33, 17.39, 17.7, 17.57, 17.73, 17.67, 17.17, 17.6, 17.85, 17.68, 17.81], "PEN": [3.63, 3.61, 3.61, 3.74, 3.8, 4.03, 4.06, 4.04, 4.08, 4.27, 3.96, 4.14, 4.31, 4.57, 4.71], "SIBC": [4.34, 4.23, 4.37, 4.35, 4.5, 4.55, 4.5, 4.46, 4.57, 4.5, 4.73, 4.85, 4.9, 4.65, 4.79], "SIBCS": [0.8, 0.8, 0.8, 0.81, 0.82, 0.83, 0.85, 0.85, 0.87, 0.87, 0.86, 0.88, 0.9, 0.95, 0.95], "SIMUL": [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05], "SIN": [94.81, 94.91, 94.77, 94.78, 94.62, 94.56, 94.6, 94.64, 94.52, 94.58, 94.36, 94.21, 94.15, 94.36, 94.22] };
+    const consumoFinalShare = { "CEN": [17.42, 17.07, 17.18, 17.42, 17.09, 17.02, 18.16, 17.93, 17.96, 17.67, 17.41, 17.05, 16.97, 16.65, 16.25], "ORI": [15.89, 15.68, 15.83, 15.84, 15.74, 15.72, 15.48, 15.3, 15.57, 15.54, 15.3, 15.34, 15.42, 15.58, 15.8], "OCC": [22.6, 22.7, 22.71, 22.63, 22.72, 22.72, 21.47, 22.3, 21.96, 22.14, 22.36, 22.32, 22.39, 22.38, 22.28], "NOR": [7.29, 7.6, 7.68, 7.75, 7.78, 7.8, 8.07, 8.04, 7.92, 7.8, 8.36, 8.05, 7.82, 8.05, 8.11], "NTE": [8.54, 8.57, 8.48, 8.41, 8.57, 8.59, 8.55, 8.68, 8.77, 8.95, 9.21, 8.91, 8.75, 8.68, 8.75], "NES": [18.66, 18.97, 18.61, 18.39, 18.35, 18.23, 18.31, 17.75, 17.85, 17.72, 17.13, 17.79, 17.95, 17.8, 17.72], "PEN": [3.87, 3.8, 3.8, 3.89, 3.95, 4.1, 4.17, 4.27, 4.24, 4.52, 4.21, 4.27, 4.52, 4.83, 4.91], "SIBC": [4.81, 4.69, 4.78, 4.74, 4.86, 4.9, 4.84, 4.8, 4.76, 4.71, 5.08, 5.29, 5.19, 4.98, 5.12], "SIBCS": [0.86, 0.88, 0.88, 0.88, 0.88, 0.88, 0.9, 0.88, 0.92, 0.91, 0.9, 0.94, 0.95, 1.0, 1.01], "SIMUL": [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05], "SIN": [94.27, 94.38, 94.29, 94.33, 94.2, 94.17, 94.21, 94.27, 94.28, 94.34, 93.97, 93.72, 93.81, 93.97, 93.82] };
 
-    // 4. FUNCIONES Y LÓGICA DE GRÁFICAS
+    // 4. LÓGICA DE GRÁFICAS
     function makeDualSolarChart(ctx, labels, serieValor, serieShare, labelValor, yLabelIzq) {
         return new Chart(ctx, {
             type: 'line',
@@ -285,8 +272,8 @@
             },
             options: {
                 responsive: true,
-                interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { position: 'top' }, tooltip: { mode: 'index', intersect: false } },
+                interaction: { mode: 'nearest', intersect: true }, // CORRECCIÓN 2
+                plugins: { legend: { position: 'top' }, tooltip: { mode: 'nearest', intersect: true } },
                 scales: {
                     x: { title: { display: true, text: 'Año' } },
                     y: { title: { display: true, text: yLabelIzq }, position: 'left' },
@@ -306,9 +293,10 @@
             return Object.keys(sourceData).map(tech => ({
                 label: tech,
                 data: sourceData[tech],
-                backgroundColor: techColors[tech] || '#999',
-                borderColor: '#fff',
-                borderWidth: 0.5,
+                // CORRECCIÓN 1: Color transparente para fondo, sólido para borde
+                backgroundColor: hexToRgba(techColors[tech] || '#999', 0.5), 
+                borderColor: techColors[tech] || '#999',
+                borderWidth: 1, // Borde fino visible
                 fill: true,
                 pointRadius: 0,
                 pointHoverRadius: 4
@@ -335,7 +323,8 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: { mode: 'nearest', axis: 'x', intersect: false },
+                    // CORRECCIÓN 2: Interacción precisa (solo un punto a la vez)
+                    interaction: { mode: 'nearest', axis: 'x', intersect: true },
                     plugins: {
                         title: { display: true, text: titleText, font: { size: 16 } },
                         tooltip: { callbacks: { label: function(context) { return ' ' + context.dataset.label + ': ' + context.raw.toLocaleString('es-MX') + ' ' + unit; } } },
@@ -355,18 +344,15 @@
 
     let chartCapSolar, chartGenSolar, chartSEN, chartRegion;
 
-    // 5. INICIALIZACIÓN SEGURA (Al cargar la página)
+    // 5. INICIALIZACIÓN
     window.addEventListener('load', () => {
-        // Inicializar Gráficas Solares
         if(document.getElementById('chartCapSolar')) {
             chartCapSolar = makeDualSolarChart(document.getElementById('chartCapSolar'), years, capSolar, capShare, 'Capacidad FV (MW)', 'MW');
             chartGenSolar = makeDualSolarChart(document.getElementById('chartGenSolar'), years, genSolar, genShare, 'Generación FV (GWh)', 'GWh');
         }
 
-        // Inicializar Gráfica Stacked
         if(document.getElementById('chartTechStack')) initTechStackChart();
 
-        // Inicializar Tabla Nacional
         const tbody = document.getElementById('mixTableBody');
         if(tbody) {
             years.forEach((year, idx) => {
@@ -376,7 +362,6 @@
             });
         }
 
-        // Botones Mix Nacional
         const btnCharts = document.getElementById('btnViewCharts');
         const btnTable  = document.getElementById('btnViewTable');
         const mixCharts = document.getElementById('mixCharts');
@@ -392,14 +377,12 @@
             });
         }
 
-        // Gráfica SEN General
         const senSelect = document.getElementById('senVariableSelect');
         if(senSelect) {
             senSelect.addEventListener('change', updateSenChart);
             updateSenChart(); 
         }
 
-        // Inicializar Regiones
         initRegionSection();
     });
 
@@ -414,7 +397,7 @@
         else if (variable === 'demanda') { titulo = 'Demanda máxima integrada del SEN (MW)'; yLabel = 'MW'; datasets.push({ label: 'Demanda máx. integrada (MW)', data: demandaSen, fill: true, tension: 0.25 }); }
         else { titulo = 'Consumo bruto y final del SEN (GWh)'; yLabel = 'GWh'; datasets.push({ label: 'Consumo bruto (GWh)', data: consumoBrutoSen, fill: true, tension: 0.25 }, { label: 'Consumo final (GWh)', data: consumoFinalSen, fill: false, tension: 0.25 }); }
         
-        chartSEN = new Chart(ctx, { type: 'line', data: { labels: years, datasets: datasets }, options: { responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: titulo } }, interaction: { mode: 'index', intersect: false }, scales: { x: { title: { display: true, text: 'Año' } }, y: { title: { display: true, text: yLabel } } } } });
+        chartSEN = new Chart(ctx, { type: 'line', data: { labels: years, datasets: datasets }, options: { responsive: true, interaction: { mode: 'nearest', intersect: true }, plugins: { legend: { position: 'top' }, title: { display: true, text: titulo } }, scales: { x: { title: { display: true, text: 'Año' } }, y: { title: { display: true, text: yLabel } } } } });
     }
 
     function getRegionData(variable, region) {
@@ -435,7 +418,7 @@
         const ctx = document.getElementById('chartRegion');
         if (chartRegion) chartRegion.destroy();
         
-        chartRegion = new Chart(ctx, { type: 'line', data: { labels: yearsDem, datasets: [{ label: `${titulo} región ${region} (${unidad})`, data: serieRegion, yAxisID: 'y', fill: true, tension: 0.25 }, { label: `Participación región ${region} (%)`, data: serieShare, yAxisID: 'y1', fill: false, tension: 0.25 }] }, options: { responsive: true, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top' }, tooltip: { mode: 'index', intersect: false } }, scales: { x: { title: { display: true, text: 'Año' } }, y: { title: { display: true, text: unidad }, position: 'left' }, y1: { title: { display: true, text: 'Participación (%)' }, position: 'right', grid: { drawOnChartArea: false } } } } });
+        chartRegion = new Chart(ctx, { type: 'line', data: { labels: yearsDem, datasets: [{ label: `${titulo} región ${region} (${unidad})`, data: serieRegion, yAxisID: 'y', fill: true, tension: 0.25 }, { label: `Participación región ${region} (%)`, data: serieShare, yAxisID: 'y1', fill: false, tension: 0.25 }] }, options: { responsive: true, interaction: { mode: 'nearest', intersect: true }, plugins: { legend: { position: 'top' }, tooltip: { mode: 'nearest', intersect: true } }, scales: { x: { title: { display: true, text: 'Año' } }, y: { title: { display: true, text: unidad }, position: 'left' }, y1: { title: { display: true, text: 'Participación (%)' }, position: 'right', grid: { drawOnChartArea: false } } } } });
         
         const tbody = document.getElementById('regionTableBody'); 
         if(tbody) {
