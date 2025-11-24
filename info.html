@@ -1,119 +1,151 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Contacto</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP-Energy | Contacto</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos específicos para el Formulario */
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-  <style>
-    body { margin:0; font-family: Arial, sans-serif; background:#f5f5f5; }
-    header { background:#ffcc00; padding:1.5rem; text-align:center; }
-    header h1 { margin:0; }
-    header p.subtitle { margin:0.3rem 0 0; }
-    nav {
-      background:#333; padding:1rem; text-align:center;
-    }
-    nav a {
-      color:white; margin:0 1rem; text-decoration:none; font-weight:bold;
-    }
-    nav a:hover { text-decoration:underline; }
-    main {
-      max-width:1000px; margin:2rem auto; background:white;
-      padding:2rem; border-radius:8px;
-      line-height:1.6;
-    }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
 
-    .contact-info p { margin:0.2rem 0; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
 
-    form.contact-form {
-      margin-top:1.5rem;
-      display:flex;
-      flex-direction:column;
-      gap:0.8rem;
-    }
-    form.contact-form label {
-      font-weight:bold;
-    }
-    form.contact-form input,
-    form.contact-form textarea {
-      width:100%;
-      padding:0.5rem;
-      border-radius:4px;
-      border:1px solid #ccc;
-      font-family:inherit;
-      font-size:0.95rem;
-    }
-    form.contact-form button {
-      align-self:flex-start;
-      padding:0.6rem 1.4rem;
-      border:none;
-      border-radius:4px;
-      background:#333;
-      color:#fff;
-      font-weight:bold;
-      cursor:pointer;
-    }
-    form.contact-form button:hover {
-      background:#555;
-    }
-  </style>
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, 
+        .form-group textarea:focus {
+            border-color: #FFD700;
+            outline: none;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.2);
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #FFD700;
+            color: #000;
+        }
+
+        .contact-info {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #555;
+        }
+        
+        .contact-email {
+            font-size: 1.2rem;
+            color: #2980b9;
+            font-weight: bold;
+            text-decoration: none;
+        }
+    </style>
 </head>
-
 <body>
-  <header class="site-header">
-    <div class="title-bar">
-      <h1>Energía Solar para Todos</h1>
-      <p class="subtitle">
-        Explora el potencial de la energía solar y contribuye a un futuro sostenible.
-      </p>
-    </div>
 
-    <nav class="main-nav">
-      <a href="index.html">Inicio</a>
-      <a href="mapa.html">Mapa Interactivo</a>
-      <a href="graficas.html">Gráficas y Tablas</a>
-      <a href="emisiones.html">Emisiones</a>
-      <a href="info.html">Contacto</a>
+    <header class="main-header">
+        <div class="logo-container">
+            <span class="logo-text">SP-ENERGY <span class="sun-icon">☀️</span></span>
+        </div>
+        <div class="slogan-container">
+            <h1>Energía Solar para Todos</h1>
+        </div>
+        <div class="spacer"></div> 
+    </header>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="mapa.html">Mapa Interactivo</a></li>
+            <li><a href="graficas.html">Gráficas y Tablas</a></li>
+            <li><a href="emisiones.html">Emisiones</a></li>
+            <li><a href="info.html" class="active">Contacto</a></li>
+        </ul>
     </nav>
-  </header>
 
-  <main>
-    <h2>Contacto</h2>
-    <p>
-      Si deseas más información sobre el proyecto, colaborar o hacer sugerencias,
-      puedes utilizar los datos de contacto o dejar un comentario en el formulario.
-    </p>
+    <main class="main-container contact-container">
+        
+        <h2 class="section-title">Contacto y Comentarios</h2>
 
-    <div class="contact-info">
-      <p><b>Correo electrónico:</b> tu_correo@ejemplo.com</p>
-      <p><b>ORCID:</b> 0000-0000-0000-0000</p>
-      <p><b>Institución:</b> Nombre de tu institución / laboratorio</p>
-    </div>
+        <section class="graph-card">
+            <div class="contact-info">
+                <p>Si tienes dudas sobre la plataforma, sugerencias de mejora o interés en colaborar con el proyecto SP-Energy, puedes escribirnos directamente o usar el formulario de abajo.</p>
+                <br>
+                <a href="mailto:contacto.sp.energy@gmail.com" class="contact-email">contacto.sp.energy@gmail.com</a>
+            </div>
+        </section>
 
-    <h3>Comentarios</h3>
-    <p>
-      Envía tus dudas, sugerencias o comentarios sobre la plataforma. Esta sección
-      puede conectarse más adelante a un backend o a un servicio de correo.
-    </p>
+        <section class="graph-card">
+            <h3>Envíanos un mensaje</h3>
+            
+            <form action="https://formspree.io/f/xkgeddkp" method="POST">
+                
+                <div class="form-group">
+                    <label for="name">Nombre:</label>
+                    <input type="text" id="name" name="name" placeholder="Tu nombre completo" required>
+                </div>
 
-    <form class="contact-form">
-      <div>
-        <label for="nombre">Nombre</label>
-        <input id="nombre" type="text" placeholder="Escribe tu nombre">
-      </div>
+                <div class="form-group">
+                    <label for="email">Correo electrónico:</label>
+                    <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required>
+                </div>
 
-      <div>
-        <label for="email">Correo electrónico</label>
-        <input id="email" type="email" placeholder="tu@correo.com">
-      </div>
+                <div class="form-group">
+                    <label for="subject">Asunto:</label>
+                    <input type="text" id="subject" name="subject" placeholder="Motivo del mensaje" required>
+                </div>
 
-      <div>
-        <label for="mensaje">Comentario</label>
-        <textarea id="mensaje" rows="5" placeholder="Escribe aquí tu mensaje"></textarea>
-      </div>
+                <div class="form-group">
+                    <label for="message">Comentario o Mensaje:</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Escribe aquí tus dudas o sugerencias..." required></textarea>
+                </div>
 
-      <button type="submit">Enviar comentario</button>
-    </form>
-  </main>
+                <button type="submit" class="btn-submit">Enviar Mensaje</button>
+            </form>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SP-Energy. Visualización de datos energéticos.</p>
+    </footer>
+
 </body>
 </html>
