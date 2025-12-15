@@ -22,68 +22,48 @@
             z-index: 1;
         }
 
-        /* --- PANEL DE CAPAS (CORREGIDO: 3 COLUMNAS FIJAS) --- */
+        /* --- PANEL DE CAPAS (3 COLUMNAS FIJAS) --- */
         .layers-panel {
             display: grid;
-            /* AQUÍ ESTÁ LA CORRECCIÓN: 3 columnas del mismo tamaño siempre */
             grid-template-columns: repeat(3, 1fr); 
             gap: 25px;
             margin-bottom: 2rem;
-            align-items: start; /* Alineación superior para que se vean ordenadas */
+            align-items: start;
         }
 
-        /* Solo en celulares se vuelve 1 columna */
         @media (max-width: 900px) {
-            .layers-panel {
-                grid-template-columns: 1fr;
-            }
+            .layers-panel { grid-template-columns: 1fr; }
         }
 
-        /* ESTILO DE LAS TARJETAS DE CAPAS (DISEÑO BONITO) */
+        /* ESTILO DE LAS TARJETAS */
         .layer-group {
             background: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra suave */
-            border-top: 5px solid #FFD700; /* Línea amarilla SP-Energy */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 5px solid #FFD700;
             border-left: 1px solid #eee;
             border-right: 1px solid #eee;
             border-bottom: 1px solid #eee;
         }
 
         .layer-group h3 {
-            margin-top: 0;
-            font-size: 1.2rem;
-            color: #2c3e50;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            font-weight: bold;
+            margin-top: 0; font-size: 1.2rem; color: #2c3e50;
+            border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold;
         }
 
         .layer-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            color: #444;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background 0.2s;
+            display: flex; align-items: center; margin-bottom: 10px;
+            font-size: 0.95rem; color: #444; padding: 5px; border-radius: 4px; transition: background 0.2s;
         }
 
-        .layer-item:hover {
-            background-color: #f9f9f9;
-        }
+        .layer-item:hover { background-color: #f9f9f9; }
 
         .layer-item input {
-            margin-right: 12px;
-            transform: scale(1.3); /* Checkbox visible */
-            cursor: pointer;
-            accent-color: #FFD700;
+            margin-right: 12px; transform: scale(1.3); cursor: pointer; accent-color: #FFD700;
         }
 
-        /* Tabla y Glosario (Igual que antes) */
+        /* Tabla y Glosario */
         #tableSection { display: none; margin-top: 2rem; }
         .glossary-section { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 2rem; }
         #glossaryContent { display: none; background: #f4f4f4; padding: 20px; border-radius: 5px; margin-top: 15px; border-left: 5px solid #2c3e50; }
@@ -126,50 +106,38 @@
         <div id="map" class="map-container"></div>
 
         <div id="panelGeneral" class="layers-panel">
-            
             <div class="layer-group">
                 <h3>☀️ Energía (Capas Base)</h3>
                 <div class="layer-item"><input type="checkbox" value="rad"><label>Radiación Solar</label></div>
                 <div class="layer-item"><input type="checkbox" value="pot"><label>Potencial Fotovoltaico</label></div>
                 <div class="layer-item"><input type="checkbox" value="cent"><label>Centrales Fotovoltaicas</label></div>
             </div>
-
             <div class="layer-group">
                 <h3>🌍 Territorio y Clima</h3>
-                <div class="layer-item"><input type="checkbox" value="tb"><label>Temperatura Baja</label></div>
-                <div class="layer-item"><input type="checkbox" value="tm"><label>Temperatura Media</label></div>
-                <div class="layer-item"><input type="checkbox" value="ta"><label>Temperatura Alta</label></div>
                 <div class="layer-item"><input type="checkbox" value="anp"><label>Áreas Naturales Protegidas (ANP)</label></div>
                 <div class="layer-item"><input type="checkbox" value="hum"><label>Asentamientos Humanos</label></div>
                 <div class="layer-item"><input type="checkbox" value="agua"><label>Cuerpos de Agua</label></div>
-                <div class="layer-item"><input type="checkbox" value="rel"><label>Relieve</label></div>
             </div>
-
             <div class="layer-group">
                 <h3>⚡ Infraestructura SEN</h3>
                 <div class="layer-item"><input type="checkbox" value="reg"><label>División de Regiones</label></div>
                 <div class="layer-item"><input type="checkbox" value="tx"><label>Líneas de Transmisión</label></div>
-                <div class="layer-item"><input type="checkbox" value="dx"><label>Líneas de Distribución</label></div>
                 <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones Eléctricas</label></div>
             </div>
         </div>
 
         <div id="panelPV" class="layers-panel" style="display:none;">
-            
             <div class="layer-group">
                 <h3>☀️ Indicadores Técnicos</h3>
                 <div class="layer-item"><input type="checkbox" value="potPV"><label>Potencial Fotovoltaico</label></div>
                 <div class="layer-item"><input type="checkbox" value="centPV"><label>Centrales Fotovoltaicas</label></div>
-                <div class="layer-item"><input type="checkbox" value="fp"><label>Factor de Planta</label></div>
             </div>
-
             <div class="layer-group">
-                <h3>📊 Datos Regionales (Color)</h3>
+                <h3>📊 Datos Regionales</h3>
                 <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad Instalada</label></div>
                 <div class="layer-item"><input type="checkbox" value="genReg"><label>Generación Eléctrica</label></div>
                 <div class="layer-item"><input type="checkbox" value="demReg"><label>Demanda Máxima</label></div>
             </div>
-
             <div class="layer-group">
                 <h3>📍 Referencia</h3>
                 <div class="layer-item"><input type="checkbox" value="regPV" checked disabled><label>División de Regiones</label></div>
@@ -180,12 +148,7 @@
             <h3>Datos Regionales (Cierre 2024)</h3>
             <table class="data-table">
                 <thead>
-                    <tr>
-                        <th>Región</th>
-                        <th>Capacidad (MW)</th>
-                        <th>Generación (GWh)</th>
-                        <th>Demanda Máx (MW)</th>
-                    </tr>
+                    <tr><th>Región</th><th>Capacidad (MW)</th><th>Generación (GWh)</th><th>Demanda Máx (MW)</th></tr>
                 </thead>
                 <tbody id="tableBodyData"></tbody>
             </table>
@@ -196,8 +159,6 @@
             <div id="glossaryContent">
                 <h3>Glosario</h3>
                 <div class="glossary-item"><span class="term">ANP:</span> Áreas Naturales Protegidas.</div>
-                <div class="glossary-item"><span class="term">Factor de Planta:</span> Eficiencia real de generación.</div>
-                <div class="glossary-item"><span class="term">Potencial Fotovoltaico:</span> Irradiación disponible.</div>
                 <div class="glossary-item"><span class="term">SEN:</span> Sistema Eléctrico Nacional.</div>
             </div>
         </section>
@@ -207,50 +168,162 @@
     <footer><p>&copy; 2025 SP-Energy.</p></footer>
 
     <script>
+        // 1. INICIALIZAR MAPA
         const map = L.map('map').setView([23.6345, -102.5528], 5);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap, &copy; CARTO' }).addTo(map);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; CARTO'
+        }).addTo(map);
 
+        // --- 2. CREAR NIVELES (PANES) ---
+        // Esto asegura que las líneas queden ENCIMA de las regiones y los puntos ENCIMA de todo.
+        map.createPane('paneRaster'); map.getPane('paneRaster').style.zIndex = 200; // Fondo
+        map.createPane('panePoligonos'); map.getPane('panePoligonos').style.zIndex = 400; // Regiones/Estados
+        map.createPane('paneLineas'); map.getPane('paneLineas').style.zIndex = 500; // Cables
+        map.createPane('panePuntos'); map.getPane('panePuntos').style.zIndex = 600; // Subestaciones
+
+        // --- 3. IMÁGENES (Mapas de calor) ---
+        // IMPORTANTE: Asegúrate de que pvout.png y rad.png estén en la carpeta principal
+        const boundsMexico = [[14.53, -117.12], [32.72, -86.71]];
+        const layerPot = L.imageOverlay('pvout.png', boundsMexico, { opacity: 0.6, pane: 'paneRaster' });
+        const layerRad = L.imageOverlay('rad.png', boundsMexico, { opacity: 0.6, pane: 'paneRaster' });
+
+        // --- 4. FUNCIÓN PARA CARGAR TUS ARCHIVOS ---
+        async function loadLayer(url, type, styleOpts) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.log("No se encontró: " + url);
+                    return L.layerGroup(); 
+                }
+                const data = await response.json();
+                
+                if (type === 'line') {
+                    return L.geoJSON(data, { style: styleOpts, pane: 'paneLineas' });
+                } else if (type === 'point') {
+                    return L.geoJSON(data, {
+                        pointToLayer: (feature, latlng) => L.circleMarker(latlng, styleOpts),
+                        pane: 'panePuntos',
+                        onEachFeature: (f, l) => {
+                            // Intenta leer el nombre o voltaje del archivo
+                            let popupText = "Subestación";
+                            if(f.properties) {
+                                if(f.properties.Name) popupText = `<b>${f.properties.Name}</b>`;
+                                if(f.properties.Voltaje_KV) popupText += `<br>${f.properties.Voltaje_KV} KV`;
+                            }
+                            l.bindPopup(popupText);
+                        }
+                    });
+                } else if (type === 'poly') {
+                    return L.geoJSON(data, { 
+                        style: styleOpts, pane: 'panePoligonos', 
+                        onEachFeature: (f, l) => l.bindPopup(`<b>${f.properties.REGION || 'Región'}</b>`) 
+                    });
+                }
+            } catch (e) {
+                console.error("Error cargando:", url);
+                return L.layerGroup();
+            }
+        }
+
+        // ESTILOS DE TUS CAPAS
+        const stReg = { color: '#2c3e50', weight: 2, fillOpacity: 0, dashArray: '5, 5' }; // Regiones
+        const stTx = { color: '#2980b9', weight: 1.5 }; // Líneas de Transmisión (Azul)
+        const stSub = { radius: 3, fillColor: '#000', color: '#fff', weight: 1, fillOpacity: 1 }; // Subestaciones (Negras)
+        const stHum = { color: 'none', fillColor: '#8e44ad', fillOpacity: 0.5 }; // Asentamientos (Morado)
+
+        // --- 5. CARGA AUTOMÁTICA DE DATOS ---
+        let layerReg, layerTx, layerSub, layerHumanos;
+
+        (async () => {
+            // Cargar archivos de la carpeta 'datos'
+            layerReg = await loadLayer('datos/mis_9_regiones.json', 'poly', stReg);
+            layerTx = await loadLayer('datos/lineas_transmision_cfe_24.geojson', 'line', stTx);
+            layerSub = await loadLayer('datos/subestaciones_cfe.json', 'point', stSub);
+
+            // Cargar los 32 Estados desde 'datos/asentamientos'
+            layerHumanos = L.layerGroup();
+            const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
+            
+            estados.forEach(edo => {
+                fetch(`datos/asentamientos/ZONAHUMANO_${edo}.json`)
+                    .then(res => res.json())
+                    .then(data => L.geoJSON(data, { style: stHum, pane: 'panePoligonos' }).addTo(layerHumanos))
+                    .catch(e => null); // Si falta alguno no pasa nada
+            });
+
+            updateControls(); // Actualizar checkboxes
+        })();
+
+        // --- 6. CONTROLADOR DE CAPAS ---
+        let layersMap = { 'rad': layerRad, 'pot': layerPot, 'potPV': layerPot };
+
+        function updateControls() {
+            layersMap['reg'] = layerReg; layersMap['regPV'] = layerReg;
+            layersMap['tx'] = layerTx;
+            layersMap['sub'] = layerSub;
+            layersMap['hum'] = layerHumanos;
+            
+            // Reutilizamos la capa de regiones para los botones de colores
+            layersMap['capReg'] = layerReg; 
+            layersMap['genReg'] = layerReg; 
+            layersMap['demReg'] = layerReg;
+        }
+
+        // INTERACCIÓN CHECKBOXES
+        document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+            chk.addEventListener('change', (e) => {
+                const id = e.target.value;
+                if(layersMap[id]) {
+                    if(e.target.checked) layersMap[id].addTo(map);
+                    else layersMap[id].remove();
+                }
+            });
+        });
+
+        // BOTONES DE VISTA (General vs PV)
         const btnGen = document.getElementById('btnGeneral');
         const btnPV = document.getElementById('btnPV');
-        const panelGen = document.getElementById('panelGeneral');
-        const panelPV = document.getElementById('panelPV');
+        const pGen = document.getElementById('panelGeneral');
+        const pPV = document.getElementById('panelPV');
 
-        btnGen.addEventListener('click', () => {
+        btnGen.onclick = () => {
             btnGen.classList.add('primary'); btnPV.classList.remove('primary');
-            panelGen.style.display = 'grid'; panelPV.style.display = 'none';
-        });
+            pGen.style.display = 'grid'; pPV.style.display = 'none';
+            resetMap();
+        };
 
-        btnPV.addEventListener('click', () => {
+        btnPV.onclick = () => {
             btnPV.classList.add('primary'); btnGen.classList.remove('primary');
-            panelGen.style.display = 'none'; panelPV.style.display = 'grid';
-        });
+            pGen.style.display = 'none'; pPV.style.display = 'grid';
+            resetMap();
+        };
 
-        // Tabla
-        const btnTable = document.getElementById('btnShowTable');
-        const tableSec = document.getElementById('tableSection');
+        function resetMap() {
+            // Quita todas las capas excepto el mapa base
+            map.eachLayer(l => { if(l !== map._layers[Object.keys(map._layers)[0]]) map.removeLayer(l); });
+            document.querySelectorAll('input').forEach(i => i.checked = false);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+        }
+
+        // TABLA Y GLOSARIO
+        document.getElementById('btnShowTable').onclick = () => {
+            const t = document.getElementById('tableSection');
+            t.style.display = (t.style.display === 'block') ? 'none' : 'block';
+        };
+        document.getElementById('btnGlossary').onclick = () => {
+            const g = document.getElementById('glossaryContent');
+            g.style.display = (g.style.display === 'block') ? 'none' : 'block';
+        };
+        
+        // Datos de tabla
         const tbody = document.getElementById('tableBodyData');
-        const dataRegiones = [
-            {r: "CEN", c: "En proceso", g: "En proceso", d: 8848}, {r: "ORI", c: "En proceso", g: "En proceso", d: 9034},
-            {r: "OCC", c: "En proceso", g: "En proceso", d: 11834}, {r: "NOR", c: "En proceso", g: "En proceso", d: 5909},
-            {r: "NTE", c: "En proceso", g: "En proceso", d: 5540}, {r: "NES", c: "En proceso", g: "En proceso", d: 11109},
-            {r: "PEN", c: "En proceso", g: "En proceso", d: 2969}, {r: "SIBC", c: "En proceso", g: "En proceso", d: 3635},
-            {r: "SIBCS", c: "En proceso", g: "En proceso", d: 689}, {r: "SIMUL", c: "En proceso", g: "En proceso", d: 34},
-            {r: "SIN", c: 90543, g: 352305, d: 55243}
+        const dataReg = [
+            {r: "CEN", d: 8848}, {r: "ORI", d: 9034}, {r: "OCC", d: 11834}, {r: "NOR", d: 5909},
+            {r: "NTE", d: 5540}, {r: "NES", d: 11109}, {r: "PEN", d: 2969}, {r: "SIN", d: 55243}
         ];
-        dataRegiones.forEach(d => { tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>${d.c.toLocaleString()}</td><td>${d.g.toLocaleString()}</td><td>${d.d.toLocaleString()}</td></tr>`; });
+        dataReg.forEach(d => tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>-</td><td>-</td><td>${d.d.toLocaleString()}</td></tr>`);
 
-        btnTable.addEventListener('click', () => {
-            if(tableSec.style.display === 'block'){ tableSec.style.display = 'none'; btnTable.textContent = 'Ver Tabla de Datos'; }
-            else { tableSec.style.display = 'block'; btnTable.textContent = 'Ocultar Tabla'; }
-        });
-
-        // Glosario
-        const btnGlos = document.getElementById('btnGlossary');
-        const divGlos = document.getElementById('glossaryContent');
-        btnGlos.addEventListener('click', () => {
-            if(divGlos.style.display === 'block') { divGlos.style.display = 'none'; btnGlos.textContent = 'Ver Glosario de Términos'; }
-            else { divGlos.style.display = 'block'; btnGlos.textContent = 'Ocultar Glosario'; }
-        });
     </script>
 </body>
 </html>
