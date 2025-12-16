@@ -9,7 +9,6 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
 
@@ -18,19 +17,11 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <style>
-        .map-container { 
-            height: 600px; width: 100%; border: 2px solid #ccc; 
-            background-color: #d5d5d5; 
-            z-index: 1; 
-        }
-        .layers-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 2rem; align-items: start; }
-        @media (max-width: 900px) { .layers-panel { grid-template-columns: 1fr; } }
-        
-        .layer-group { background: #fff; padding: 20px; border-radius: 8px; border-top: 5px solid #FFD700; border: 1px solid #eee; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .layer-group h3 { margin-top: 0; font-size: 1.2rem; color: #2c3e50; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; }
-        .layer-item { display: flex; align-items: center; margin-bottom: 10px; color: #444; }
-        .layer-item input { margin-right: 12px; transform: scale(1.3); accent-color: #FFD700; }
-
+        .map-container { height: 600px; width: 100%; border: 2px solid #ccc; z-index: 1; }
+        .layers-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 2rem; }
+        .layer-group { background: #fff; padding: 20px; border-radius: 8px; border-top: 5px solid #FFD700; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .layer-item { display: flex; align-items: center; margin-bottom: 10px; }
+        .layer-item input { margin-right: 12px; transform: scale(1.3); }
         #tableSection { display: none; margin-top: 2rem; }
     </style>
 </head>
@@ -52,44 +43,27 @@
     </nav>
 
     <main class="main-container">
-        <h2 class="section-title">Visualizador Geográfico de Alta Calidad</h2>
-
-        <section class="graph-card" style="padding-bottom: 15px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <div class="view-toggle">
-                    <button id="btnGeneral" class="btn primary">Mapa General</button>
-                    <button id="btnPV" class="btn">Mapa Fotovoltaico</button>
-                </div>
-                <button id="btnShowTable" class="btn" style="background-color: #2c3e50; color: white;">Ver Tabla de Datos</button>
+        <section class="graph-card" style="padding: 15px; display:flex; justify-content:space-between; align-items:center;">
+            <div class="view-toggle">
+                <button id="btnGeneral" class="btn primary">Mapa General</button>
+                <button id="btnPV" class="btn">Mapa Fotovoltaico</button>
             </div>
+            <button id="btnShowTable" class="btn" style="background-color: #2c3e50; color: white;">Ver Tabla de Datos</button>
         </section>
 
         <div id="map" class="map-container"></div>
 
         <div id="panelGeneral" class="layers-panel">
             <div class="layer-group">
-                <h3>☀️ Energía y Clima (TIF)</h3>
-                <div class="layer-item"><input type="checkbox" value="ghi_tif"><label>Radiación Global (GHI)</label></div>
-                <div class="layer-item"><input type="checkbox" value="pv_tif"><label>Potencial FV Dinámico</label></div>
-                <div class="layer-item"><input type="checkbox" value="temp_tif"><label>Temperatura Media</label></div>
+                <h3>☀️ Datos de Alta Calidad</h3>
+                <div class="layer-item"><input type="checkbox" value="ghi_tif"><label>Radiación (GHI)</label></div>
+                <div class="layer-item"><input type="checkbox" value="pv_tif"><label>Potencial FV</label></div>
+                <div class="layer-item"><input type="checkbox" value="temp_tif"><label>Temperatura</label></div>
             </div>
             <div class="layer-group">
-                <h3>🌍 Territorio</h3>
-                <div class="layer-item"><input type="checkbox" value="anp"><label>Áreas Protegidas</label></div>
-                <div class="layer-item"><input type="checkbox" value="hum"><label>Asentamientos</label></div>
-            </div>
-            <div class="layer-group">
-                <h3>⚡ Infraestructura</h3>
-                <div class="layer-item"><input type="checkbox" value="reg"><label>Regiones</label></div>
+                <h3>🌍 Territorio e Infraestructura</h3>
+                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones (Clusters)</label></div>
                 <div class="layer-item"><input type="checkbox" value="tx"><label>Líneas Transmisión</label></div>
-                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones</label></div>
-            </div>
-        </div>
-
-        <div id="panelPV" class="layers-panel" style="display:none;">
-            <div class="layer-group">
-                <h3>📊 Datos</h3>
-                <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad</label></div>
             </div>
         </div>
 
@@ -103,27 +77,23 @@
     </main>
 
     <script>
-        // --- 1. CONFIGURACIÓN DEL MAPA ---
-        const boundsMexico = [[12.0, -120.0], [35.0, -84.0]];
-        const map = L.map('map', {
-            center: [23.6345, -102.5528], 
-            zoom: 5, 
-            minZoom: 5,
-            maxBounds: boundsMexico,
-            maxBoundsViscosity: 1.0
-        });
-        
+        // 1. Inicialización del Mapa
+        const map = L.map('map').setView([23.6345, -102.5528], 5);
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; National Geographic'
+            attribution: 'Tiles &copy; Esri & NatGeo'
         }).addTo(map);
 
-        map.createPane('paneRaster'); map.getPane('paneRaster').style.zIndex = 200;
-        map.createPane('panePoligonos'); map.getPane('panePoligonos').style.zIndex = 400;
+        map.createPane('paneRaster').style.zIndex = 200;
 
-        // --- 2. LÓGICA PARA ARCHIVOS TIF DE ALTA CALIDAD ---
+        // 2. Escalas de Colores Personalizadas
+        const escalaGHI = (v) => v > 6.0 ? '#d94701' : v > 5.0 ? '#fd8d3c' : v > 4.0 ? '#fed98e' : '#ffffd4';
+        const escalaTemp = (v) => v > 30 ? '#bd0026' : v > 20 ? '#fd8d3c' : v > 10 ? '#fecc5c' : '#ffffb2';
+        const escalaPV = (v) => v > 5.5 ? '#49006a' : v > 4.5 ? '#ae017e' : v > 3.5 ? '#f768a1' : '#fde0dd';
+
+        // 3. Carga Dinámica de TIFs
         let tifLayers = {};
 
-        async function cargarTif(id, archivo, escalaColor) {
+        async function cargarTif(id, archivo, colorFn) {
             try {
                 const response = await fetch(`datos/${archivo}`);
                 const arrayBuffer = await response.arrayBuffer();
@@ -135,81 +105,43 @@
                     pixelValuesToColorFn: values => {
                         const val = values[0];
                         if (val === null || val <= 0) return "transparent";
-                        return escalaColor(val);
+                        return colorFn(val);
                     },
                     pane: 'paneRaster'
                 });
-                console.log(`Capa ${id} cargada correctamente.`);
-            } catch (error) {
-                console.error(`Error cargando el TIF ${archivo}:`, error);
-            }
+            } catch (e) { console.error("Error en TIF:", archivo); }
         }
 
-        // Definición de colores dinámicos
-        const colorGHI = (v) => v > 5.5 ? '#e31a1c' : v > 4.5 ? '#fd8d3c' : '#fed976';
-        const colorPV = (v) => v > 5 ? '#800026' : v > 4 ? '#e31a1c' : '#feb24c';
-        const colorTemp = (v) => v > 28 ? '#bd0026' : v > 22 ? '#f03b20' : '#feb24c';
+        cargarTif('ghi_tif', 'GHI_FINAL.tif', escalaGHI);
+        cargarTif('pv_tif', 'PV_FINAL.tif', escalaPV);
+        cargarTif('temp_tif', 'TEMP.tif', escalaTemp);
 
-        // Ejecutar carga de archivos exportados de QGIS
-        cargarTif('ghi_tif', 'GHI_FINAL.tif', colorGHI);
-        cargarTif('pv_tif', 'PV_FINAL.tif', colorPV);
-        cargarTif('temp_tif', 'TEMP.tif', colorTemp);
+        // 4. Subestaciones (Clusters) - Recuperado
+        const markersSub = L.markerClusterGroup();
+        fetch('datos/subestaciones_cfe.json')
+            .then(r => r.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 5, fillColor: "#2c3e50", color: "#fff", weight: 1, fillOpacity: 0.8 }),
+                    onEachFeature: (f, l) => l.bindPopup(`Subestación: ${f.properties.Name || 'S/N'}`)
+                }).addTo(markersSub);
+            });
 
-        // --- 3. CARGA DE OTROS DATOS (JSON) ---
-        let layersMap = {};
+        // 5. Control de Capas
+        let layersMap = { 'sub': markersSub };
 
-        async function loadGeoJson(filename, style) {
-            try {
-                const res = await fetch(`datos/${filename}`);
-                if (!res.ok) return L.layerGroup();
-                const data = await res.json();
-                return L.geoJSON(data, { style: style, pane: 'panePoligonos' });
-            } catch (e) { return L.layerGroup(); }
-        }
-
-        (async () => {
-            layersMap['reg'] = await loadGeoJson('mis_9_regiones.json', {color: '#2c3e50', weight: 1, fillOpacity: 0.2});
-            layersMap['tx'] = await loadGeoJson('lineas_transmision_cfe_24.json', {color: '#000', weight: 1.5});
-            // Agrega aquí más capas si las tienes
-        })();
-
-        // --- 4. CONTROLADOR DE CAPAS ---
         document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
             chk.addEventListener('change', (e) => {
                 const id = e.target.value;
-                const capaTif = tifLayers[id];
-                const capaNormal = layersMap[id];
-
-                if (capaTif) {
-                    e.target.checked ? capaTif.addTo(map) : map.removeLayer(capaTif);
-                } else if (capaNormal) {
-                    e.target.checked ? capaNormal.addTo(map) : map.removeLayer(capaNormal);
-                }
+                const layer = tifLayers[id] || layersMap[id];
+                if (layer) e.target.checked ? layer.addTo(map) : map.removeLayer(layer);
             });
         });
 
-        // --- 5. INTERFAZ (BOTONES) ---
-        const btnGen = document.getElementById('btnGeneral');
-        const btnPV = document.getElementById('btnPV');
-        const pGen = document.getElementById('panelGeneral');
-        const pPV = document.getElementById('panelPV');
-
-        btnGen.onclick = () => {
-            btnGen.classList.add('primary'); btnPV.classList.remove('primary');
-            pGen.style.display = 'grid'; pPV.style.display = 'none';
-        };
-
-        btnPV.onclick = () => {
-            btnPV.classList.add('primary'); btnGen.classList.remove('primary');
-            pGen.style.display = 'none'; pPV.style.display = 'grid';
-        };
-
-        // Tabla Simple
+        // Interfaz
         const btnTable = document.getElementById('btnShowTable');
         const tableSec = document.getElementById('tableSection');
-        btnTable.onclick = () => {
-            tableSec.style.display = (tableSec.style.display === 'block') ? 'none' : 'block';
-        };
+        btnTable.onclick = () => { tableSec.style.display = (tableSec.style.display === 'block') ? 'none' : 'block'; };
     </script>
 </body>
 </html>
