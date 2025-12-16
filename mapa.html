@@ -15,7 +15,7 @@
         .map-container {
             position: relative; height: 600px; width: 100%;
             border: 2px solid #ccc; border-radius: 5px; margin-bottom: 2rem; z-index: 1;
-            background-color: #aad3df; /* Color azul del mar mientras carga */
+            background-color: #f0f0f0; /* Fondo gris suave por si tarda en cargar */
         }
 
         /* PANEL DE CAPAS (3 COLUMNAS) */
@@ -139,14 +139,13 @@
 
     <script>
         // --- 1. CONFIGURACIÓN DEL MAPA ---
-        const map = L.map('map', {
-            center: [23.6345, -102.5528], zoom: 5, minZoom: 5,
-            maxBounds: [[13.0, -120.0], [34.0, -85.0]], maxBoundsViscosity: 1.0
-        });
+        const map = L.map('map').setView([23.6345, -102.5528], 5);
         
-        // --- ESTILO ESRI OCEAN (Mar Azul, Tierra Relieve) ---
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri', maxZoom: 10
+        // --- ESTILO "NATIONAL GEOGRAPHIC" (Académico Profesional) ---
+        // Este mapa base es muy confiable y perfecto para tesis/papers
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; National Geographic',
+            maxZoom: 12
         }).addTo(map);
 
         // --- ORDEN DE CAPAS ---
@@ -157,27 +156,32 @@
 
         // --- IMÁGENES ---
         const imageBounds = [[14.53, -117.12], [32.72, -86.71]];
-        const layerPot = L.imageOverlay('pvout.png', imageBounds, { opacity: 0.65, pane: 'paneRaster' });
-        const layerRad = L.imageOverlay('rad.png', imageBounds, { opacity: 0.65, pane: 'paneRaster' });
+        const layerPot = L.imageOverlay('pvout.png', imageBounds, { opacity: 0.7, pane: 'paneRaster' });
+        const layerRad = L.imageOverlay('rad.png', imageBounds, { opacity: 0.7, pane: 'paneRaster' });
 
-        // --- 2. COLORES DE REGIONES ---
+        // --- 2. COLORES DE REGIONES (LÓGICA AUTOMÁTICA) ---
         function getColorRegion(nombre) {
             if(!nombre) return '#999';
             const n = nombre.toUpperCase();
-            if(n.includes("NOROESTE") || n.includes("NOR")) return '#E41A1C'; 
-            if(n.includes("NORESTE") || n.includes("NES")) return '#377EB8'; 
-            if(n.includes("OCCIDENTAL") || n.includes("OCC")) return '#4DAF4A'; 
-            if(n.includes("CENTRAL") || n.includes("CEN")) return '#984EA3'; 
-            if(n.includes("ORIENTAL") || n.includes("ORI")) return '#FF7F00'; 
-            if(n.includes("PENINSULAR") || n.includes("PEN")) return '#FFFF33'; 
-            if(n.includes("BAJA")) return '#A65628'; 
-            return '#F781BF'; 
+            if(n.includes("NOROESTE") || n.includes("NOR")) return '#E41A1C'; // Rojo
+            if(n.includes("NORESTE") || n.includes("NES")) return '#377EB8'; // Azul
+            if(n.includes("OCCIDENTAL") || n.includes("OCC")) return '#4DAF4A'; // Verde
+            if(n.includes("CENTRAL") || n.includes("CEN")) return '#984EA3'; // Morado
+            if(n.includes("ORIENTAL") || n.includes("ORI")) return '#FF7F00'; // Naranja
+            if(n.includes("PENINSULAR") || n.includes("PEN")) return '#FFFF33'; // Amarillo
+            if(n.includes("BAJA")) return '#A65628'; // Café
+            return '#F781BF'; // Rosa default
         }
 
+        // Estilo especial para Regiones (Coropletas)
         function styleRegiones(feature) {
             return {
                 fillColor: getColorRegion(feature.properties.REGION || feature.properties.nombre),
-                weight: 1.5, opacity: 1, color: 'white', dashArray: '3', fillOpacity: 0.4
+                weight: 2, 
+                opacity: 1, 
+                color: 'white', // Borde blanco limpio
+                dashArray: '3', 
+                fillOpacity: 0.4 // Transparente para ver el relieve del mapa NatGeo
             };
         }
 
@@ -185,13 +189,15 @@
         async function loadLayer(url, type, styleOpts) {
             try {
                 const response = await fetch(url);
-                if (!response.ok) return L.layerGroup();
+                if (!response.ok) {
+                    console.log("No se pudo cargar: " + url);
+                    return L.layerGroup();
+                }
                 const data = await response.json();
                 
                 if (type === 'line') {
                     return L.geoJSON(data, { style: styleOpts, pane: 'paneLineas' });
                 } else if (type === 'point') {
-                     // Puntos Simples (Sin Clustering) para evitar errores
                     return L.geoJSON(data, {
                         pointToLayer: (feature, latlng) => L.circleMarker(latlng, styleOpts),
                         pane: 'panePuntos',
@@ -205,29 +211,34 @@
                         }
                     });
                 } else if (type === 'poly') {
+                    // Si es el archivo de regiones, aplica colores
                     if(url.includes('regiones')) {
                         return L.geoJSON(data, { 
-                            style: styleRegiones, // Colores automáticos
+                            style: styleRegiones, 
                             pane: 'panePoligonos',
-                            onEachFeature: (f, l) => l.bindPopup(`<b>Región: ${f.properties.REGION}</b>`)
+                            onEachFeature: (f, l) => l.bindPopup(`<b>Región: ${f.properties.REGION || 'Desconocida'}</b>`)
                         });
                     } else {
+                        // Para ANP o Estados usa el estilo fijo
                         return L.geoJSON(data, { style: styleOpts, pane: 'panePoligonos' });
                     }
                 }
             } catch (e) { return L.layerGroup(); }
         }
 
-        // Estilos
-        const stTx = { color: '#2c3e50', weight: 1.5 }; // Líneas oscuras
-        const stSub = { radius: 3, fillColor: '#2c3e50', color: '#fff', weight: 1, fillOpacity: 1 }; // Puntos negros
+        // Estilos Generales
+        const stTx = { color: '#2c3e50', weight: 2 }; // Líneas oscuras (gris acero)
+        const stSub = { radius: 4, fillColor: '#d35400', color: '#fff', weight: 1, fillOpacity: 1 }; // Puntos Naranja Ladrillo
         const stHum = { color: 'none', fillColor: '#581845', fillOpacity: 0.5 }; // Asentamientos Vino
 
         // --- INICIALIZACIÓN ---
         let layerReg, layerTx, layerSub, layerHumanos;
 
         (async () => {
-            // Cargar capas normales
+            // Cargar archivos 'sueltos' (SIN carpeta 'datos' si usaste GitHub Desktop y los soltaste ahí)
+            // SI ESTAN EN CARPETA, CAMBIA 'mis_9_regiones.json' POR 'datos/mis_9_regiones.json'
+            
+            // Intento de carga con ruta "datos/" (lo más probable según tu estructura)
             layerReg = await loadLayer('datos/mis_9_regiones.json', 'poly', null);
             layerTx = await loadLayer('datos/lineas_transmision_cfe_24.geojson', 'line', stTx);
             layerSub = await loadLayer('datos/subestaciones_cfe.json', 'point', stSub);
@@ -278,4 +289,39 @@
 
         btnPV.onclick = () => {
             btnPV.classList.add('primary'); btnGen.classList.remove('primary');
-            pGen.style.display = 'none'; pPV.style.display =
+            pGen.style.display = 'none'; pPV.style.display = 'grid';
+            resetMap();
+        };
+
+        function resetMap() {
+            map.eachLayer(l => { if(l !== map._layers[Object.keys(map._layers)[0]]) map.removeLayer(l); });
+            document.querySelectorAll('input').forEach(i => i.checked = false);
+            // RE-AGREGAR EL MAPA NATGEO AL RESETEAR
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri', maxZoom: 12
+            }).addTo(map);
+        }
+
+        // TABLA Y GLOSARIO
+        const btnTable = document.getElementById('btnShowTable');
+        const tableSec = document.getElementById('tableSection');
+        const tbody = document.getElementById('tableBodyData');
+        const dataRegiones = [
+            {r: "CEN", d: 8848}, {r: "ORI", d: 9034}, {r: "OCC", d: 11834}, {r: "NOR", d: 5909},
+            {r: "NTE", d: 5540}, {r: "NES", d: 11109}, {r: "PEN", d: 2969}, {r: "SIN", d: 55243}
+        ];
+        tbody.innerHTML = '';
+        dataRegiones.forEach(d => { tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>-</td><td>-</td><td>${d.d.toLocaleString()}</td></tr>`; });
+
+        btnTable.onclick = () => {
+            if(tableSec.style.display === 'block'){ tableSec.style.display = 'none'; btnTable.textContent = 'Ver Tabla de Datos'; }
+            else { tableSec.style.display = 'block'; btnTable.textContent = 'Ocultar Tabla'; }
+        };
+
+        document.getElementById('btnGlossary').onclick = () => {
+            const g = document.getElementById('glossaryContent');
+            g.style.display = (g.style.display==='block')?'none':'block'; 
+        };
+    </script>
+</body>
+</html>
