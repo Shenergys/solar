@@ -10,107 +10,58 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
     <style>
-        /* --- Estilos Mapa --- */
-        .map-container {
-            position: relative;
-            height: 600px;
-            width: 100%;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 2rem;
-            z-index: 1;
+        .map-container { 
+            height: 600px; width: 100%; border: 2px solid #ccc; 
+            background-color: #d5d5d5; /* Gris suave de fondo */
+            z-index: 1; 
         }
 
-        /* --- PANEL DE CAPAS (CORREGIDO: 3 COLUMNAS FIJAS) --- */
-        .layers-panel {
-            display: grid;
-            /* AQUÍ ESTÁ LA CORRECCIÓN: 3 columnas del mismo tamaño siempre */
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 25px;
-            margin-bottom: 2rem;
-            align-items: start; /* Alineación superior para que se vean ordenadas */
-        }
+        /* Panel de Capas */
+        .layers-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 2rem; align-items: start; }
+        @media (max-width: 900px) { .layers-panel { grid-template-columns: 1fr; } }
+        
+        .layer-group { background: #fff; padding: 20px; border-radius: 8px; border-top: 5px solid #FFD700; border: 1px solid #eee; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .layer-group h3 { margin-top: 0; font-size: 1.2rem; color: #2c3e50; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; }
+        .layer-item { display: flex; align-items: center; margin-bottom: 10px; color: #444; }
+        .layer-item input { margin-right: 12px; transform: scale(1.3); accent-color: #FFD700; }
 
-        /* Solo en celulares se vuelve 1 columna */
-        @media (max-width: 900px) {
-            .layers-panel {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Estilo de los Clusters (Bolitas de colores) */
+        .marker-cluster-small { background-color: rgba(160, 194, 156, 0.6); } /* Verde NatGeo */
+        .marker-cluster-small div { background-color: rgba(90, 140, 90, 0.6); }
+        .marker-cluster-medium { background-color: rgba(241, 211, 87, 0.6); } /* Amarillo */
+        .marker-cluster-medium div { background-color: rgba(240, 194, 12, 0.6); }
+        .marker-cluster-large { background-color: rgba(253, 156, 115, 0.6); } /* Naranja */
+        .marker-cluster-large div { background-color: rgba(241, 128, 23, 0.6); }
 
-        /* ESTILO DE LAS TARJETAS DE CAPAS (DISEÑO BONITO) */
-        .layer-group {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra suave */
-            border-top: 5px solid #FFD700; /* Línea amarilla SP-Energy */
-            border-left: 1px solid #eee;
-            border-right: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-        }
-
-        .layer-group h3 {
-            margin-top: 0;
-            font-size: 1.2rem;
-            color: #2c3e50;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .layer-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            color: #444;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .layer-item:hover {
-            background-color: #f9f9f9;
-        }
-
-        .layer-item input {
-            margin-right: 12px;
-            transform: scale(1.3); /* Checkbox visible */
-            cursor: pointer;
-            accent-color: #FFD700;
-        }
-
-        /* Tabla y Glosario (Igual que antes) */
-        #tableSection { display: none; margin-top: 2rem; }
+        /* Tablas */
+        #tableSection, #glossaryContent { display: none; margin-top: 2rem; }
         .glossary-section { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 2rem; }
-        #glossaryContent { display: none; background: #f4f4f4; padding: 20px; border-radius: 5px; margin-top: 15px; border-left: 5px solid #2c3e50; }
-        .glossary-item { margin-bottom: 10px; }
-        .term { font-weight: bold; color: #d35400; }
+        #glossaryContent { background: #f4f4f4; padding: 20px; border-left: 5px solid #2c3e50; }
     </style>
 </head>
 <body>
 
     <header class="main-header">
-        <div class="logo-container"><span class="logo-text">SP-ENERGY <span class="sun-icon">☀️</span></span></div>
+        <div class="logo-container"><span class="logo-text">SP-ENERGY ☀️</span></div>
         <div class="slogan-container"><h1>Energía Solar para Todos</h1></div>
-        <div class="spacer"></div> 
     </header>
 
     <nav class="navbar">
         <ul>
             <li><a href="index.html">Inicio</a></li>
             <li><a href="mapa.html" class="active">Mapas</a></li>
-            <li><a href="graficas.html">Gráficas y Tablas</a></li>
+            <li><a href="graficas.html">Gráficas</a></li>
             <li><a href="emisiones.html">Emisiones</a></li>
             <li><a href="info.html">Contacto</a></li>
         </ul>
     </nav>
 
     <main class="main-container">
-        
         <h2 class="section-title">Visualizador Geográfico</h2>
 
         <section class="graph-card" style="padding-bottom: 15px;">
@@ -126,50 +77,29 @@
         <div id="map" class="map-container"></div>
 
         <div id="panelGeneral" class="layers-panel">
-            
             <div class="layer-group">
-                <h3>☀️ Energía (Capas Base)</h3>
+                <h3>☀️ Energía</h3>
                 <div class="layer-item"><input type="checkbox" value="rad"><label>Radiación Solar</label></div>
-                <div class="layer-item"><input type="checkbox" value="pot"><label>Potencial Fotovoltaico</label></div>
-                <div class="layer-item"><input type="checkbox" value="cent"><label>Centrales Fotovoltaicas</label></div>
+                <div class="layer-item"><input type="checkbox" value="pot"><label>Potencial FV</label></div>
             </div>
-
             <div class="layer-group">
-                <h3>🌍 Territorio y Clima</h3>
-                <div class="layer-item"><input type="checkbox" value="tb"><label>Temperatura Baja</label></div>
-                <div class="layer-item"><input type="checkbox" value="tm"><label>Temperatura Media</label></div>
-                <div class="layer-item"><input type="checkbox" value="ta"><label>Temperatura Alta</label></div>
-                <div class="layer-item"><input type="checkbox" value="anp"><label>Áreas Naturales Protegidas (ANP)</label></div>
-                <div class="layer-item"><input type="checkbox" value="hum"><label>Asentamientos Humanos</label></div>
-                <div class="layer-item"><input type="checkbox" value="agua"><label>Cuerpos de Agua</label></div>
-                <div class="layer-item"><input type="checkbox" value="rel"><label>Relieve</label></div>
+                <h3>🌍 Territorio</h3>
+                <div class="layer-item"><input type="checkbox" value="anp"><label>Áreas Protegidas</label></div>
+                <div class="layer-item"><input type="checkbox" value="hum"><label>Asentamientos</label></div>
             </div>
-
             <div class="layer-group">
-                <h3>⚡ Infraestructura SEN</h3>
-                <div class="layer-item"><input type="checkbox" value="reg"><label>División de Regiones</label></div>
-                <div class="layer-item"><input type="checkbox" value="tx"><label>Líneas de Transmisión</label></div>
-                <div class="layer-item"><input type="checkbox" value="dx"><label>Líneas de Distribución</label></div>
-                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones Eléctricas</label></div>
+                <h3>⚡ Infraestructura</h3>
+                <div class="layer-item"><input type="checkbox" value="reg"><label>Regiones</label></div>
+                <div class="layer-item"><input type="checkbox" value="tx"><label>Líneas Transmisión</label></div>
+                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones (Clusters)</label></div>
             </div>
         </div>
-
+        
         <div id="panelPV" class="layers-panel" style="display:none;">
-            
             <div class="layer-group">
-                <h3>☀️ Indicadores Técnicos</h3>
-                <div class="layer-item"><input type="checkbox" value="potPV"><label>Potencial Fotovoltaico</label></div>
-                <div class="layer-item"><input type="checkbox" value="centPV"><label>Centrales Fotovoltaicas</label></div>
-                <div class="layer-item"><input type="checkbox" value="fp"><label>Factor de Planta</label></div>
+                <h3>📊 Datos</h3>
+                <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad</label></div>
             </div>
-
-            <div class="layer-group">
-                <h3>📊 Datos Regionales (Color)</h3>
-                <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad Instalada</label></div>
-                <div class="layer-item"><input type="checkbox" value="genReg"><label>Generación Eléctrica</label></div>
-                <div class="layer-item"><input type="checkbox" value="demReg"><label>Demanda Máxima</label></div>
-            </div>
-
             <div class="layer-group">
                 <h3>📍 Referencia</h3>
                 <div class="layer-item"><input type="checkbox" value="regPV" checked disabled><label>División de Regiones</label></div>
@@ -177,80 +107,194 @@
         </div>
 
         <section id="tableSection" class="graph-card">
-            <h3>Datos Regionales (Cierre 2024)</h3>
+            <h3>Datos Regionales</h3>
             <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Región</th>
-                        <th>Capacidad (MW)</th>
-                        <th>Generación (GWh)</th>
-                        <th>Demanda Máx (MW)</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Región</th><th>Capacidad (MW)</th><th>Generación (GWh)</th></tr></thead>
                 <tbody id="tableBodyData"></tbody>
             </table>
         </section>
-
-        <section class="glossary-section">
-            <button id="btnGlossary" class="btn" style="background:#333; color:white; width:100%;">Ver Glosario de Términos</button>
-            <div id="glossaryContent">
-                <h3>Glosario</h3>
-                <div class="glossary-item"><span class="term">ANP:</span> Áreas Naturales Protegidas.</div>
-                <div class="glossary-item"><span class="term">Factor de Planta:</span> Eficiencia real de generación.</div>
-                <div class="glossary-item"><span class="term">Potencial Fotovoltaico:</span> Irradiación disponible.</div>
-                <div class="glossary-item"><span class="term">SEN:</span> Sistema Eléctrico Nacional.</div>
-            </div>
-        </section>
-
     </main>
 
-    <footer><p>&copy; 2025 SP-Energy.</p></footer>
-
     <script>
-        const map = L.map('map').setView([23.6345, -102.5528], 5);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap, &copy; CARTO' }).addTo(map);
+        // --- 1. CONFIGURACIÓN DEL MAPA (Restringido a México) ---
+        const boundsMexico = [[12.0, -120.0], [35.0, -84.0]]; // Límites aproximados
 
+        const map = L.map('map', {
+            center: [23.6345, -102.5528], 
+            zoom: 5, 
+            minZoom: 5,
+            maxBounds: boundsMexico, // "Cerca virtual" activada
+            maxBoundsViscosity: 1.0
+        });
+        
+        // --- EL VERDADERO ESTILO NATIONAL GEOGRAPHIC ---
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; National Geographic',
+            maxZoom: 12
+        }).addTo(map);
+
+        // Panes (Orden de capas)
+        map.createPane('paneRaster'); map.getPane('paneRaster').style.zIndex = 200;
+        map.createPane('panePoligonos'); map.getPane('panePoligonos').style.zIndex = 400;
+        map.createPane('paneLineas'); map.getPane('paneLineas').style.zIndex = 500;
+
+        // --- 2. CONFIGURACIÓN DE CLUSTERS (BOLITAS) ---
+        const markersSub = L.markerClusterGroup({
+            disableClusteringAtZoom: 9, // A partir de zoom 9 se ven los puntos sueltos
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false
+        });
+
+        // --- 3. CARGA DE DATOS (Inteligente: busca en 'datos/' o en raíz) ---
+        
+        async function loadLayer(filename, type, styleOpts) {
+            try {
+                // Intento 1: carpeta datos
+                let res = await fetch(`datos/${filename}`);
+                if(!res.ok) res = await fetch(filename); // Intento 2: suelto
+                
+                if (!res.ok) { console.log("Falta archivo: " + filename); return L.layerGroup(); }
+                const data = await res.json();
+
+                if (type === 'line') return L.geoJSON(data, { style: styleOpts, pane: 'paneLineas' });
+                if (type === 'poly') {
+                    if(filename.includes('regiones')) return L.geoJSON(data, { style: styleRegiones, pane: 'panePoligonos', onEachFeature: (f,l)=>l.bindPopup(f.properties.REGION) });
+                    return L.geoJSON(data, { style: styleOpts, pane: 'panePoligonos' });
+                }
+            } catch (e) { return L.layerGroup(); }
+        }
+
+        // CARGA ESPECIAL PARA SUBESTACIONES (CLUSTERS)
+        async function loadSubestaciones() {
+            try {
+                let res = await fetch('datos/subestaciones_cfe.json');
+                if(!res.ok) res = await fetch('subestaciones_cfe.json'); 
+                
+                if(res.ok) {
+                    const data = await res.json();
+                    
+                    // Convertimos GeoJSON a Marcadores sencillos
+                    const geoJsonLayer = L.geoJSON(data, {
+                        pointToLayer: (feature, latlng) => {
+                            // Círculo pequeño negro y sobrio para NatGeo
+                            return L.circleMarker(latlng, {
+                                radius: 5, fillColor: "#2c3e50", color: "#fff", weight: 1, opacity: 1, fillOpacity: 0.8
+                            });
+                        },
+                        onEachFeature: (f, l) => {
+                            let txt = f.properties.Name || "Subestación";
+                            if(f.properties.Voltaje_KV) txt += `<br>${f.properties.Voltaje_KV} KV`;
+                            l.bindPopup(txt);
+                        }
+                    });
+                    
+                    // Agregamos al Cluster
+                    markersSub.addLayer(geoJsonLayer);
+                }
+            } catch(e) { console.log("Error cargando clusters"); }
+        }
+
+        // --- 4. ESTILOS Y COLORES ---
+        const imageBounds = [[14.53, -117.12], [32.72, -86.71]];
+        // Usamos opacidad 0.6 para que se vea el relieve del mapa NatGeo debajo
+        const layerPot = L.imageOverlay('pvout.png', imageBounds, { opacity: 0.6, pane: 'paneRaster' });
+        const layerRad = L.imageOverlay('rad.png', imageBounds, { opacity: 0.6, pane: 'paneRaster' });
+
+        function getColorRegion(n) {
+            if(!n) return '#999'; n = n.toUpperCase();
+            if(n.includes("NOR")) return '#E41A1C'; if(n.includes("OCC")) return '#4DAF4A';
+            if(n.includes("CEN")) return '#984EA3'; if(n.includes("ORI")) return '#FF7F00';
+            if(n.includes("PEN")) return '#FFFF33'; return '#377EB8';
+        }
+        function styleRegiones(f) {
+            return { fillColor: getColorRegion(f.properties.REGION), weight: 1.5, color: 'white', fillOpacity: 0.35 };
+        }
+        const stTx = { color: '#2c3e50', weight: 1.5 }; // Líneas gris oscuro
+        const stHum = { color: 'none', fillColor: '#800020', fillOpacity: 0.5 }; // Asentamientos Burdeos
+
+        // --- 5. EJECUCIÓN ---
+        let layerReg, layerTx, layerHum;
+        (async () => {
+            // Cargas
+            layerReg = await loadLayer('mis_9_regiones.json', 'poly', null);
+            layerTx = await loadLayer('lineas_transmision_cfe_24.geojson', 'line', stTx);
+            await loadSubestaciones(); // Clusters
+
+            // Estados
+            layerHum = L.layerGroup();
+            const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
+            estados.forEach(edo => {
+                fetch(`datos/asentamientos/ZONAHUMANO_${edo}.json`)
+                    .then(r => r.ok ? r.json() : fetch(`ZONAHUMANO_${edo}.json`).then(r2=>r2.json())) 
+                    .then(data => L.geoJSON(data, { style: stHum, pane: 'panePoligonos' }).addTo(layerHum))
+                    .catch(e => null); 
+            });
+
+            updateControls();
+        })();
+
+        // --- CONTROLADOR ---
+        let layersMap = { 'rad': layerRad, 'pot': layerPot, 'potPV': layerPot };
+
+        function updateControls() {
+            layersMap['reg'] = layerReg; layersMap['regPV'] = layerReg;
+            layersMap['tx'] = layerTx;
+            layersMap['sub'] = markersSub; // Conectamos el Cluster
+            layersMap['hum'] = layerHum;
+            
+            layersMap['capReg'] = layerReg; layersMap['genReg'] = layerReg; 
+        }
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+            chk.addEventListener('change', (e) => {
+                const id = e.target.value;
+                if(layersMap[id]) e.target.checked ? layersMap[id].addTo(map) : layersMap[id].remove();
+            });
+        });
+
+        // BOTONES INTERFAZ
         const btnGen = document.getElementById('btnGeneral');
         const btnPV = document.getElementById('btnPV');
-        const panelGen = document.getElementById('panelGeneral');
-        const panelPV = document.getElementById('panelPV');
+        const pGen = document.getElementById('panelGeneral');
+        const pPV = document.getElementById('panelPV');
 
-        btnGen.addEventListener('click', () => {
+        btnGen.onclick = () => {
             btnGen.classList.add('primary'); btnPV.classList.remove('primary');
-            panelGen.style.display = 'grid'; panelPV.style.display = 'none';
-        });
+            pGen.style.display = 'grid'; pPV.style.display = 'none';
+            resetMap();
+        };
 
-        btnPV.addEventListener('click', () => {
+        btnPV.onclick = () => {
             btnPV.classList.add('primary'); btnGen.classList.remove('primary');
-            panelGen.style.display = 'none'; panelPV.style.display = 'grid';
-        });
+            pGen.style.display = 'none'; pPV.style.display = 'grid';
+            resetMap();
+        };
 
-        // Tabla
+        function resetMap() {
+            map.eachLayer(l => { if(l !== map._layers[Object.keys(map._layers)[0]]) map.removeLayer(l); });
+            document.querySelectorAll('input').forEach(i => i.checked = false);
+            
+            // IMPORTANTE: RE-AGREGAR EL MAPA NATGEO AL RESETEAR
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; National Geographic', maxZoom: 12
+            }).addTo(map);
+        }
+
+        // TABLA Y GLOSARIO
         const btnTable = document.getElementById('btnShowTable');
         const tableSec = document.getElementById('tableSection');
         const tbody = document.getElementById('tableBodyData');
         const dataRegiones = [
-            {r: "CEN", c: "En proceso", g: "En proceso", d: 8848}, {r: "ORI", c: "En proceso", g: "En proceso", d: 9034},
-            {r: "OCC", c: "En proceso", g: "En proceso", d: 11834}, {r: "NOR", c: "En proceso", g: "En proceso", d: 5909},
-            {r: "NTE", c: "En proceso", g: "En proceso", d: 5540}, {r: "NES", c: "En proceso", g: "En proceso", d: 11109},
-            {r: "PEN", c: "En proceso", g: "En proceso", d: 2969}, {r: "SIBC", c: "En proceso", g: "En proceso", d: 3635},
-            {r: "SIBCS", c: "En proceso", g: "En proceso", d: 689}, {r: "SIMUL", c: "En proceso", g: "En proceso", d: 34},
-            {r: "SIN", c: 90543, g: 352305, d: 55243}
+            {r: "CEN", d: 8848}, {r: "ORI", d: 9034}, {r: "OCC", d: 11834}, {r: "NOR", d: 5909},
+            {r: "NTE", d: 5540}, {r: "NES", d: 11109}, {r: "PEN", d: 2969}, {r: "SIN", d: 55243}
         ];
-        dataRegiones.forEach(d => { tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>${d.c.toLocaleString()}</td><td>${d.g.toLocaleString()}</td><td>${d.d.toLocaleString()}</td></tr>`; });
+        tbody.innerHTML = '';
+        dataRegiones.forEach(d => { tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>-</td><td>-</td></tr>`; });
 
-        btnTable.addEventListener('click', () => {
+        btnTable.onclick = () => {
             if(tableSec.style.display === 'block'){ tableSec.style.display = 'none'; btnTable.textContent = 'Ver Tabla de Datos'; }
             else { tableSec.style.display = 'block'; btnTable.textContent = 'Ocultar Tabla'; }
-        });
-
-        // Glosario
-        const btnGlos = document.getElementById('btnGlossary');
-        const divGlos = document.getElementById('glossaryContent');
-        btnGlos.addEventListener('click', () => {
-            if(divGlos.style.display === 'block') { divGlos.style.display = 'none'; btnGlos.textContent = 'Ver Glosario de Términos'; }
-            else { divGlos.style.display = 'block'; btnGlos.textContent = 'Ocultar Glosario'; }
-        });
+        };
     </script>
 </body>
 </html>
