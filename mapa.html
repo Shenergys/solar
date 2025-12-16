@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <script src="https://unpkg.com/georaster"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
@@ -17,11 +20,9 @@
     <style>
         .map-container { 
             height: 600px; width: 100%; border: 2px solid #ccc; 
-            background-color: #d5d5d5; /* Gris suave de fondo */
+            background-color: #d5d5d5; 
             z-index: 1; 
         }
-
-        /* Panel de Capas */
         .layers-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 2rem; align-items: start; }
         @media (max-width: 900px) { .layers-panel { grid-template-columns: 1fr; } }
         
@@ -30,18 +31,7 @@
         .layer-item { display: flex; align-items: center; margin-bottom: 10px; color: #444; }
         .layer-item input { margin-right: 12px; transform: scale(1.3); accent-color: #FFD700; }
 
-        /* Estilo de los Clusters (Bolitas de colores) */
-        .marker-cluster-small { background-color: rgba(160, 194, 156, 0.6); } /* Verde NatGeo */
-        .marker-cluster-small div { background-color: rgba(90, 140, 90, 0.6); }
-        .marker-cluster-medium { background-color: rgba(241, 211, 87, 0.6); } /* Amarillo */
-        .marker-cluster-medium div { background-color: rgba(240, 194, 12, 0.6); }
-        .marker-cluster-large { background-color: rgba(253, 156, 115, 0.6); } /* Naranja */
-        .marker-cluster-large div { background-color: rgba(241, 128, 23, 0.6); }
-
-        /* Tablas */
-        #tableSection, #glossaryContent { display: none; margin-top: 2rem; }
-        .glossary-section { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 2rem; }
-        #glossaryContent { background: #f4f4f4; padding: 20px; border-left: 5px solid #2c3e50; }
+        #tableSection { display: none; margin-top: 2rem; }
     </style>
 </head>
 <body>
@@ -62,7 +52,7 @@
     </nav>
 
     <main class="main-container">
-        <h2 class="section-title">Visualizador Geográfico</h2>
+        <h2 class="section-title">Visualizador Geográfico de Alta Calidad</h2>
 
         <section class="graph-card" style="padding-bottom: 15px;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -78,9 +68,10 @@
 
         <div id="panelGeneral" class="layers-panel">
             <div class="layer-group">
-                <h3>☀️ Energía</h3>
-                <div class="layer-item"><input type="checkbox" value="rad"><label>Radiación Solar</label></div>
-                <div class="layer-item"><input type="checkbox" value="pot"><label>Potencial FV</label></div>
+                <h3>☀️ Energía y Clima (TIF)</h3>
+                <div class="layer-item"><input type="checkbox" value="ghi_tif"><label>Radiación Global (GHI)</label></div>
+                <div class="layer-item"><input type="checkbox" value="pv_tif"><label>Potencial FV Dinámico</label></div>
+                <div class="layer-item"><input type="checkbox" value="temp_tif"><label>Temperatura Media</label></div>
             </div>
             <div class="layer-group">
                 <h3>🌍 Territorio</h3>
@@ -91,18 +82,14 @@
                 <h3>⚡ Infraestructura</h3>
                 <div class="layer-item"><input type="checkbox" value="reg"><label>Regiones</label></div>
                 <div class="layer-item"><input type="checkbox" value="tx"><label>Líneas Transmisión</label></div>
-                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones (Clusters)</label></div>
+                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones</label></div>
             </div>
         </div>
-        
+
         <div id="panelPV" class="layers-panel" style="display:none;">
             <div class="layer-group">
                 <h3>📊 Datos</h3>
                 <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad</label></div>
-            </div>
-            <div class="layer-group">
-                <h3>📍 Referencia</h3>
-                <div class="layer-item"><input type="checkbox" value="regPV" checked disabled><label>División de Regiones</label></div>
             </div>
         </div>
 
@@ -116,143 +103,92 @@
     </main>
 
     <script>
-        // --- 1. CONFIGURACIÓN DEL MAPA (Restringido a México) ---
-        const boundsMexico = [[12.0, -120.0], [35.0, -84.0]]; // Límites aproximados
-
+        // --- 1. CONFIGURACIÓN DEL MAPA ---
+        const boundsMexico = [[12.0, -120.0], [35.0, -84.0]];
         const map = L.map('map', {
             center: [23.6345, -102.5528], 
             zoom: 5, 
             minZoom: 5,
-            maxBounds: boundsMexico, // "Cerca virtual" activada
+            maxBounds: boundsMexico,
             maxBoundsViscosity: 1.0
         });
         
-        // --- EL VERDADERO ESTILO NATIONAL GEOGRAPHIC ---
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; National Geographic',
-            maxZoom: 12
+            attribution: 'Tiles &copy; Esri &mdash; National Geographic'
         }).addTo(map);
 
-        // Panes (Orden de capas)
         map.createPane('paneRaster'); map.getPane('paneRaster').style.zIndex = 200;
         map.createPane('panePoligonos'); map.getPane('panePoligonos').style.zIndex = 400;
-        map.createPane('paneLineas'); map.getPane('paneLineas').style.zIndex = 500;
 
-        // --- 2. CONFIGURACIÓN DE CLUSTERS (BOLITAS) ---
-        const markersSub = L.markerClusterGroup({
-            disableClusteringAtZoom: 9, // A partir de zoom 9 se ven los puntos sueltos
-            spiderfyOnMaxZoom: true,
-            showCoverageOnHover: false
-        });
+        // --- 2. LÓGICA PARA ARCHIVOS TIF DE ALTA CALIDAD ---
+        let tifLayers = {};
 
-        // --- 3. CARGA DE DATOS (Inteligente: busca en 'datos/' o en raíz) ---
-        
-        async function loadLayer(filename, type, styleOpts) {
+        async function cargarTif(id, archivo, escalaColor) {
             try {
-                // Intento 1: carpeta datos
-                let res = await fetch(`datos/${filename}`);
-                if(!res.ok) res = await fetch(filename); // Intento 2: suelto
-                
-                if (!res.ok) { console.log("Falta archivo: " + filename); return L.layerGroup(); }
-                const data = await res.json();
+                const response = await fetch(`datos/${archivo}`);
+                const arrayBuffer = await response.arrayBuffer();
+                const georaster = await parseGeoraster(arrayBuffer);
 
-                if (type === 'line') return L.geoJSON(data, { style: styleOpts, pane: 'paneLineas' });
-                if (type === 'poly') {
-                    if(filename.includes('regiones')) return L.geoJSON(data, { style: styleRegiones, pane: 'panePoligonos', onEachFeature: (f,l)=>l.bindPopup(f.properties.REGION) });
-                    return L.geoJSON(data, { style: styleOpts, pane: 'panePoligonos' });
-                }
+                tifLayers[id] = new GeoRasterLayer({
+                    georaster: georaster,
+                    opacity: 0.7,
+                    pixelValuesToColorFn: values => {
+                        const val = values[0];
+                        if (val === null || val <= 0) return "transparent";
+                        return escalaColor(val);
+                    },
+                    pane: 'paneRaster'
+                });
+                console.log(`Capa ${id} cargada correctamente.`);
+            } catch (error) {
+                console.error(`Error cargando el TIF ${archivo}:`, error);
+            }
+        }
+
+        // Definición de colores dinámicos
+        const colorGHI = (v) => v > 5.5 ? '#e31a1c' : v > 4.5 ? '#fd8d3c' : '#fed976';
+        const colorPV = (v) => v > 5 ? '#800026' : v > 4 ? '#e31a1c' : '#feb24c';
+        const colorTemp = (v) => v > 28 ? '#bd0026' : v > 22 ? '#f03b20' : '#feb24c';
+
+        // Ejecutar carga de archivos exportados de QGIS
+        cargarTif('ghi_tif', 'GHI_FINAL.tif', colorGHI);
+        cargarTif('pv_tif', 'PV_FINAL.tif', colorPV);
+        cargarTif('temp_tif', 'TEMP.tif', colorTemp);
+
+        // --- 3. CARGA DE OTROS DATOS (JSON) ---
+        let layersMap = {};
+
+        async function loadGeoJson(filename, style) {
+            try {
+                const res = await fetch(`datos/${filename}`);
+                if (!res.ok) return L.layerGroup();
+                const data = await res.json();
+                return L.geoJSON(data, { style: style, pane: 'panePoligonos' });
             } catch (e) { return L.layerGroup(); }
         }
 
-        // CARGA ESPECIAL PARA SUBESTACIONES (CLUSTERS)
-        async function loadSubestaciones() {
-            try {
-                let res = await fetch('datos/subestaciones_cfe.json');
-                if(!res.ok) res = await fetch('subestaciones_cfe.json'); 
-                
-                if(res.ok) {
-                    const data = await res.json();
-                    
-                    // Convertimos GeoJSON a Marcadores sencillos
-                    const geoJsonLayer = L.geoJSON(data, {
-                        pointToLayer: (feature, latlng) => {
-                            // Círculo pequeño negro y sobrio para NatGeo
-                            return L.circleMarker(latlng, {
-                                radius: 5, fillColor: "#2c3e50", color: "#fff", weight: 1, opacity: 1, fillOpacity: 0.8
-                            });
-                        },
-                        onEachFeature: (f, l) => {
-                            let txt = f.properties.Name || "Subestación";
-                            if(f.properties.Voltaje_KV) txt += `<br>${f.properties.Voltaje_KV} KV`;
-                            l.bindPopup(txt);
-                        }
-                    });
-                    
-                    // Agregamos al Cluster
-                    markersSub.addLayer(geoJsonLayer);
-                }
-            } catch(e) { console.log("Error cargando clusters"); }
-        }
-
-        // --- 4. ESTILOS Y COLORES ---
-        const imageBounds = [[14.53, -117.12], [32.72, -86.71]];
-        // Usamos opacidad 0.6 para que se vea el relieve del mapa NatGeo debajo
-        const layerPot = L.imageOverlay('pvout.png', imageBounds, { opacity: 0.6, pane: 'paneRaster' });
-        const layerRad = L.imageOverlay('rad.png', imageBounds, { opacity: 0.6, pane: 'paneRaster' });
-
-        function getColorRegion(n) {
-            if(!n) return '#999'; n = n.toUpperCase();
-            if(n.includes("NOR")) return '#E41A1C'; if(n.includes("OCC")) return '#4DAF4A';
-            if(n.includes("CEN")) return '#984EA3'; if(n.includes("ORI")) return '#FF7F00';
-            if(n.includes("PEN")) return '#FFFF33'; return '#377EB8';
-        }
-        function styleRegiones(f) {
-            return { fillColor: getColorRegion(f.properties.REGION), weight: 1.5, color: 'white', fillOpacity: 0.35 };
-        }
-        const stTx = { color: '#2c3e50', weight: 1.5 }; // Líneas gris oscuro
-        const stHum = { color: 'none', fillColor: '#800020', fillOpacity: 0.5 }; // Asentamientos Burdeos
-
-        // --- 5. EJECUCIÓN ---
-        let layerReg, layerTx, layerHum;
         (async () => {
-            // Cargas
-            layerReg = await loadLayer('mis_9_regiones.json', 'poly', null);
-            layerTx = await loadLayer('lineas_transmision_cfe_24.geojson', 'line', stTx);
-            await loadSubestaciones(); // Clusters
-
-            // Estados
-            layerHum = L.layerGroup();
-            const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
-            estados.forEach(edo => {
-                fetch(`datos/asentamientos/ZONAHUMANO_${edo}.json`)
-                    .then(r => r.ok ? r.json() : fetch(`ZONAHUMANO_${edo}.json`).then(r2=>r2.json())) 
-                    .then(data => L.geoJSON(data, { style: stHum, pane: 'panePoligonos' }).addTo(layerHum))
-                    .catch(e => null); 
-            });
-
-            updateControls();
+            layersMap['reg'] = await loadGeoJson('mis_9_regiones.json', {color: '#2c3e50', weight: 1, fillOpacity: 0.2});
+            layersMap['tx'] = await loadGeoJson('lineas_transmision_cfe_24.json', {color: '#000', weight: 1.5});
+            // Agrega aquí más capas si las tienes
         })();
 
-        // --- CONTROLADOR ---
-        let layersMap = { 'rad': layerRad, 'pot': layerPot, 'potPV': layerPot };
-
-        function updateControls() {
-            layersMap['reg'] = layerReg; layersMap['regPV'] = layerReg;
-            layersMap['tx'] = layerTx;
-            layersMap['sub'] = markersSub; // Conectamos el Cluster
-            layersMap['hum'] = layerHum;
-            
-            layersMap['capReg'] = layerReg; layersMap['genReg'] = layerReg; 
-        }
-
+        // --- 4. CONTROLADOR DE CAPAS ---
         document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
             chk.addEventListener('change', (e) => {
                 const id = e.target.value;
-                if(layersMap[id]) e.target.checked ? layersMap[id].addTo(map) : layersMap[id].remove();
+                const capaTif = tifLayers[id];
+                const capaNormal = layersMap[id];
+
+                if (capaTif) {
+                    e.target.checked ? capaTif.addTo(map) : map.removeLayer(capaTif);
+                } else if (capaNormal) {
+                    e.target.checked ? capaNormal.addTo(map) : map.removeLayer(capaNormal);
+                }
             });
         });
 
-        // BOTONES INTERFAZ
+        // --- 5. INTERFAZ (BOTONES) ---
         const btnGen = document.getElementById('btnGeneral');
         const btnPV = document.getElementById('btnPV');
         const pGen = document.getElementById('panelGeneral');
@@ -261,39 +197,18 @@
         btnGen.onclick = () => {
             btnGen.classList.add('primary'); btnPV.classList.remove('primary');
             pGen.style.display = 'grid'; pPV.style.display = 'none';
-            resetMap();
         };
 
         btnPV.onclick = () => {
             btnPV.classList.add('primary'); btnGen.classList.remove('primary');
             pGen.style.display = 'none'; pPV.style.display = 'grid';
-            resetMap();
         };
 
-        function resetMap() {
-            map.eachLayer(l => { if(l !== map._layers[Object.keys(map._layers)[0]]) map.removeLayer(l); });
-            document.querySelectorAll('input').forEach(i => i.checked = false);
-            
-            // IMPORTANTE: RE-AGREGAR EL MAPA NATGEO AL RESETEAR
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; National Geographic', maxZoom: 12
-            }).addTo(map);
-        }
-
-        // TABLA Y GLOSARIO
+        // Tabla Simple
         const btnTable = document.getElementById('btnShowTable');
         const tableSec = document.getElementById('tableSection');
-        const tbody = document.getElementById('tableBodyData');
-        const dataRegiones = [
-            {r: "CEN", d: 8848}, {r: "ORI", d: 9034}, {r: "OCC", d: 11834}, {r: "NOR", d: 5909},
-            {r: "NTE", d: 5540}, {r: "NES", d: 11109}, {r: "PEN", d: 2969}, {r: "SIN", d: 55243}
-        ];
-        tbody.innerHTML = '';
-        dataRegiones.forEach(d => { tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>-</td><td>-</td></tr>`; });
-
         btnTable.onclick = () => {
-            if(tableSec.style.display === 'block'){ tableSec.style.display = 'none'; btnTable.textContent = 'Ver Tabla de Datos'; }
-            else { tableSec.style.display = 'block'; btnTable.textContent = 'Ocultar Tabla'; }
+            tableSec.style.display = (tableSec.style.display === 'block') ? 'none' : 'block';
         };
     </script>
 </body>
