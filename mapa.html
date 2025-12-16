@@ -168,34 +168,45 @@
     <footer><p>&copy; 2025 SP-Energy.</p></footer>
 
     <script>
-        // 1. INICIALIZAR MAPA
-        const map = L.map('map').setView([23.6345, -102.5528], 5);
+        // --- 1. CONFIGURACIÓN DEL MAPA (Restringido a México) ---
         
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        // Coordenadas de la "Caja" que encierra a México
+        const boundsMexico = [
+            [13.0, -120.0], // Esquina Sur-Oeste (con margen)
+            [34.0, -85.0]   // Esquina Norte-Este (con margen)
+        ];
+
+        const map = L.map('map', {
+            center: [23.6345, -102.5528], // Centro de México
+            zoom: 5,
+            minZoom: 5,       // No permite alejarse más allá de ver todo el país
+            maxBounds: boundsMexico, // Activa la "cerca virtual"
+            maxBoundsViscosity: 1.0  // Qué tan duro es el rebote (1.0 = muro sólido)
+        });
+        
+        // --- 2. CAMBIO DE ESTILO (DE CLARO A OSCURO) ---
+        // Antes usábamos 'light_all'. Ahora usamos 'dark_all' para contraste.
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; CARTO'
         }).addTo(map);
 
-        // --- 2. CREAR NIVELES (PANES) ---
-        // Esto asegura que las líneas queden ENCIMA de las regiones y los puntos ENCIMA de todo.
-        map.createPane('paneRaster'); map.getPane('paneRaster').style.zIndex = 200; // Fondo
-        map.createPane('panePoligonos'); map.getPane('panePoligonos').style.zIndex = 400; // Regiones/Estados
-        map.createPane('paneLineas'); map.getPane('paneLineas').style.zIndex = 500; // Cables
-        map.createPane('panePuntos'); map.getPane('panePuntos').style.zIndex = 600; // Subestaciones
+        // --- 3. ORDEN DE CAPAS (Z-INDEX) ---
+        map.createPane('paneRaster'); map.getPane('paneRaster').style.zIndex = 200;
+        map.createPane('panePoligonos'); map.getPane('panePoligonos').style.zIndex = 400;
+        map.createPane('paneLineas'); map.getPane('paneLineas').style.zIndex = 500;
+        map.createPane('panePuntos'); map.getPane('panePuntos').style.zIndex = 600;
 
-        // --- 3. IMÁGENES (Mapas de calor) ---
-        // IMPORTANTE: Asegúrate de que pvout.png y rad.png estén en la carpeta principal
-        const boundsMexico = [[14.53, -117.12], [32.72, -86.71]];
-        const layerPot = L.imageOverlay('pvout.png', boundsMexico, { opacity: 0.6, pane: 'paneRaster' });
-        const layerRad = L.imageOverlay('rad.png', boundsMexico, { opacity: 0.6, pane: 'paneRaster' });
+        // --- 4. TUS IMÁGENES (Mapas de calor) ---
+        // Ajustamos la opacidad un poco para que se vean bien sobre fondo oscuro
+        const imageBounds = [[14.53, -117.12], [32.72, -86.71]];
+        const layerPot = L.imageOverlay('pvout.png', imageBounds, { opacity: 0.7, pane: 'paneRaster' });
+        const layerRad = L.imageOverlay('rad.png', imageBounds, { opacity: 0.7, pane: 'paneRaster' });
 
-        // --- 4. FUNCIÓN PARA CARGAR TUS ARCHIVOS ---
+        // --- 5. FUNCIÓN CARGADORA ---
         async function loadLayer(url, type, styleOpts) {
             try {
                 const response = await fetch(url);
-                if (!response.ok) {
-                    console.log("No se encontró: " + url);
-                    return L.layerGroup(); 
-                }
+                if (!response.ok) return L.layerGroup();
                 const data = await response.json();
                 
                 if (type === 'line') {
@@ -205,13 +216,12 @@
                         pointToLayer: (feature, latlng) => L.circleMarker(latlng, styleOpts),
                         pane: 'panePuntos',
                         onEachFeature: (f, l) => {
-                            // Intenta leer el nombre o voltaje del archivo
-                            let popupText = "Subestación";
+                            let txt = "Subestación";
                             if(f.properties) {
-                                if(f.properties.Name) popupText = `<b>${f.properties.Name}</b>`;
-                                if(f.properties.Voltaje_KV) popupText += `<br>${f.properties.Voltaje_KV} KV`;
+                                if(f.properties.Name) txt = `<b>${f.properties.Name}</b>`;
+                                if(f.properties.Voltaje_KV) txt += `<br>${f.properties.Voltaje_KV} KV`;
                             }
-                            l.bindPopup(popupText);
+                            l.bindPopup(txt);
                         }
                     });
                 } else if (type === 'poly') {
@@ -220,28 +230,27 @@
                         onEachFeature: (f, l) => l.bindPopup(`<b>${f.properties.REGION || 'Región'}</b>`) 
                     });
                 }
-            } catch (e) {
-                console.error("Error cargando:", url);
-                return L.layerGroup();
-            }
+            } catch (e) { return L.layerGroup(); }
         }
 
-        // ESTILOS DE TUS CAPAS
-        const stReg = { color: '#2c3e50', weight: 2, fillOpacity: 0, dashArray: '5, 5' }; // Regiones
-        const stTx = { color: '#2980b9', weight: 1.5 }; // Líneas de Transmisión (Azul)
-        const stSub = { radius: 3, fillColor: '#000', color: '#fff', weight: 1, fillOpacity: 1 }; // Subestaciones (Negras)
-        const stHum = { color: 'none', fillColor: '#8e44ad', fillOpacity: 0.5 }; // Asentamientos (Morado)
+        // --- ESTILOS (AJUSTADOS PARA FONDO OSCURO) ---
+        // Regiones: Blancas sutiles en lugar de gris oscuro
+        const stReg = { color: '#ecf0f1', weight: 1, fillOpacity: 0.05, dashArray: '4, 4' }; 
+        // Líneas: Cyan/Neón para que brillen
+        const stTx = { color: '#00d2ff', weight: 1.5, opacity: 0.9 }; 
+        // Subestaciones: Amarillas brillantes
+        const stSub = { radius: 3, fillColor: '#f1c40f', color: '#fff', weight: 1, fillOpacity: 1 }; 
+        // Asentamientos: Magenta neón
+        const stHum = { color: 'none', fillColor: '#d63384', fillOpacity: 0.4 }; 
 
-        // --- 5. CARGA AUTOMÁTICA DE DATOS ---
+        // --- 6. CARGA DE DATOS ---
         let layerReg, layerTx, layerSub, layerHumanos;
 
         (async () => {
-            // Cargar archivos de la carpeta 'datos'
             layerReg = await loadLayer('datos/mis_9_regiones.json', 'poly', stReg);
             layerTx = await loadLayer('datos/lineas_transmision_cfe_24.geojson', 'line', stTx);
             layerSub = await loadLayer('datos/subestaciones_cfe.json', 'point', stSub);
-
-            // Cargar los 32 Estados desde 'datos/asentamientos'
+            
             layerHumanos = L.layerGroup();
             const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
             
@@ -249,13 +258,13 @@
                 fetch(`datos/asentamientos/ZONAHUMANO_${edo}.json`)
                     .then(res => res.json())
                     .then(data => L.geoJSON(data, { style: stHum, pane: 'panePoligonos' }).addTo(layerHumanos))
-                    .catch(e => null); // Si falta alguno no pasa nada
+                    .catch(e => null); 
             });
 
-            updateControls(); // Actualizar checkboxes
+            updateControls();
         })();
 
-        // --- 6. CONTROLADOR DE CAPAS ---
+        // --- 7. CONTROLADOR DE CAPAS ---
         let layersMap = { 'rad': layerRad, 'pot': layerPot, 'potPV': layerPot };
 
         function updateControls() {
@@ -263,67 +272,68 @@
             layersMap['tx'] = layerTx;
             layersMap['sub'] = layerSub;
             layersMap['hum'] = layerHumanos;
-            
-            // Reutilizamos la capa de regiones para los botones de colores
             layersMap['capReg'] = layerReg; 
             layersMap['genReg'] = layerReg; 
             layersMap['demReg'] = layerReg;
         }
 
-        // INTERACCIÓN CHECKBOXES
         document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
             chk.addEventListener('change', (e) => {
                 const id = e.target.value;
                 if(layersMap[id]) {
-                    if(e.target.checked) layersMap[id].addTo(map);
-                    else layersMap[id].remove();
+                    e.target.checked ? layersMap[id].addTo(map) : layersMap[id].remove();
                 }
             });
         });
 
-        // BOTONES DE VISTA (General vs PV)
+        // BOTONES DE VISTA
         const btnGen = document.getElementById('btnGeneral');
         const btnPV = document.getElementById('btnPV');
         const pGen = document.getElementById('panelGeneral');
         const pPV = document.getElementById('panelPV');
 
-        btnGen.onclick = () => {
+        btnGen.addEventListener('click', () => {
             btnGen.classList.add('primary'); btnPV.classList.remove('primary');
             pGen.style.display = 'grid'; pPV.style.display = 'none';
             resetMap();
-        };
+        });
 
-        btnPV.onclick = () => {
+        btnPV.addEventListener('click', () => {
             btnPV.classList.add('primary'); btnGen.classList.remove('primary');
             pGen.style.display = 'none'; pPV.style.display = 'grid';
             resetMap();
-        };
+        });
 
         function resetMap() {
-            // Quita todas las capas excepto el mapa base
             map.eachLayer(l => { if(l !== map._layers[Object.keys(map._layers)[0]]) map.removeLayer(l); });
             document.querySelectorAll('input').forEach(i => i.checked = false);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+            // Re-agregamos el mapa oscuro base
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
         }
 
         // TABLA Y GLOSARIO
-        document.getElementById('btnShowTable').onclick = () => {
-            const t = document.getElementById('tableSection');
-            t.style.display = (t.style.display === 'block') ? 'none' : 'block';
-        };
-        document.getElementById('btnGlossary').onclick = () => {
-            const g = document.getElementById('glossaryContent');
-            g.style.display = (g.style.display === 'block') ? 'none' : 'block';
-        };
-        
-        // Datos de tabla
+        const btnTable = document.getElementById('btnShowTable');
+        const tableSec = document.getElementById('tableSection');
         const tbody = document.getElementById('tableBodyData');
-        const dataReg = [
+        const dataRegiones = [
             {r: "CEN", d: 8848}, {r: "ORI", d: 9034}, {r: "OCC", d: 11834}, {r: "NOR", d: 5909},
             {r: "NTE", d: 5540}, {r: "NES", d: 11109}, {r: "PEN", d: 2969}, {r: "SIN", d: 55243}
         ];
-        dataReg.forEach(d => tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>-</td><td>-</td><td>${d.d.toLocaleString()}</td></tr>`);
+        // Limpiamos tabla antes de llenar para evitar duplicados si recargas
+        tbody.innerHTML = ''; 
+        dataRegiones.forEach(d => { tbody.innerHTML += `<tr><td><strong>${d.r}</strong></td><td>-</td><td>-</td><td>${d.d.toLocaleString()}</td></tr>`; });
 
+        btnTable.addEventListener('click', () => {
+            if(tableSec.style.display === 'block'){ tableSec.style.display = 'none'; btnTable.textContent = 'Ver Tabla de Datos'; }
+            else { tableSec.style.display = 'block'; btnTable.textContent = 'Ocultar Tabla'; }
+        });
+
+        const btnGlos = document.getElementById('btnGlossary');
+        const divGlos = document.getElementById('glossaryContent');
+        btnGlos.addEventListener('click', () => {
+            if(divGlos.style.display === 'block') { divGlos.style.display = 'none'; btnGlos.textContent = 'Ver Glosario de Términos'; }
+            else { divGlos.style.display = 'block'; btnGlos.textContent = 'Ocultar Glosario'; }
+        });
     </script>
 </body>
 </html>
