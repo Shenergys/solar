@@ -10,16 +10,12 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-
     <style>
         /* Estilos Mapa */
         .map-container {
             position: relative; height: 600px; width: 100%;
             border: 2px solid #ccc; border-radius: 5px; margin-bottom: 2rem; z-index: 1;
-            background-color: #aad3df; /* Color del mar por si carga lento */
+            background-color: #aad3df; /* Color azul del mar mientras carga */
         }
 
         /* PANEL DE CAPAS (3 COLUMNAS) */
@@ -47,9 +43,6 @@
         .glossary-section { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 2rem; }
         #glossaryContent { background: #f4f4f4; padding: 20px; border-radius: 5px; border-left: 5px solid #2c3e50; }
         .term { font-weight: bold; color: #d35400; }
-        
-        /* Leyenda de Colores de Regiones */
-        .legend-color { width: 12px; height: 12px; display: inline-block; margin-right: 5px; border-radius: 2px; }
     </style>
 </head>
 <body>
@@ -71,7 +64,6 @@
     </nav>
 
     <main class="main-container">
-        
         <h2 class="section-title">Visualizador Geográfico</h2>
 
         <section class="graph-card" style="padding-bottom: 15px;">
@@ -103,7 +95,7 @@
                 <h3>⚡ Infraestructura SEN</h3>
                 <div class="layer-item"><input type="checkbox" value="reg"><label>División de Regiones</label></div>
                 <div class="layer-item"><input type="checkbox" value="tx"><label>Líneas de Transmisión</label></div>
-                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones (Agrupadas)</label></div>
+                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones Eléctricas</label></div>
             </div>
         </div>
 
@@ -152,8 +144,7 @@
             maxBounds: [[13.0, -120.0], [34.0, -85.0]], maxBoundsViscosity: 1.0
         });
         
-        // --- ESTILO "NATIONAL GEOGRAPHIC" (Esri Ocean) ---
-        // Azul oscuro en el mar, relieve en la tierra. Muy profesional.
+        // --- ESTILO ESRI OCEAN (Mar Azul, Tierra Relieve) ---
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri', maxZoom: 10
         }).addTo(map);
@@ -162,35 +153,31 @@
         map.createPane('paneRaster'); map.getPane('paneRaster').style.zIndex = 200;
         map.createPane('panePoligonos'); map.getPane('panePoligonos').style.zIndex = 400;
         map.createPane('paneLineas'); map.getPane('paneLineas').style.zIndex = 500;
-        
+        map.createPane('panePuntos'); map.getPane('panePuntos').style.zIndex = 600;
+
         // --- IMÁGENES ---
         const imageBounds = [[14.53, -117.12], [32.72, -86.71]];
         const layerPot = L.imageOverlay('pvout.png', imageBounds, { opacity: 0.65, pane: 'paneRaster' });
         const layerRad = L.imageOverlay('rad.png', imageBounds, { opacity: 0.65, pane: 'paneRaster' });
 
-        // --- 2. PALETA DE COLORES PARA REGIONES ---
-        // Asigna un color según el nombre de la región
+        // --- 2. COLORES DE REGIONES ---
         function getColorRegion(nombre) {
             if(!nombre) return '#999';
             const n = nombre.toUpperCase();
-            if(n.includes("NOROESTE") || n.includes("NOR")) return '#E41A1C'; // Rojo
-            if(n.includes("NORESTE") || n.includes("NES")) return '#377EB8'; // Azul
-            if(n.includes("OCCIDENTAL") || n.includes("OCC")) return '#4DAF4A'; // Verde
-            if(n.includes("CENTRAL") || n.includes("CEN")) return '#984EA3'; // Morado
-            if(n.includes("ORIENTAL") || n.includes("ORI")) return '#FF7F00'; // Naranja
-            if(n.includes("PENINSULAR") || n.includes("PEN")) return '#FFFF33'; // Amarillo
-            if(n.includes("BAJA")) return '#A65628'; // Café
-            return '#F781BF'; // Rosa (Default)
+            if(n.includes("NOROESTE") || n.includes("NOR")) return '#E41A1C'; 
+            if(n.includes("NORESTE") || n.includes("NES")) return '#377EB8'; 
+            if(n.includes("OCCIDENTAL") || n.includes("OCC")) return '#4DAF4A'; 
+            if(n.includes("CENTRAL") || n.includes("CEN")) return '#984EA3'; 
+            if(n.includes("ORIENTAL") || n.includes("ORI")) return '#FF7F00'; 
+            if(n.includes("PENINSULAR") || n.includes("PEN")) return '#FFFF33'; 
+            if(n.includes("BAJA")) return '#A65628'; 
+            return '#F781BF'; 
         }
 
         function styleRegiones(feature) {
             return {
                 fillColor: getColorRegion(feature.properties.REGION || feature.properties.nombre),
-                weight: 1.5,
-                opacity: 1,
-                color: 'white', // Borde blanco
-                dashArray: '3',
-                fillOpacity: 0.4 // Transparencia para ver el mapa abajo
+                weight: 1.5, opacity: 1, color: 'white', dashArray: '3', fillOpacity: 0.4
             };
         }
 
@@ -203,11 +190,24 @@
                 
                 if (type === 'line') {
                     return L.geoJSON(data, { style: styleOpts, pane: 'paneLineas' });
+                } else if (type === 'point') {
+                     // Puntos Simples (Sin Clustering) para evitar errores
+                    return L.geoJSON(data, {
+                        pointToLayer: (feature, latlng) => L.circleMarker(latlng, styleOpts),
+                        pane: 'panePuntos',
+                        onEachFeature: (f, l) => {
+                            let txt = "Subestación";
+                            if(f.properties) {
+                                if(f.properties.Name) txt = `<b>${f.properties.Name}</b>`;
+                                if(f.properties.Voltaje_KV) txt += `<br>${f.properties.Voltaje_KV} KV`;
+                            }
+                            l.bindPopup(txt);
+                        }
+                    });
                 } else if (type === 'poly') {
-                    // Si es Región, usa la función de colores. Si no (ej. ANP), usa el estilo fijo.
                     if(url.includes('regiones')) {
                         return L.geoJSON(data, { 
-                            style: styleRegiones, // AQUI SE APLICA EL COLOR
+                            style: styleRegiones, // Colores automáticos
                             pane: 'panePoligonos',
                             onEachFeature: (f, l) => l.bindPopup(`<b>Región: ${f.properties.REGION}</b>`)
                         });
@@ -218,47 +218,20 @@
             } catch (e) { return L.layerGroup(); }
         }
 
-        // Estilos Fijos
+        // Estilos
         const stTx = { color: '#2c3e50', weight: 1.5 }; // Líneas oscuras
+        const stSub = { radius: 3, fillColor: '#2c3e50', color: '#fff', weight: 1, fillOpacity: 1 }; // Puntos negros
         const stHum = { color: 'none', fillColor: '#581845', fillOpacity: 0.5 }; // Asentamientos Vino
 
-        // --- CLUSTERING DE SUBESTACIONES ---
-        // Esta variable guardará el grupo de "bolitas"
-        let markerClusterSub = L.markerClusterGroup(); 
-
-        async function cargarSubestaciones() {
-            try {
-                const response = await fetch('datos/subestaciones_cfe.json');
-                const data = await response.json();
-                
-                // Convertimos cada punto en un marcador y lo agregamos al cluster
-                const geoJsonLayer = L.geoJSON(data, {
-                    pointToLayer: function (feature, latlng) {
-                        // Marcador estándar (se agrupa solo)
-                        return L.marker(latlng);
-                    },
-                    onEachFeature: (f, l) => {
-                        let txt = "<b>Subestación</b>";
-                        if(f.properties.Name) txt = `<b>${f.properties.Name}</b>`;
-                        if(f.properties.Voltaje_KV) txt += `<br>${f.properties.Voltaje_KV} KV`;
-                        l.bindPopup(txt);
-                    }
-                });
-                markerClusterSub.addLayer(geoJsonLayer);
-            } catch(e) { console.log("Error subestaciones"); }
-        }
-
         // --- INICIALIZACIÓN ---
-        let layerReg, layerTx, layerHumanos;
+        let layerReg, layerTx, layerSub, layerHumanos;
 
         (async () => {
             // Cargar capas normales
             layerReg = await loadLayer('datos/mis_9_regiones.json', 'poly', null);
             layerTx = await loadLayer('datos/lineas_transmision_cfe_24.geojson', 'line', stTx);
+            layerSub = await loadLayer('datos/subestaciones_cfe.json', 'point', stSub);
             
-            // Cargar subestaciones con Clustering
-            await cargarSubestaciones();
-
             // Cargar Estados
             layerHumanos = L.layerGroup();
             const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
@@ -278,7 +251,7 @@
         function updateControls() {
             layersMap['reg'] = layerReg; layersMap['regPV'] = layerReg;
             layersMap['tx'] = layerTx;
-            layersMap['sub'] = markerClusterSub; // Aquí conectamos el cluster
+            layersMap['sub'] = layerSub;
             layersMap['hum'] = layerHumanos;
             
             layersMap['capReg'] = layerReg; layersMap['genReg'] = layerReg; 
@@ -305,17 +278,4 @@
 
         btnPV.onclick = () => {
             btnPV.classList.add('primary'); btnGen.classList.remove('primary');
-            pGen.style.display = 'none'; pPV.style.display = 'grid';
-            resetMap();
-        };
-
-        function resetMap() {
-            map.eachLayer(l => { if(l !== map._layers[Object.keys(map._layers)[0]]) map.removeLayer(l); });
-            document.querySelectorAll('input').forEach(i => i.checked = false);
-            // Re-agregar base Esri Ocean
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri', maxZoom: 10 }).addTo(map);
-        }
-
-        // TABLA Y GLOSARIO
-        const btnTable = document.
+            pGen.style.display = 'none'; pPV.style.display =
