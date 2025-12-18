@@ -12,19 +12,15 @@
 
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <style>
+        /* ESTILOS VISUALES (TU DISEÑO EXACTO) */
         .map-container { height: 600px; width: 100%; border: 2px solid #ccc; background-color: #d5d5d5; z-index: 1; }
         
-        /* Suavizado de píxeles para que no se vea "una porquería" */
-        .leaflet-raster-layer { 
-            image-rendering: auto;
-            filter: blur(0.4px); 
-        }
-
         .layers-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 2rem; align-items: start; }
         @media (max-width: 900px) { .layers-panel { grid-template-columns: 1fr; } }
         
@@ -33,9 +29,9 @@
         .layer-item { display: flex; align-items: center; margin-bottom: 10px; color: #444; }
         .layer-item input { margin-right: 12px; transform: scale(1.3); accent-color: #FFD700; }
 
-        /* Estilo Clusters Original */
-        .marker-cluster-small { background-color: rgba(160, 194, 156, 0.6); }
-        .marker-cluster-small div { background-color: rgba(90, 140, 90, 0.6); }
+        /* Clusters */
+        .marker-cluster-small { background-color: rgba(181, 226, 140, 0.6); }
+        .marker-cluster-small div { background-color: rgba(110, 204, 57, 0.6); }
         .marker-cluster-medium { background-color: rgba(241, 211, 87, 0.6); }
         .marker-cluster-medium div { background-color: rgba(240, 194, 12, 0.6); }
         .marker-cluster-large { background-color: rgba(253, 156, 115, 0.6); }
@@ -78,15 +74,16 @@
 
         <div id="panelGeneral" class="layers-panel">
             <div class="layer-group">
-                <h3>☀️ Datos de Alta Calidad</h3>
-                <div class="layer-item"><input type="checkbox" value="ghi_tif"><label>Radiación (GHI)</label></div>
-                <div class="layer-item"><input type="checkbox" value="pv_tif"><label>Potencial FV</label></div>
-                <div class="layer-item"><input type="checkbox" value="temp_tif"><label>Temperatura</label></div>
+                <h3>☀️ Datos Satelitales (TIF)</h3>
+                <div class="layer-item"><input type="checkbox" value="rad"><label>Radiación (GHI)</label></div>
+                <div class="layer-item"><input type="checkbox" value="pot"><label>Potencial FV</label></div>
+                <div class="layer-item"><input type="checkbox" value="temp"><label>Temperatura</label></div>
             </div>
             <div class="layer-group">
                 <h3>🌍 Territorio</h3>
-                <div class="layer-item"><input type="checkbox" value="anp"><label>Áreas Protegidas</label></div>
-                <div class="layer-item"><input type="checkbox" value="hum"><label>Asentamientos</label></div>
+                <div class="layer-item"><input type="checkbox" value="anp"><label>Áreas Protegidas (ANP)</label></div>
+                <div class="layer-item"><input type="checkbox" value="agua"><label>Cuerpos de Agua</label></div>
+                <div class="layer-item"><input type="checkbox" value="hum"><label>Asentamientos (32 Edos)</label></div>
             </div>
             <div class="layer-group">
                 <h3>⚡ Infraestructura</h3>
@@ -102,14 +99,21 @@
                 <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad Instalada</label></div>
             </div>
         </div>
+
+        <section id="tableSection" class="graph-card">
+            <h3>Datos Regionales</h3>
+            <table class="data-table">
+                <thead><tr><th>Región</th><th>Capacidad (MW)</th><th>Generación (GWh)</th></tr></thead>
+                <tbody id="tableBodyData"></tbody>
+            </table>
+        </section>
     </main>
 
     <script>
-        // 1. Configuración de Mapa y Panes
+        // --- 1. CONFIGURACIÓN DEL MAPA ---
         const map = L.map('map', {
             center: [23.6345, -102.5528], 
-            zoom: 5, 
-            minZoom: 5,
+            zoom: 5, minZoom: 5,
             maxBounds: [[12.0, -120.0], [35.0, -84.0]],
             maxBoundsViscosity: 1.0
         });
@@ -118,68 +122,160 @@
             attribution: 'Tiles &copy; Esri & NatGeo'
         }).addTo(map);
 
+        // Panes (Z-Index)
         map.createPane('paneRaster').style.zIndex = 200;
         map.createPane('panePoligonos').style.zIndex = 400;
+        map.createPane('paneLineas').style.zIndex = 500;
+        map.createPane('panePuntos').style.zIndex = 600;
 
-        // 2. Escalas de Color HD (Evitan la "mancha roja")
-        const colorGHI = (v) => v > 6.2 ? '#b30000' : v > 5.8 ? '#e34a33' : v > 5.4 ? '#fc8d59' : v > 5.0 ? '#fdbb84' : '#fef0d9';
-        const colorPV = (v) => v > 5.2 ? '#49006a' : v > 4.8 ? '#ae017e' : v > 4.4 ? '#f768a1' : v > 4.0 ? '#fbb4b9' : '#feebe2';
-        const colorTemp = (v) => v > 28 ? '#99000d' : v > 24 ? '#ef3b2c' : v > 20 ? '#fc9272' : v > 16 ? '#fee0d2' : '#fff5f0';
+        // --- 2. CARGA DE TIFs (GEORASTER) ---
+        // Definimos las escalas de colores para tus archivos TIF
+        const colorGHI = (v) => v > 6.5 ? '#990000' : v > 6.0 ? '#d7301f' : v > 5.5 ? '#ef6548' : v > 5.0 ? '#fc8d59' : v > 4.5 ? '#fdbb84' : '#fef0d9';
+        const colorPV = (v) => v > 5.0 ? '#4a1486' : v > 4.5 ? '#6a51a3' : v > 4.0 ? '#807dba' : '#bcbddc';
+        const colorTemp = (v) => v > 30 ? '#bd0026' : v > 25 ? '#f03b20' : v > 20 ? '#fd8d3c' : '#fecc5c';
 
-        // 3. Carga de TIFs Dinámicos
-        let tifLayers = {};
-        async function loadTif(id, file, colorFn) {
+        async function loadTifLayer(filename, colorFn) {
             try {
-                const res = await fetch(`datos/${file}`);
-                const buf = await res.arrayBuffer();
-                const geo = await parseGeoraster(buf);
-                tifLayers[id] = new GeoRasterLayer({
-                    georaster: geo,
+                // Buscamos en datos/ o suelto
+                let response = await fetch(`datos/${filename}`);
+                if(!response.ok) response = await fetch(filename);
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const georaster = await parseGeoraster(arrayBuffer);
+
+                const layer = new GeoRasterLayer({
+                    georaster: georaster,
                     opacity: 0.7,
                     pixelValuesToColorFn: values => {
                         const val = values[0];
-                        return (val === null || val <= 0) ? "transparent" : colorFn(val);
+                        if (val <= 0 || isNaN(val)) return null; // Transparente si no hay dato
+                        return colorFn(val);
                     },
-                    resolution: 256, // Alta resolución
+                    resolution: 64, // Calidad visual
                     pane: 'paneRaster'
                 });
-            } catch (e) { console.error("Error cargando TIF:", file); }
+                return layer;
+            } catch (e) { console.error("Error TIF:", filename, e); return null; }
         }
 
-        loadTif('ghi_tif', 'GHI_FINAL.tif', colorGHI);
-        loadTif('pv_tif', 'PV_FINAL.tif', colorPV);
-        loadTif('temp_tif', 'TEMP.tif', colorTemp);
+        // Variables para guardar las capas TIF
+        let layerRad, layerPot, layerTemp;
 
-        // 4. Subestaciones (Clusters Originales)
-        const markersSub = L.markerClusterGroup({ disableClusteringAtZoom: 9 });
-        fetch('datos/subestaciones_cfe.json').then(r => r.json()).then(data => {
-            L.geoJSON(data, {
-                pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 5, fillColor: "#2c3e50", color: "#fff", weight: 1, fillOpacity: 0.8 }),
-                onEachFeature: (f, l) => l.bindPopup(`<b>${f.properties.Name || 'Subestación'}</b>`)
-            }).addTo(markersSub);
+        // --- 3. SUBESTACIONES (CLUSTERS) ---
+        const markersSub = L.markerClusterGroup({ disableClusteringAtZoom: 10, spiderfyOnMaxZoom: true });
+        
+        async function loadSubestaciones() {
+            try {
+                let res = await fetch('datos/subestaciones_cfe.json');
+                if(!res.ok) res = await fetch('subestaciones_cfe.json');
+
+                if(res.ok) {
+                    const data = await res.json();
+                    const layer = L.geoJSON(data, {
+                        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 5, fillColor: "#2c3e50", color: "#fff", weight: 1, fillOpacity: 1 }),
+                        onEachFeature: (f, l) => l.bindPopup(`<b>${f.properties.Name}</b><br>${f.properties.Voltaje_KV || ''} KV`)
+                    });
+                    markersSub.addLayer(layer);
+                }
+            } catch(e) {}
+        }
+
+        // --- 4. ASENTAMIENTOS Y CAPAS ADICIONALES ---
+        const layerHumanos = L.layerGroup();
+        const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
+        
+        // Asentamientos (Carga Masiva)
+        estados.forEach(edo => {
+            fetch(`datos/asentamientos/ZONAHUMANO_${edo}.json`)
+                .then(r => r.ok ? r.json() : fetch(`ZONAHUMANO_${edo}.json`).then(r2=>r2.json()))
+                .then(data => { if(data) L.geoJSON(data, { style: {color:'none', fillColor:'#800020', fillOpacity:0.5}, pane:'panePoligonos' }).addTo(layerHumanos); })
+                .catch(e => null);
         });
 
-        // 5. Otras Capas (Líneas, Regiones)
-        let layersMap = { 'sub': markersSub };
-        async function loadGeoJson(id, file, style) {
-            fetch(`datos/${file}`).then(r => r.json()).then(data => {
-                layersMap[id] = L.geoJSON(data, { style: style, pane: 'panePoligonos' });
-            }).catch(e => console.log("Falta:", file));
+        // Capas Genéricas (Líneas, Regiones, ANP, Agua)
+        async function loadGeoJson(filename, styleOpts, pane) {
+            try {
+                let res = await fetch(`datos/${filename}`);
+                if(!res.ok) res = await fetch(filename);
+                if(res.ok) {
+                    const data = await res.json();
+                    // Colores dinámicos para regiones
+                    if(filename.includes('regiones')) {
+                        return L.geoJSON(data, { 
+                            style: f => ({ fillColor: getColorRegion(f.properties.REGION), weight: 1.5, color: 'white', fillOpacity: 0.35 }),
+                            pane: pane,
+                            onEachFeature: (f, l) => l.bindPopup(f.properties.REGION)
+                        });
+                    }
+                    return L.geoJSON(data, { style: styleOpts, pane: pane });
+                }
+            } catch(e) { return null; }
         }
 
-        loadGeoJson('tx', 'lineas_transmision_cfe_24.json', {color: "#000", weight: 1.5});
-        loadGeoJson('reg', 'mis_9_regiones.json', {color: "#2c3e50", weight: 1, fillOpacity: 0.2});
+        function getColorRegion(n) {
+            if(!n) return '#999'; n = n.toUpperCase();
+            if(n.includes("NOR")) return '#E41A1C'; if(n.includes("OCC")) return '#4DAF4A';
+            if(n.includes("CEN")) return '#984EA3'; if(n.includes("ORI")) return '#FF7F00';
+            if(n.includes("PEN")) return '#FFFF33'; return '#377EB8';
+        }
 
-        // 6. Controlador de Eventos
+        // --- 5. EJECUCIÓN E INICIALIZACIÓN ---
+        let layerTx, layerReg, layerANP, layerAgua;
+
+        (async () => {
+            // Cargar TIFs
+            layerRad = await loadTifLayer('GHI_FINAL.tif', colorGHI);
+            layerPot = await loadTifLayer('PV_FINAL.tif', colorPV);
+            layerTemp = await loadTifLayer('TEMP.tif', colorTemp);
+
+            // Cargar GeoJSONs Nuevos
+            layerANP = await loadGeoJson('232_ANP-ITRF08_04072025.json', {color: '#27ae60', weight: 1, fillOpacity: 0.4}, 'panePoligonos');
+            layerAgua = await loadGeoJson('hidro4mgw.json', {color: '#2980b9', weight: 1}, 'paneLineas'); // O Polígonos según sea el archivo
+            
+            // Cargar GeoJSONs Viejos
+            layerTx = await loadGeoJson('lineas_transmision_cfe_24.json', {color: "#2c3e50", weight: 1.5}, 'paneLineas');
+            layerReg = await loadGeoJson('mis_9_regiones.json', null, 'panePoligonos');
+            
+            await loadSubestaciones();
+            
+            updateMapLayers(); // Sincronizar checkboxes
+        })();
+
+        // --- 6. CONTROLADOR ---
+        const layersMap = {
+            'rad': null, 'pot': null, 'temp': null, // Se llenan dinámicamente
+            'sub': markersSub, 'hum': layerHumanos,
+            'anp': null, 'agua': null,
+            'tx': null, 'reg': null, 'capReg': null
+        };
+
+        function updateMapLayers() {
+            layersMap['rad'] = layerRad;
+            layersMap['pot'] = layerPot;
+            layersMap['temp'] = layerTemp;
+            layersMap['anp'] = layerANP;
+            layersMap['agua'] = layerAgua;
+            layersMap['tx'] = layerTx;
+            layersMap['reg'] = layerReg;
+            layersMap['capReg'] = layerReg;
+        }
+
         document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
             chk.addEventListener('change', (e) => {
                 const id = e.target.value;
-                const layer = tifLayers[id] || layersMap[id];
-                if (layer) e.target.checked ? layer.addTo(map) : map.removeLayer(layer);
+                // Actualizamos referencia por si cargó tarde
+                updateMapLayers();
+                const layer = layersMap[id];
+                
+                if (layer) {
+                    e.target.checked ? layer.addTo(map) : map.removeLayer(layer);
+                } else {
+                    console.log("Capa aún cargando o no encontrada: " + id);
+                }
             });
         });
 
-        // Toggle de Paneles
+        // UI Helpers
         const btnGen = document.getElementById('btnGeneral');
         const btnPV = document.getElementById('btnPV');
         btnGen.onclick = () => {
@@ -191,6 +287,13 @@
             btnPV.classList.add('primary'); btnGen.classList.remove('primary');
             document.getElementById('panelGeneral').style.display = 'none';
             document.getElementById('panelPV').style.display = 'grid';
+        };
+        
+        const btnTable = document.getElementById('btnShowTable');
+        const tableSec = document.getElementById('tableSection');
+        btnTable.onclick = () => {
+            tableSec.style.display = (tableSec.style.display === 'block') ? 'none' : 'block';
+            btnTable.textContent = (tableSec.style.display === 'block') ? 'Ocultar Tabla' : 'Ver Tabla de Datos';
         };
     </script>
 </body>
