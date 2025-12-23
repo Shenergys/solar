@@ -6,127 +6,115 @@
     <title>SP-Energy | Visualizador SIG</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css"> 
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="https://unpkg.com/proj4"></script>
+    <script src="https://unpkg.com/proj4leaflet"></script>
 
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
     <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
 
     <style>
-        /* RESET Y ESTRUCTURA */
+        /* RESET */
         body { margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Roboto', sans-serif; overflow: hidden; }
         
-        /* HEADER (Tu estilo original se respeta aquí, ajusta altura si es necesario) */
-        .main-header { height: 60px; background: #333; color: white; display: flex; align-items: center; padding: 0 20px; z-index: 2000; }
+        /* HEADER COMPLETO (RESTAURADO) */
+        .main-header { height: 60px; background: #333; color: white; display: flex; align-items: center; padding: 0 20px; z-index: 2000; justify-content: space-between; }
         .logo-text { font-weight: bold; font-size: 1.2rem; color: #FFD700; }
+        .navbar ul { list-style: none; display: flex; gap: 20px; margin: 0; padding: 0; }
+        .navbar a { color: white; text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .navbar a:hover, .navbar a.active { color: #FFD700; }
 
-        /* CONTENEDOR PRINCIPAL (LAYOUT TIPO GEOCOMUNES) */
-        #main-layout {
-            display: flex;
-            flex: 1; /* Ocupa el resto de la altura */
-            position: relative;
-        }
+        /* LAYOUT */
+        #main-layout { display: flex; flex: 1; position: relative; }
 
-        /* 1. BARRA LATERAL IZQUIERDA */
+        /* BARRA LATERAL IZQUIERDA */
         #sidebar {
-            width: 300px;
-            background: #f8f9fa;
-            border-right: 1px solid #ccc;
-            overflow-y: auto;
-            padding: 15px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            width: 320px; background: #f8f9fa; border-right: 1px solid #ccc; overflow-y: auto;
+            padding: 15px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 1000;
+            display: flex; flex-direction: column; gap: 15px;
         }
-
-        #sidebar h3 { margin-top: 0; font-size: 1rem; color: #2c3e50; border-bottom: 2px solid #FFD700; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-
+        #sidebar h3 { margin-top: 0; font-size: 0.95rem; color: #2c3e50; border-bottom: 2px solid #FFD700; padding-bottom: 5px; text-transform: uppercase; }
         .control-group { background: white; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
         
         .layer-option { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9rem; cursor: pointer; }
         .layer-option:hover { background: #f0f0f0; }
         .layer-option input { margin-right: 10px; cursor: pointer; accent-color: #FFD700; transform: scale(1.2); }
+        .loading-text { font-size: 0.75rem; color: #e67e22; display: none; margin-left: auto; font-style: italic; }
 
-        /* 2. MAPA (OCUPA EL RESTO) */
-        #map { flex: 1; background: #e0e0e0; cursor: crosshair; }
+        /* MAPA */
+        #map { flex: 1; background: #e0e0e0; z-index: 1; }
+        /* Cursor normal para evitar conflictos con la regla */
+        .leaflet-container { cursor: default !important; }
 
-        /* 3. INFO BOX (ESQUINA SUPERIOR DERECHA - DATOS AL PASAR CURSOR) */
+        /* INSPECTOR DE DATOS (ARRIBA DERECHA) */
         .info-box {
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            border-radius: 5px;
-            font-size: 0.9rem;
-            color: #333;
-            min-width: 200px;
+            padding: 12px; background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px;
+            font-size: 0.9rem; color: #333; min-width: 220px; border-left: 5px solid #2c3e50;
         }
         .info-box h4 { margin: 0 0 5px; color: #777; font-size: 0.8rem; text-transform: uppercase; }
-        .info-box b { color: #2c3e50; font-size: 1.1rem; }
 
-        /* PANTALLA DE CARGA */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); z-index: 9999;
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            transition: opacity 0.5s;
-        }
-        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #FFD700; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* LEYENDA FLOTANTE PARA RASTERS */
-        .legend-raster { margin-top: 5px; font-size: 0.75rem; display: flex; justify-content: space-between; background: linear-gradient(to right, blue, green, yellow, red); height: 10px; border-radius: 2px; width: 100%; }
+        /* LEYENDA RASTERS */
+        .legend-raster { margin-top: 5px; height: 8px; border-radius: 2px; width: 100%; margin-bottom: 2px; }
+        .legend-labels { display: flex; justify-content: space-between; font-size: 0.7em; color: #666; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <p style="margin-top:20px; color:#555;">Cargando Capas Geográficas...</p>
-    </div>
-
     <header class="main-header">
-        <div class="logo-text">SP-ENERGY ☀️</div>
-        <div style="margin-left:auto; font-size:0.9rem;">
-            <a href="index.html" style="color:white; text-decoration:none; margin-right:20px;">Inicio</a>
-            <a href="#" style="color:#FFD700; text-decoration:underline;">Mapas</a>
-        </div>
+        <div class="logo-container"><span class="logo-text">SP-ENERGY ☀️</span></div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="mapa.html" class="active">Mapas</a></li>
+                <li><a href="graficas.html">Gráficas</a></li>
+                <li><a href="emisiones.html">Emisiones</a></li>
+                <li><a href="info.html">Contacto</a></li>
+            </ul>
+        </nav>
     </header>
 
     <div id="main-layout">
         
         <div id="sidebar">
-            
             <div class="control-group">
                 <h3>Variables Climáticas (TIF)</h3>
+                
                 <div class="layer-option">
                     <input type="checkbox" id="chkRad" onchange="toggleLayer('rad')">
                     <div style="width:100%">
-                        <label for="chkRad">Radiación (GHI)</label>
+                        <label for="chkRad">Radiación (GHI)</label> <span id="load_rad" class="loading-text">Cargando...</span>
                         <div class="legend-raster" style="background: linear-gradient(to right, #fef0d9, #fdcc8a, #fc8d59, #d7301f);"></div>
-                        <div style="display:flex; justify-content:space-between; font-size:0.7em; color:#666;"><span>4.0</span><span>6.5+ kWh</span></div>
+                        <div class="legend-labels"><span>Baja (4.0)</span><span>Alta (6.5+)</span></div>
                     </div>
                 </div>
+
                 <div class="layer-option">
                     <input type="checkbox" id="chkPot" onchange="toggleLayer('pot')">
                     <div style="width:100%">
-                        <label for="chkPot">Potencial Fotovoltaico</label>
+                        <label for="chkPot">Potencial Fotovoltaico</label> <span id="load_pot" class="loading-text">Cargando...</span>
                         <div class="legend-raster" style="background: linear-gradient(to right, #f7fcf5, #caeac4, #7bc77c, #2a924a, #00441b);"></div>
-                        <div style="display:flex; justify-content:space-between; font-size:0.7em; color:#666;"><span>2.0</span><span>5.5+ kWh/kWp</span></div>
+                        <div class="legend-labels"><span>Baja (2.0)</span><span>Alta (5.5+)</span></div>
                     </div>
                 </div>
+
                 <div class="layer-option">
                     <input type="checkbox" id="chkTemp" onchange="toggleLayer('temp')">
                     <div style="width:100%">
-                        <label for="chkTemp">Temperatura Promedio</label>
+                        <label for="chkTemp">Temperatura</label> <span id="load_temp" class="loading-text">Cargando...</span>
                         <div class="legend-raster" style="background: linear-gradient(to right, #4575b4, #ffffbf, #d7301f);"></div>
-                         <div style="display:flex; justify-content:space-between; font-size:0.7em; color:#666;"><span>10°C</span><span>35°C+</span></div>
+                        <div class="legend-labels"><span>Frío (10°C)</span><span>Calor (35°C+)</span></div>
                     </div>
                 </div>
             </div>
@@ -141,9 +129,14 @@
                     <input type="checkbox" id="chkTx" onchange="toggleLayer('tx')">
                     <label for="chkTx">Líneas de Transmisión</label>
                 </div>
+                
                 <div class="layer-option">
-                    <input type="checkbox" id="chkSub" onchange="toggleLayer('sub')">
-                    <label for="chkSub">Subestaciones (Clusters)</label>
+                    <input type="checkbox" id="chkSubPt" onchange="toggleLayer('subPt')">
+                    <label for="chkSubPt">Subestaciones (Puntos)</label>
+                </div>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkSubCl" onchange="toggleLayer('subCl')">
+                    <label for="chkSubCl">Subestaciones (Clusters)</label>
                 </div>
             </div>
 
@@ -155,7 +148,7 @@
                 </div>
                 <div class="layer-option">
                     <input type="checkbox" id="chkHum" onchange="toggleLayer('hum')">
-                    <label for="chkHum">Asentamientos (Estados)</label>
+                    <label for="chkHum">Asentamientos (32 Estados)</label> <span id="load_hum" class="loading-text">Cargando...</span>
                 </div>
                 <div class="layer-option">
                     <input type="checkbox" id="chkAgua" onchange="toggleLayer('agua')">
@@ -164,44 +157,47 @@
             </div>
 
             <div class="control-group">
-                <h3>Herramientas</h3>
-                <button onclick="map.fitBounds(boundsMexico)" style="width:100%; padding:8px; background:#2c3e50; color:white; border:none; cursor:pointer; border-radius:3px;">⟲ Centrar México</button>
+                <button onclick="map.fitBounds(boundsMexico)" style="width:100%; padding:10px; background:#2c3e50; color:white; border:none; cursor:pointer; border-radius:3px; font-weight:bold;">⟲ Centrar en México</button>
             </div>
-
         </div>
 
         <div id="map"></div>
-
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN DEL MAPA (CLARO Y LIMPIO) ---
-        const boundsMexico = [[12.0, -118.0], [33.0, -86.0]];
-        
+        // --- 1. CONFIGURACIÓN DEL MAPA ---
+        const boundsMexico = [[13.0, -118.0], [33.0, -86.0]];
         const map = L.map('map', {
-            center: [23.6345, -102.5528],
-            zoom: 5,
-            minZoom: 4,
-            zoomControl: false // Lo movemos de lugar si queremos
+            center: [23.6345, -102.5528], zoom: 5,
+            zoomControl: false // Movemos el zoom para que no estorbe
         });
+        L.control.zoom({ position: 'topright' }).addTo(map);
 
-        L.control.zoom({ position: 'topleft' }).addTo(map);
+        // MAPA CLARO (CartoDB Positron)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; CartoDB'
+        }).addTo(map);
 
-        // REGLA DE MEDICIÓN
+        // CONFIGURACIÓN DE REGLA (ESPAÑOL)
         L.control.measure({ 
-            position: 'topleft', 
+            position: 'topleft',
             primaryLengthUnit: 'kilometers', 
             secondaryLengthUnit: 'meters',
-            primaryAreaUnit: 'hectares'
+            primaryAreaUnit: 'hectares',
+            activeColor: '#FFD700',
+            completedColor: '#C23531',
+            localization: 'es', // Forzar español
+            decPoint: ',',
+            thousandsSep: '.'
         }).addTo(map);
 
-        // MAPA BASE CLARO (CartoDB Positron)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; CartoDB',
-            maxZoom: 19
-        }).addTo(map);
+        // PANELES Z-INDEX (Correcto orden de capas)
+        map.createPane('paneRaster').style.zIndex = 200;
+        map.createPane('panePoligonos').style.zIndex = 400;
+        map.createPane('paneLineas').style.zIndex = 450;
+        map.createPane('panePuntos').style.zIndex = 600;
 
-        // --- 2. CONTROL DE INFORMACIÓN (HOVER) ---
+        // INSPECTOR DE DATOS
         const info = L.control({ position: 'topright' });
         info.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'info-box'); 
@@ -214,174 +210,163 @@
         };
         info.addTo(map);
 
-        // --- 3. DEFINICIÓN DE CAPAS Y VARIABLES ---
-        const layers = {}; 
-        
-        // ORDEN DE CAPAS (Z-INDEX)
-        map.createPane('paneRaster').style.zIndex = 200; // Abajo
-        map.createPane('panePoligonos').style.zIndex = 400;
-        map.createPane('paneLineas').style.zIndex = 450;
-        map.createPane('panePuntos').style.zIndex = 600; // Arriba
 
-        // --- 4. FUNCIONES DE CARGA ---
+        // --- 2. GESTOR DE CAPAS (LAZY LOADING) ---
+        const layers = {}; // Aquí guardaremos las capas cargadas
 
-        // A) CARGADOR DE TIFS (GEORASTER)
+        // Función para cargar/mostrar capas bajo demanda
+        async function toggleLayer(id) {
+            const chk = document.getElementById( id === 'rad' ? 'chkRad' : id === 'pot' ? 'chkPot' : id === 'temp' ? 'chkTemp' : id === 'reg' ? 'chkReg' : id === 'tx' ? 'chkTx' : id === 'subPt' ? 'chkSubPt' : id === 'subCl' ? 'chkSubCl' : id === 'anp' ? 'chkAnp' : id === 'hum' ? 'chkHum' : 'chkAgua' );
+            
+            // Si la capa ya existe, solo la mostramos/ocultamos (Instantáneo)
+            if (layers[id]) {
+                if(chk.checked) layers[id].addTo(map);
+                else map.removeLayer(layers[id]);
+                return;
+            }
+
+            // Si no existe y se marcó el checkbox, LA CARGAMOS (Loading...)
+            if(chk.checked) {
+                const loaderId = `load_${id}`;
+                if(document.getElementById(loaderId)) document.getElementById(loaderId).style.display = 'inline';
+                
+                // Switch para cargar lo que corresponda
+                if(id === 'rad') await loadTif('rad', 'GHI_FINAL.tif', scaleGHI);
+                else if(id === 'pot') await loadTif('pot', 'PV_FINAL.tif', scalePV);
+                else if(id === 'temp') await loadTif('temp', 'TEMP.tif', scaleTemp);
+                else if(id === 'reg') await loadGeoJson('reg', 'mis_9_regiones.json', 'poly', { color: '#2c3e50', weight: 2, fillOpacity: 0.1 }); // Gris oscuro
+                else if(id === 'tx') await loadGeoJson('tx', 'lineas_transmision_cfe_24.geojson', 'line', { color: '#2980b9', weight: 1.5 });
+                else if(id === 'anp') await loadGeoJson('anp', '232_ANP-ITRF08_04072025.json', 'poly', { color: '#27ae60', weight: 1, fillOpacity: 0.4 });
+                else if(id === 'agua') await loadGeoJson('agua', 'hidro4mgw.json', 'line', { color: '#3498db', weight: 1 });
+                else if(id === 'hum') await loadAsentamientos();
+                else if(id === 'subPt') await loadSubestaciones('pt');
+                else if(id === 'subCl') await loadSubestaciones('cl');
+
+                // Quitar texto de carga y añadir al mapa
+                if(document.getElementById(loaderId)) document.getElementById(loaderId).style.display = 'none';
+                if(layers[id]) layers[id].addTo(map);
+            }
+        }
+
+
+        // --- 3. FUNCIONES DE CARGA DE ARCHIVOS ---
+
+        // A) CARGADOR DE TIFS
+        const scaleGHI = v => v > 6.5 ? '#990000' : v > 6.0 ? '#d7301f' : v > 5.5 ? '#ef6548' : v > 5.0 ? '#fc8d59' : v > 4.5 ? '#fdbb84' : '#fef0d9';
+        const scalePV = v => v > 5.2 ? '#00441b' : v > 4.8 ? '#238b45' : v > 4.4 ? '#41ab5d' : v > 4.0 ? '#74c476' : '#c7e9c0';
+        const scaleTemp = v => v > 35 ? '#bd0026' : v > 30 ? '#f03b20' : v > 25 ? '#fd8d3c' : v > 20 ? '#fecc5c' : v > 15 ? '#ffffb2' : '#4575b4';
+
         async function loadTif(id, filename, colorFn) {
             try {
-                // Intenta carpeta 'datos/'
+                // Busca en datos/ o raíz
                 let res = await fetch(`datos/${filename}`);
-                if(!res.ok) res = await fetch(filename); // Intenta raiz
-                
-                const arrayBuffer = await res.arrayBuffer();
-                const georaster = await parseGeoraster(arrayBuffer);
+                if(!res.ok) res = await fetch(filename);
+                if(!res.ok) throw new Error("404");
 
-                const layer = new GeoRasterLayer({
+                const buf = await res.arrayBuffer();
+                const georaster = await parseGeoraster(buf);
+
+                layers[id] = new GeoRasterLayer({
                     georaster: georaster,
                     opacity: 0.7,
-                    resolution: 128, // Equilibrio calidad/velocidad
+                    resolution: 64, // Optimizado para velocidad (antes 256)
                     pixelValuesToColorFn: values => {
                         const val = values[0];
-                        // Filtramos valores nulos o 0 (bordes negros)
-                        if (val <= 0 || isNaN(val)) return null;
+                        if (val <= 0 || isNaN(val) || val === -9999) return null; // Transparencia estricta
                         return colorFn(val);
                     },
                     pane: 'paneRaster'
                 });
-                layers[id] = layer;
-            } catch (e) { console.warn(`Error cargando TIF ${filename}`, e); }
+            } catch(e) { console.error(e); alert("Error cargando TIF: " + filename); }
         }
 
-        // ESCALAS DE COLOR (DISTINTAS PARA CADA VARIABLE)
-        // GHI: Rojo/Naranja (Valores típicos 4 - 7)
-        const scaleGHI = v => v > 6.5 ? '#990000' : v > 6.0 ? '#d7301f' : v > 5.5 ? '#ef6548' : v > 5.0 ? '#fc8d59' : v > 4.5 ? '#fdbb84' : '#fef0d9';
-        // PV: Verdes (Valores típicos 3 - 5.5)
-        const scalePV = v => v > 5.2 ? '#00441b' : v > 4.8 ? '#238b45' : v > 4.4 ? '#41ab5d' : v > 4.0 ? '#74c476' : '#c7e9c0';
-        // TEMP: Azul a Rojo (10 - 40)
-        const scaleTemp = v => v > 35 ? '#bd0026' : v > 30 ? '#f03b20' : v > 25 ? '#fd8d3c' : v > 20 ? '#fecc5c' : v > 15 ? '#ffffb2' : '#4575b4';
-
-
-        // B) CARGADOR DE VECTORES (GEOJSON)
+        // B) CARGADOR GEOJSON (VECTORES)
         async function loadGeoJson(id, filename, type, styleOpts) {
             try {
                 let res = await fetch(`datos/${filename}`);
                 if(!res.ok) res = await fetch(filename);
                 if(!res.ok) throw new Error("404");
-
                 const data = await res.json();
-                
-                // Configuración de interacción (Hover)
-                const interactiveOpts = {
+
+                layers[id] = L.geoJSON(data, {
                     style: styleOpts,
                     pane: type === 'line' ? 'paneLineas' : 'panePoligonos',
-                    onEachFeature: (feature, layer) => {
-                        layer.on({
-                            mouseover: (e) => {
-                                const p = feature.properties;
-                                let txt = "";
-                                // Detectar qué mostrar según propiedades
-                                if(p.REGION) txt = p.REGION;
-                                else if(p.Nombre) txt = `${p.Nombre} (${p.Voltaje_KV || '?'} KV)`;
-                                else if(p.NOMBRE) txt = p.NOMBRE;
-                                else txt = "Sin datos";
-                                
-                                info.update(txt, type === 'line' ? 'Línea Transmisión' : 'Región/Zona');
-                                e.target.setStyle({ weight: 4, color: '#FFD700' }); // Resaltar amarillo
-                            },
-                            mouseout: (e) => {
-                                info.update();
-                                layers[id].resetStyle(e.target); // Volver al color original
-                            }
-                        });
-                    }
-                };
-
-                layers[id] = L.geoJSON(data, interactiveOpts);
-
-            } catch(e) { console.warn(`Error cargando GeoJSON ${filename}`, e); }
+                    interactive: true, // IMPORTANTE PARA INSPECTOR
+                    onEachFeature: (f, l) => bindInspector(f, l, id)
+                });
+            } catch(e) { console.error(e); }
         }
 
-        // C) SUBESTACIONES (CLUSTERS)
-        async function loadSubestaciones() {
-            const markers = L.markerClusterGroup();
+        // C) SUBESTACIONES (PUNTOS O CLUSTERS)
+        async function loadSubestaciones(mode) {
             try {
                 let res = await fetch('datos/subestaciones_cfe.json');
                 if(!res.ok) res = await fetch('subestaciones_cfe.json');
                 const data = await res.json();
 
-                const geoJsonLayer = L.geoJSON(data, {
-                    pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: "#2c3e50", color: "#fff", weight: 1, fillOpacity: 1 }),
-                    onEachFeature: (f, l) => {
-                        l.bindPopup(`<b>${f.properties.Name}</b><br>${f.properties.Voltaje_KV} KV`);
-                        l.on('mouseover', () => info.update(f.properties.Name, 'Subestación'));
-                        l.on('mouseout', () => info.update());
-                    }
-                });
-                markers.addLayer(geoJsonLayer);
-                layers['sub'] = markers;
+                if(mode === 'cl') {
+                    // MODO CLUSTER
+                    const markers = L.markerClusterGroup();
+                    const geo = L.geoJSON(data, {
+                        pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 5, fillColor: "#e67e22", color: "#fff", weight: 1, fillOpacity: 1 }),
+                        onEachFeature: (f, l) => bindInspector(f, l, 'Subestación')
+                    });
+                    markers.addLayer(geo);
+                    layers['subCl'] = markers;
+                } else {
+                    // MODO PUNTOS NORMALES
+                    layers['subPt'] = L.geoJSON(data, {
+                        pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 4, fillColor: "#2c3e50", color: "#fff", weight: 1, fillOpacity: 1 }),
+                        pane: 'panePuntos',
+                        onEachFeature: (f, l) => bindInspector(f, l, 'Subestación')
+                    });
+                }
             } catch(e) {}
         }
 
-        // D) ASENTAMIENTOS (CARGA MASIVA OPTIMIZADA)
+        // D) ASENTAMIENTOS (32 ARCHIVOS - CARGA PEREZOSA)
         async function loadAsentamientos() {
             const group = L.layerGroup();
             const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
             
-            // Carga asíncrona para no congelar
+            // Disparamos las 32 peticiones
             for (const edo of estados) {
                 fetch(`datos/asentamientos/ZONAHUMANO_${edo}.json`)
-                .then(r => r.ok ? r.json() : null)
+                .then(r => r.ok ? r.json() : fetch(`ZONAHUMANO_${edo}.json`).then(r2=>r2.json()))
                 .then(data => {
                     if(data) L.geoJSON(data, {
-                        style: { color: 'none', fillColor: '#e74c3c', fillOpacity: 0.5 },
-                        pane: 'panePoligonos'
+                        style: { color: 'none', fillColor: '#8e44ad', fillOpacity: 0.5 },
+                        pane: 'panePoligonos',
+                        interactive: false // Desactivamos hover aquí para no saturar
                     }).addTo(group);
                 }).catch(e => {});
             }
             layers['hum'] = group;
         }
 
-        // --- 5. EJECUCIÓN MAESTRA (CARGA TODO) ---
-        (async () => {
-            // 1. Rasters (TIFs)
-            await Promise.all([
-                loadTif('rad', 'GHI_FINAL.tif', scaleGHI),
-                loadTif('pot', 'PV_FINAL.tif', scalePV),
-                loadTif('temp', 'TEMP.tif', scaleTemp)
-            ]);
+        // --- 4. LÓGICA DEL INSPECTOR ---
+        function bindInspector(f, l, title) {
+            l.on('mouseover', function(e) {
+                // Extraer datos útiles
+                let txt = "";
+                const p = f.properties;
+                if(p.REGION) txt = p.REGION;
+                else if(p.Name) txt = `${p.Name} <br> ${p.Voltaje_KV || ''} KV`;
+                else if(p.NOMBRE) txt = p.NOMBRE;
+                else txt = "Sin datos";
 
-            // 2. Vectores Principales
-            await Promise.all([
-                // Líneas: Azul oscuro para contraste
-                loadGeoJson('tx', 'lineas_transmision_cfe_24.geojson', 'line', { color: '#004080', weight: 2 }),
-                // Regiones: Borde negro, relleno transparente
-                loadGeoJson('reg', 'mis_9_regiones.json', 'poly', { color: '#000', weight: 2, fillOpacity: 0 }),
-                // ANP: Verde
-                loadGeoJson('anp', '232_ANP-ITRF08_04072025.json', 'poly', { color: '#27ae60', weight: 1, fillOpacity: 0.4 }),
-                // Hidrología: Azul claro
-                loadGeoJson('agua', 'hidro4mgw.json', 'poly', { color: '#3498db', weight: 1 })
-            ]);
-
-            // 3. Complejos
-            await loadSubestaciones();
-            loadAsentamientos(); // Se carga en segundo plano
-
-            // 4. Quitar pantalla de carga
-            document.getElementById('loader').style.opacity = 0;
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-
-        })();
-
-        // --- 6. CONTROLADOR INTERRUPTORES ---
-        function toggleLayer(id) {
-            const checkbox = document.getElementById(id === 'rad' ? 'chkRad' : id === 'pot' ? 'chkPot' : id === 'temp' ? 'chkTemp' : id === 'reg' ? 'chkReg' : id === 'tx' ? 'chkTx' : id === 'sub' ? 'chkSub' : id === 'anp' ? 'chkAnp' : id === 'hum' ? 'chkHum' : 'chkAgua');
-            
-            if (layers[id]) {
-                if (checkbox.checked) layers[id].addTo(map);
-                else map.removeLayer(layers[id]);
-            } else {
-                console.log("Capa no lista: " + id);
-            }
+                info.update(txt, title === 'reg' ? 'Región CFE' : title === 'tx' ? 'Línea Transmisión' : title);
+                
+                // Resaltar
+                if(e.target.setStyle) e.target.setStyle({ weight: 4, color: '#FFD700', opacity: 1 });
+            });
+            l.on('mouseout', function(e) {
+                info.update();
+                if(title === 'reg' && layers['reg']) layers['reg'].resetStyle(e.target);
+                if(title === 'tx' && layers['tx']) layers['tx'].resetStyle(e.target);
+            });
         }
+
     </script>
 </body>
 </html>
