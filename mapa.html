@@ -1,300 +1,387 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SP-Energy | Mapas</title>
-    <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP-Energy | Visualizador SIG</title>
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
+    <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
 
     <style>
-        /* ESTILOS VISUALES (TU DISEÑO EXACTO) */
-        .map-container { height: 600px; width: 100%; border: 2px solid #ccc; background-color: #d5d5d5; z-index: 1; }
+        /* RESET Y ESTRUCTURA */
+        body { margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Roboto', sans-serif; overflow: hidden; }
         
-        .layers-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 2rem; align-items: start; }
-        @media (max-width: 900px) { .layers-panel { grid-template-columns: 1fr; } }
+        /* HEADER (Tu estilo original se respeta aquí, ajusta altura si es necesario) */
+        .main-header { height: 60px; background: #333; color: white; display: flex; align-items: center; padding: 0 20px; z-index: 2000; }
+        .logo-text { font-weight: bold; font-size: 1.2rem; color: #FFD700; }
+
+        /* CONTENEDOR PRINCIPAL (LAYOUT TIPO GEOCOMUNES) */
+        #main-layout {
+            display: flex;
+            flex: 1; /* Ocupa el resto de la altura */
+            position: relative;
+        }
+
+        /* 1. BARRA LATERAL IZQUIERDA */
+        #sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 15px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #sidebar h3 { margin-top: 0; font-size: 1rem; color: #2c3e50; border-bottom: 2px solid #FFD700; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .control-group { background: white; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
         
-        .layer-group { background: #fff; padding: 20px; border-radius: 8px; border-top: 5px solid #FFD700; border: 1px solid #eee; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .layer-group h3 { margin-top: 0; font-size: 1.2rem; color: #2c3e50; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; }
-        .layer-item { display: flex; align-items: center; margin-bottom: 10px; color: #444; }
-        .layer-item input { margin-right: 12px; transform: scale(1.3); accent-color: #FFD700; }
+        .layer-option { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9rem; cursor: pointer; }
+        .layer-option:hover { background: #f0f0f0; }
+        .layer-option input { margin-right: 10px; cursor: pointer; accent-color: #FFD700; transform: scale(1.2); }
 
-        /* Clusters */
-        .marker-cluster-small { background-color: rgba(181, 226, 140, 0.6); }
-        .marker-cluster-small div { background-color: rgba(110, 204, 57, 0.6); }
-        .marker-cluster-medium { background-color: rgba(241, 211, 87, 0.6); }
-        .marker-cluster-medium div { background-color: rgba(240, 194, 12, 0.6); }
-        .marker-cluster-large { background-color: rgba(253, 156, 115, 0.6); }
-        .marker-cluster-large div { background-color: rgba(241, 128, 23, 0.6); }
+        /* 2. MAPA (OCUPA EL RESTO) */
+        #map { flex: 1; background: #e0e0e0; cursor: crosshair; }
 
-        #tableSection { display: none; margin-top: 2rem; }
+        /* 3. INFO BOX (ESQUINA SUPERIOR DERECHA - DATOS AL PASAR CURSOR) */
+        .info-box {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #333;
+            min-width: 200px;
+        }
+        .info-box h4 { margin: 0 0 5px; color: #777; font-size: 0.8rem; text-transform: uppercase; }
+        .info-box b { color: #2c3e50; font-size: 1.1rem; }
+
+        /* PANTALLA DE CARGA */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            transition: opacity 0.5s;
+        }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #FFD700; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* LEYENDA FLOTANTE PARA RASTERS */
+        .legend-raster { margin-top: 5px; font-size: 0.75rem; display: flex; justify-content: space-between; background: linear-gradient(to right, blue, green, yellow, red); height: 10px; border-radius: 2px; width: 100%; }
     </style>
 </head>
 <body>
 
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top:20px; color:#555;">Cargando Capas Geográficas...</p>
+    </div>
+
     <header class="main-header">
-        <div class="logo-container"><span class="logo-text">SP-ENERGY ☀️</span></div>
-        <div class="slogan-container"><h1>Energía Solar para Todos</h1></div>
+        <div class="logo-text">SP-ENERGY ☀️</div>
+        <div style="margin-left:auto; font-size:0.9rem;">
+            <a href="index.html" style="color:white; text-decoration:none; margin-right:20px;">Inicio</a>
+            <a href="#" style="color:#FFD700; text-decoration:underline;">Mapas</a>
+        </div>
     </header>
 
-    <nav class="navbar">
-        <ul>
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="mapa.html" class="active">Mapas</a></li>
-            <li><a href="graficas.html">Gráficas</a></li>
-            <li><a href="emisiones.html">Emisiones</a></li>
-            <li><a href="info.html">Contacto</a></li>
-        </ul>
-    </nav>
-
-    <main class="main-container">
-        <h2 class="section-title">Visualizador Geográfico HD</h2>
-
-        <section class="graph-card" style="padding-bottom: 15px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <div class="view-toggle">
-                    <button id="btnGeneral" class="btn primary">Mapa General</button>
-                    <button id="btnPV" class="btn">Mapa Fotovoltaico</button>
-                </div>
-                <button id="btnShowTable" class="btn" style="background-color: #2c3e50; color: white;">Ver Tabla de Datos</button>
-            </div>
-        </section>
-
-        <div id="map" class="map-container"></div>
-
-        <div id="panelGeneral" class="layers-panel">
-            <div class="layer-group">
-                <h3>☀️ Datos Satelitales (TIF)</h3>
-                <div class="layer-item"><input type="checkbox" value="rad"><label>Radiación (GHI)</label></div>
-                <div class="layer-item"><input type="checkbox" value="pot"><label>Potencial FV</label></div>
-                <div class="layer-item"><input type="checkbox" value="temp"><label>Temperatura</label></div>
-            </div>
-            <div class="layer-group">
-                <h3>🌍 Territorio</h3>
-                <div class="layer-item"><input type="checkbox" value="anp"><label>Áreas Protegidas (ANP)</label></div>
-                <div class="layer-item"><input type="checkbox" value="agua"><label>Cuerpos de Agua</label></div>
-                <div class="layer-item"><input type="checkbox" value="hum"><label>Asentamientos (32 Edos)</label></div>
-            </div>
-            <div class="layer-group">
-                <h3>⚡ Infraestructura</h3>
-                <div class="layer-item"><input type="checkbox" value="reg"><label>Regiones</label></div>
-                <div class="layer-item"><input type="checkbox" value="tx"><label>Líneas Transmisión</label></div>
-                <div class="layer-item"><input type="checkbox" value="sub"><label>Subestaciones (Clusters)</label></div>
-            </div>
-        </div>
+    <div id="main-layout">
         
-        <div id="panelPV" class="layers-panel" style="display:none;">
-            <div class="layer-group">
-                <h3>📊 Datos Fotovoltaicos</h3>
-                <div class="layer-item"><input type="checkbox" value="capReg"><label>Capacidad Instalada</label></div>
+        <div id="sidebar">
+            
+            <div class="control-group">
+                <h3>Variables Climáticas (TIF)</h3>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkRad" onchange="toggleLayer('rad')">
+                    <div style="width:100%">
+                        <label for="chkRad">Radiación (GHI)</label>
+                        <div class="legend-raster" style="background: linear-gradient(to right, #fef0d9, #fdcc8a, #fc8d59, #d7301f);"></div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.7em; color:#666;"><span>4.0</span><span>6.5+ kWh</span></div>
+                    </div>
+                </div>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkPot" onchange="toggleLayer('pot')">
+                    <div style="width:100%">
+                        <label for="chkPot">Potencial Fotovoltaico</label>
+                        <div class="legend-raster" style="background: linear-gradient(to right, #f7fcf5, #caeac4, #7bc77c, #2a924a, #00441b);"></div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.7em; color:#666;"><span>2.0</span><span>5.5+ kWh/kWp</span></div>
+                    </div>
+                </div>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkTemp" onchange="toggleLayer('temp')">
+                    <div style="width:100%">
+                        <label for="chkTemp">Temperatura Promedio</label>
+                        <div class="legend-raster" style="background: linear-gradient(to right, #4575b4, #ffffbf, #d7301f);"></div>
+                         <div style="display:flex; justify-content:space-between; font-size:0.7em; color:#666;"><span>10°C</span><span>35°C+</span></div>
+                    </div>
+                </div>
             </div>
+
+            <div class="control-group">
+                <h3>Infraestructura CFE</h3>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkReg" onchange="toggleLayer('reg')">
+                    <label for="chkReg">Regiones de Control</label>
+                </div>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkTx" onchange="toggleLayer('tx')">
+                    <label for="chkTx">Líneas de Transmisión</label>
+                </div>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkSub" onchange="toggleLayer('sub')">
+                    <label for="chkSub">Subestaciones (Clusters)</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Territorio</h3>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkAnp" onchange="toggleLayer('anp')">
+                    <label for="chkAnp">Áreas Naturales Protegidas</label>
+                </div>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkHum" onchange="toggleLayer('hum')">
+                    <label for="chkHum">Asentamientos (Estados)</label>
+                </div>
+                <div class="layer-option">
+                    <input type="checkbox" id="chkAgua" onchange="toggleLayer('agua')">
+                    <label for="chkAgua">Hidrología</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Herramientas</h3>
+                <button onclick="map.fitBounds(boundsMexico)" style="width:100%; padding:8px; background:#2c3e50; color:white; border:none; cursor:pointer; border-radius:3px;">⟲ Centrar México</button>
+            </div>
+
         </div>
 
-        <section id="tableSection" class="graph-card">
-            <h3>Datos Regionales</h3>
-            <table class="data-table">
-                <thead><tr><th>Región</th><th>Capacidad (MW)</th><th>Generación (GWh)</th></tr></thead>
-                <tbody id="tableBodyData"></tbody>
-            </table>
-        </section>
-    </main>
+        <div id="map"></div>
+
+    </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN DEL MAPA ---
-        const map = L.map('map', {
-            center: [23.6345, -102.5528], 
-            zoom: 5, minZoom: 5,
-            maxBounds: [[12.0, -120.0], [35.0, -84.0]],
-            maxBoundsViscosity: 1.0
-        });
+        // --- 1. CONFIGURACIÓN DEL MAPA (CLARO Y LIMPIO) ---
+        const boundsMexico = [[12.0, -118.0], [33.0, -86.0]];
         
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri & NatGeo'
+        const map = L.map('map', {
+            center: [23.6345, -102.5528],
+            zoom: 5,
+            minZoom: 4,
+            zoomControl: false // Lo movemos de lugar si queremos
+        });
+
+        L.control.zoom({ position: 'topleft' }).addTo(map);
+
+        // REGLA DE MEDICIÓN
+        L.control.measure({ 
+            position: 'topleft', 
+            primaryLengthUnit: 'kilometers', 
+            secondaryLengthUnit: 'meters',
+            primaryAreaUnit: 'hectares'
         }).addTo(map);
 
-        // Panes (Z-Index)
-        map.createPane('paneRaster').style.zIndex = 200;
+        // MAPA BASE CLARO (CartoDB Positron)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; CartoDB',
+            maxZoom: 19
+        }).addTo(map);
+
+        // --- 2. CONTROL DE INFORMACIÓN (HOVER) ---
+        const info = L.control({ position: 'topright' });
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info-box'); 
+            this.update();
+            return this._div;
+        };
+        info.update = function (props, title) {
+            this._div.innerHTML = '<h4>Inspector de Datos</h4>' +  (props ? 
+                `<b>${title}</b><br/>${props}` : 'Pasa el cursor sobre un elemento');
+        };
+        info.addTo(map);
+
+        // --- 3. DEFINICIÓN DE CAPAS Y VARIABLES ---
+        const layers = {}; 
+        
+        // ORDEN DE CAPAS (Z-INDEX)
+        map.createPane('paneRaster').style.zIndex = 200; // Abajo
         map.createPane('panePoligonos').style.zIndex = 400;
-        map.createPane('paneLineas').style.zIndex = 500;
-        map.createPane('panePuntos').style.zIndex = 600;
+        map.createPane('paneLineas').style.zIndex = 450;
+        map.createPane('panePuntos').style.zIndex = 600; // Arriba
 
-        // --- 2. CARGA DE TIFs (GEORASTER) ---
-        // Definimos las escalas de colores para tus archivos TIF
-        const colorGHI = (v) => v > 6.5 ? '#990000' : v > 6.0 ? '#d7301f' : v > 5.5 ? '#ef6548' : v > 5.0 ? '#fc8d59' : v > 4.5 ? '#fdbb84' : '#fef0d9';
-        const colorPV = (v) => v > 5.0 ? '#4a1486' : v > 4.5 ? '#6a51a3' : v > 4.0 ? '#807dba' : '#bcbddc';
-        const colorTemp = (v) => v > 30 ? '#bd0026' : v > 25 ? '#f03b20' : v > 20 ? '#fd8d3c' : '#fecc5c';
+        // --- 4. FUNCIONES DE CARGA ---
 
-        async function loadTifLayer(filename, colorFn) {
+        // A) CARGADOR DE TIFS (GEORASTER)
+        async function loadTif(id, filename, colorFn) {
             try {
-                // Buscamos en datos/ o suelto
-                let response = await fetch(`datos/${filename}`);
-                if(!response.ok) response = await fetch(filename);
+                // Intenta carpeta 'datos/'
+                let res = await fetch(`datos/${filename}`);
+                if(!res.ok) res = await fetch(filename); // Intenta raiz
                 
-                const arrayBuffer = await response.arrayBuffer();
+                const arrayBuffer = await res.arrayBuffer();
                 const georaster = await parseGeoraster(arrayBuffer);
 
                 const layer = new GeoRasterLayer({
                     georaster: georaster,
                     opacity: 0.7,
+                    resolution: 128, // Equilibrio calidad/velocidad
                     pixelValuesToColorFn: values => {
                         const val = values[0];
-                        if (val <= 0 || isNaN(val)) return null; // Transparente si no hay dato
+                        // Filtramos valores nulos o 0 (bordes negros)
+                        if (val <= 0 || isNaN(val)) return null;
                         return colorFn(val);
                     },
-                    resolution: 64, // Calidad visual
                     pane: 'paneRaster'
                 });
-                return layer;
-            } catch (e) { console.error("Error TIF:", filename, e); return null; }
+                layers[id] = layer;
+            } catch (e) { console.warn(`Error cargando TIF ${filename}`, e); }
         }
 
-        // Variables para guardar las capas TIF
-        let layerRad, layerPot, layerTemp;
+        // ESCALAS DE COLOR (DISTINTAS PARA CADA VARIABLE)
+        // GHI: Rojo/Naranja (Valores típicos 4 - 7)
+        const scaleGHI = v => v > 6.5 ? '#990000' : v > 6.0 ? '#d7301f' : v > 5.5 ? '#ef6548' : v > 5.0 ? '#fc8d59' : v > 4.5 ? '#fdbb84' : '#fef0d9';
+        // PV: Verdes (Valores típicos 3 - 5.5)
+        const scalePV = v => v > 5.2 ? '#00441b' : v > 4.8 ? '#238b45' : v > 4.4 ? '#41ab5d' : v > 4.0 ? '#74c476' : '#c7e9c0';
+        // TEMP: Azul a Rojo (10 - 40)
+        const scaleTemp = v => v > 35 ? '#bd0026' : v > 30 ? '#f03b20' : v > 25 ? '#fd8d3c' : v > 20 ? '#fecc5c' : v > 15 ? '#ffffb2' : '#4575b4';
 
-        // --- 3. SUBESTACIONES (CLUSTERS) ---
-        const markersSub = L.markerClusterGroup({ disableClusteringAtZoom: 10, spiderfyOnMaxZoom: true });
-        
-        async function loadSubestaciones() {
-            try {
-                let res = await fetch('datos/subestaciones_cfe.json');
-                if(!res.ok) res = await fetch('subestaciones_cfe.json');
 
-                if(res.ok) {
-                    const data = await res.json();
-                    const layer = L.geoJSON(data, {
-                        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 5, fillColor: "#2c3e50", color: "#fff", weight: 1, fillOpacity: 1 }),
-                        onEachFeature: (f, l) => l.bindPopup(`<b>${f.properties.Name}</b><br>${f.properties.Voltaje_KV || ''} KV`)
-                    });
-                    markersSub.addLayer(layer);
-                }
-            } catch(e) {}
-        }
-
-        // --- 4. ASENTAMIENTOS Y CAPAS ADICIONALES ---
-        const layerHumanos = L.layerGroup();
-        const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
-        
-        // Asentamientos (Carga Masiva)
-        estados.forEach(edo => {
-            fetch(`datos/asentamientos/ZONAHUMANO_${edo}.json`)
-                .then(r => r.ok ? r.json() : fetch(`ZONAHUMANO_${edo}.json`).then(r2=>r2.json()))
-                .then(data => { if(data) L.geoJSON(data, { style: {color:'none', fillColor:'#800020', fillOpacity:0.5}, pane:'panePoligonos' }).addTo(layerHumanos); })
-                .catch(e => null);
-        });
-
-        // Capas Genéricas (Líneas, Regiones, ANP, Agua)
-        async function loadGeoJson(filename, styleOpts, pane) {
+        // B) CARGADOR DE VECTORES (GEOJSON)
+        async function loadGeoJson(id, filename, type, styleOpts) {
             try {
                 let res = await fetch(`datos/${filename}`);
                 if(!res.ok) res = await fetch(filename);
-                if(res.ok) {
-                    const data = await res.json();
-                    // Colores dinámicos para regiones
-                    if(filename.includes('regiones')) {
-                        return L.geoJSON(data, { 
-                            style: f => ({ fillColor: getColorRegion(f.properties.REGION), weight: 1.5, color: 'white', fillOpacity: 0.35 }),
-                            pane: pane,
-                            onEachFeature: (f, l) => l.bindPopup(f.properties.REGION)
+                if(!res.ok) throw new Error("404");
+
+                const data = await res.json();
+                
+                // Configuración de interacción (Hover)
+                const interactiveOpts = {
+                    style: styleOpts,
+                    pane: type === 'line' ? 'paneLineas' : 'panePoligonos',
+                    onEachFeature: (feature, layer) => {
+                        layer.on({
+                            mouseover: (e) => {
+                                const p = feature.properties;
+                                let txt = "";
+                                // Detectar qué mostrar según propiedades
+                                if(p.REGION) txt = p.REGION;
+                                else if(p.Nombre) txt = `${p.Nombre} (${p.Voltaje_KV || '?'} KV)`;
+                                else if(p.NOMBRE) txt = p.NOMBRE;
+                                else txt = "Sin datos";
+                                
+                                info.update(txt, type === 'line' ? 'Línea Transmisión' : 'Región/Zona');
+                                e.target.setStyle({ weight: 4, color: '#FFD700' }); // Resaltar amarillo
+                            },
+                            mouseout: (e) => {
+                                info.update();
+                                layers[id].resetStyle(e.target); // Volver al color original
+                            }
                         });
                     }
-                    return L.geoJSON(data, { style: styleOpts, pane: pane });
-                }
-            } catch(e) { return null; }
+                };
+
+                layers[id] = L.geoJSON(data, interactiveOpts);
+
+            } catch(e) { console.warn(`Error cargando GeoJSON ${filename}`, e); }
         }
 
-        function getColorRegion(n) {
-            if(!n) return '#999'; n = n.toUpperCase();
-            if(n.includes("NOR")) return '#E41A1C'; if(n.includes("OCC")) return '#4DAF4A';
-            if(n.includes("CEN")) return '#984EA3'; if(n.includes("ORI")) return '#FF7F00';
-            if(n.includes("PEN")) return '#FFFF33'; return '#377EB8';
+        // C) SUBESTACIONES (CLUSTERS)
+        async function loadSubestaciones() {
+            const markers = L.markerClusterGroup();
+            try {
+                let res = await fetch('datos/subestaciones_cfe.json');
+                if(!res.ok) res = await fetch('subestaciones_cfe.json');
+                const data = await res.json();
+
+                const geoJsonLayer = L.geoJSON(data, {
+                    pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: "#2c3e50", color: "#fff", weight: 1, fillOpacity: 1 }),
+                    onEachFeature: (f, l) => {
+                        l.bindPopup(`<b>${f.properties.Name}</b><br>${f.properties.Voltaje_KV} KV`);
+                        l.on('mouseover', () => info.update(f.properties.Name, 'Subestación'));
+                        l.on('mouseout', () => info.update());
+                    }
+                });
+                markers.addLayer(geoJsonLayer);
+                layers['sub'] = markers;
+            } catch(e) {}
         }
 
-        // --- 5. EJECUCIÓN E INICIALIZACIÓN ---
-        let layerTx, layerReg, layerANP, layerAgua;
+        // D) ASENTAMIENTOS (CARGA MASIVA OPTIMIZADA)
+        async function loadAsentamientos() {
+            const group = L.layerGroup();
+            const estados = ["AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO","GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX","PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMPS","TLAX","VER","YUC","ZAC"];
+            
+            // Carga asíncrona para no congelar
+            for (const edo of estados) {
+                fetch(`datos/asentamientos/ZONAHUMANO_${edo}.json`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if(data) L.geoJSON(data, {
+                        style: { color: 'none', fillColor: '#e74c3c', fillOpacity: 0.5 },
+                        pane: 'panePoligonos'
+                    }).addTo(group);
+                }).catch(e => {});
+            }
+            layers['hum'] = group;
+        }
 
+        // --- 5. EJECUCIÓN MAESTRA (CARGA TODO) ---
         (async () => {
-            // Cargar TIFs
-            layerRad = await loadTifLayer('GHI_FINAL.tif', colorGHI);
-            layerPot = await loadTifLayer('PV_FINAL.tif', colorPV);
-            layerTemp = await loadTifLayer('TEMP.tif', colorTemp);
+            // 1. Rasters (TIFs)
+            await Promise.all([
+                loadTif('rad', 'GHI_FINAL.tif', scaleGHI),
+                loadTif('pot', 'PV_FINAL.tif', scalePV),
+                loadTif('temp', 'TEMP.tif', scaleTemp)
+            ]);
 
-            // Cargar GeoJSONs Nuevos
-            layerANP = await loadGeoJson('232_ANP-ITRF08_04072025.json', {color: '#27ae60', weight: 1, fillOpacity: 0.4}, 'panePoligonos');
-            layerAgua = await loadGeoJson('hidro4mgw.json', {color: '#2980b9', weight: 1}, 'paneLineas'); // O Polígonos según sea el archivo
-            
-            // Cargar GeoJSONs Viejos
-            layerTx = await loadGeoJson('lineas_transmision_cfe_24.json', {color: "#2c3e50", weight: 1.5}, 'paneLineas');
-            layerReg = await loadGeoJson('mis_9_regiones.json', null, 'panePoligonos');
-            
+            // 2. Vectores Principales
+            await Promise.all([
+                // Líneas: Azul oscuro para contraste
+                loadGeoJson('tx', 'lineas_transmision_cfe_24.geojson', 'line', { color: '#004080', weight: 2 }),
+                // Regiones: Borde negro, relleno transparente
+                loadGeoJson('reg', 'mis_9_regiones.json', 'poly', { color: '#000', weight: 2, fillOpacity: 0 }),
+                // ANP: Verde
+                loadGeoJson('anp', '232_ANP-ITRF08_04072025.json', 'poly', { color: '#27ae60', weight: 1, fillOpacity: 0.4 }),
+                // Hidrología: Azul claro
+                loadGeoJson('agua', 'hidro4mgw.json', 'poly', { color: '#3498db', weight: 1 })
+            ]);
+
+            // 3. Complejos
             await loadSubestaciones();
-            
-            updateMapLayers(); // Sincronizar checkboxes
+            loadAsentamientos(); // Se carga en segundo plano
+
+            // 4. Quitar pantalla de carga
+            document.getElementById('loader').style.opacity = 0;
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+
         })();
 
-        // --- 6. CONTROLADOR ---
-        const layersMap = {
-            'rad': null, 'pot': null, 'temp': null, // Se llenan dinámicamente
-            'sub': markersSub, 'hum': layerHumanos,
-            'anp': null, 'agua': null,
-            'tx': null, 'reg': null, 'capReg': null
-        };
-
-        function updateMapLayers() {
-            layersMap['rad'] = layerRad;
-            layersMap['pot'] = layerPot;
-            layersMap['temp'] = layerTemp;
-            layersMap['anp'] = layerANP;
-            layersMap['agua'] = layerAgua;
-            layersMap['tx'] = layerTx;
-            layersMap['reg'] = layerReg;
-            layersMap['capReg'] = layerReg;
+        // --- 6. CONTROLADOR INTERRUPTORES ---
+        function toggleLayer(id) {
+            const checkbox = document.getElementById(id === 'rad' ? 'chkRad' : id === 'pot' ? 'chkPot' : id === 'temp' ? 'chkTemp' : id === 'reg' ? 'chkReg' : id === 'tx' ? 'chkTx' : id === 'sub' ? 'chkSub' : id === 'anp' ? 'chkAnp' : id === 'hum' ? 'chkHum' : 'chkAgua');
+            
+            if (layers[id]) {
+                if (checkbox.checked) layers[id].addTo(map);
+                else map.removeLayer(layers[id]);
+            } else {
+                console.log("Capa no lista: " + id);
+            }
         }
-
-        document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
-            chk.addEventListener('change', (e) => {
-                const id = e.target.value;
-                // Actualizamos referencia por si cargó tarde
-                updateMapLayers();
-                const layer = layersMap[id];
-                
-                if (layer) {
-                    e.target.checked ? layer.addTo(map) : map.removeLayer(layer);
-                } else {
-                    console.log("Capa aún cargando o no encontrada: " + id);
-                }
-            });
-        });
-
-        // UI Helpers
-        const btnGen = document.getElementById('btnGeneral');
-        const btnPV = document.getElementById('btnPV');
-        btnGen.onclick = () => {
-            btnGen.classList.add('primary'); btnPV.classList.remove('primary');
-            document.getElementById('panelGeneral').style.display = 'grid';
-            document.getElementById('panelPV').style.display = 'none';
-        };
-        btnPV.onclick = () => {
-            btnPV.classList.add('primary'); btnGen.classList.remove('primary');
-            document.getElementById('panelGeneral').style.display = 'none';
-            document.getElementById('panelPV').style.display = 'grid';
-        };
-        
-        const btnTable = document.getElementById('btnShowTable');
-        const tableSec = document.getElementById('tableSection');
-        btnTable.onclick = () => {
-            tableSec.style.display = (tableSec.style.display === 'block') ? 'none' : 'block';
-            btnTable.textContent = (tableSec.style.display === 'block') ? 'Ocultar Tabla' : 'Ver Tabla de Datos';
-        };
     </script>
 </body>
 </html>
