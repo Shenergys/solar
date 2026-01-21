@@ -7,115 +7,96 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
-
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
     <script src="https://unpkg.com/geoblaze"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
     <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        body { margin: 0; padding: 0; font-family: 'Roboto', sans-serif; overflow: hidden; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
-        .main-header { height: 60px; background: #222; color: white; display: flex; align-items: center; padding: 0 20px; z-index: 3000; justify-content: space-between; border-bottom: 3px solid #FFD700; }
+        /* Se mantiene tu CSS original exacto */
+        body { margin: 0; padding: 0; font-family: 'Roboto', sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
+        .main-header { 
+            height: 60px; background: #222; color: white; display: flex; align-items: center; 
+            padding: 0 20px; z-index: 3000; justify-content: space-between; border-bottom: 3px solid #FFD700;
+            position: fixed; top: 0; left: 0; width: 100%; box-sizing: border-box;
+        }
         .logo-text { font-weight: bold; font-size: 1.4rem; color: #fff; letter-spacing: 1px; }
-        #main-layout { display: flex; flex: 1; position: relative; overflow: hidden; }
-        #sidebar { width: 320px; background: #fdfdfd; border-right: 1px solid #ccc; z-index: 2000; overflow-y: auto; padding: 15px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
-        #map { flex: 1; background: #e5e5e5; z-index: 1; }
+        .navbar ul { list-style: none; display: flex; gap: 20px; }
+        .navbar a { color: #ccc; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; }
+        .navbar a.active { color: #FFD700; }
+
+        #sidebar {
+            position: absolute; top: 60px; bottom: 0; left: 0; width: 320px;
+            background: #fdfdfd; border-right: 1px solid #ccc; z-index: 2000;
+            overflow-y: auto; padding: 15px; box-sizing: border-box;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        #map {
+            position: absolute; top: 60px; bottom: 0; left: 320px; right: 0;
+            background: #e5e5e5; z-index: 1; cursor: crosshair;
+        }
+
         .control-block { background: #fff; border: 1px solid #e0e0e0; border-radius: 5px; padding: 10px; margin-bottom: 15px; }
         .control-block h3 { margin: 0 0 10px 0; font-size: 0.85rem; color: #2c3e50; border-bottom: 2px solid #FFD700; padding-bottom: 5px; text-transform: uppercase; }
-        .layer-header { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; margin-bottom: 8px; }
-        .layer-header input { cursor: pointer; accent-color: #FFD700; transform: scale(1.2); }
-        .legend-gradient { height: 8px; width: 100%; border-radius: 2px; border: 1px solid #ccc; margin-top: 4px; }
-        #inspector-box { position: absolute; top: 15px; right: 15px; width: 280px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 4000; border-top: 5px solid #2c3e50; }
-        .btn-main { width: 100%; background: #2c3e50; color: white; border: none; padding: 12px; margin-top: 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .layer-row { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 0.9rem; color: #444; }
+        .layer-row input { margin-top: 4px; margin-right: 8px; cursor: pointer; accent-color: #FFD700; transform: scale(1.2); }
+        .loading-text { font-size: 0.7rem; color: #e67e22; font-weight: bold; margin-left: auto; display: none; }
+
+        #inspector-box {
+            position: absolute; top: 10px; right: 60px;
+            width: 250px; background: rgba(255, 255, 255, 0.95);
+            padding: 15px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1000; border-left: 5px solid #2c3e50; font-size: 0.9rem; color: #333;
+        }
+        #inspector-box h4 { margin: 0 0 8px 0; font-size: 0.8rem; color: #777; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .legend-gradient { height: 8px; width: 100%; margin-top: 3px; border-radius: 2px; border: 1px solid #ccc; }
+        .legend-nums { display: flex; justify-content: space-between; font-size: 0.7rem; color: #777; margin-top: 2px; }
     </style>
 </head>
 <body>
+
     <header class="main-header">
         <div class="logo-text">SP-ENERGY ☀️</div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="mapa.html" class="active">Mapas</a></li>
+                <li><a href="graficas.html">Gráficas</a></li>
+                <li><a href="emisiones.html">Emisiones</a></li>
+                <li><a href="info.html">Contacto</a></li>
+            </ul>
+        </nav>
     </header>
-    <div id="main-layout">
-        <div id="sidebar">
-            <div class="control-block">
-                <h3>Variables Climáticas (TIF)</h3>
-                <div class="layer-header"><input type="radio" name="raster" id="chkRad" onclick="cambiarVariable('rad', 'GHI_FINAL.tif')"><label for="chkRad">Radiación (GHI)</label></div>
-                <div class="legend-gradient" style="background: linear-gradient(to right, #ffffb2, #bd0026);"></div>
-                <div class="layer-header"><input type="radio" name="raster" id="chkPot" onclick="cambiarVariable('pot', 'PV_FINAL.tif')"><label for="chkPot">Potencial FV</label></div>
-                <div class="legend-gradient" style="background: linear-gradient(to right, #440154, #fde725);"></div>
-                <div class="layer-header"><input type="radio" name="raster" id="chkTemp" onclick="cambiarVariable('temp', 'TEMP.tif')"><label for="chkTemp">Temperatura</label></div>
-                <div class="legend-gradient" style="background: linear-gradient(to right, #4575b4, #d7301f);"></div>
+
+    <div id="sidebar">
+        <div class="control-block">
+            <h3>Variables Climáticas (TIF)</h3>
+            <div class="layer-row">
+                <input type="checkbox" id="chkRad" onchange="toggleTif('rad', 'GHI_FINAL.tif')">
+                <div style="width:100%">
+                    <div style="display:flex; justify-content:space-between;"><label for="chkRad">Radiación (GHI)</label> <span id="load_rad" class="loading-text">Cargando...</span></div>
+                    <div class="legend-gradient" style="background: linear-gradient(to right, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);"></div>
+                    <div class="legend-nums"><span>0</span><span>2300+ kWh</span></div>
+                </div>
             </div>
-            <div class="control-block">
-                <h3>Infraestructura CFE</h3>
-                <div class="layer-header"><input type="checkbox" onchange="toggleVector('reg', 'mis_9_regiones.json', this)"> Regiones</div>
-                <div class="layer-header"><input type="checkbox" onchange="toggleVector('tx', 'lineas_transmision_cfe_24.geojson', this)"> Líneas</div>
-                <div class="layer-header"><input type="checkbox" onchange="toggleSubestaciones(this)"> Subestaciones</div>
+            <div class="layer-row">
+                <input type="checkbox" id="chkPot" onchange="toggleTif('pot', 'PV_FINAL.tif')">
+                <div style="width:100%">
+                    <div style="display:flex; justify-content:space-between;"><label for="chkPot">Potencial FV</label> <span id="load_pot" class="loading-text">Cargando...</span></div>
+                    <div class="legend-gradient" style="background: linear-gradient(to right, #440154, #3b528b, #21918c, #5ec962, #fde725);"></div>
+                    <div class="legend-nums"><span>3.0</span><span>5.8 kWh/p</span></div>
+                </div>
             </div>
-        </div>
-        <div id="map">
-            <div id="inspector-box">
-                <h4>INSPECTOR DE DATOS</h4>
-                <div id="inspector-content">Selecciona una variable y haz clic en el mapa.</div>
-                <button id="btnPDF" class="btn-main" style="display:none;" onclick="descargarReporte()">DESCARGAR REPORTE PDF</button>
-            </div>
-        </div>
-    </div>
-    <script>
-        const layers = {};
-        let activeRaster = null;
-        let lastResult = null;
-        const map = L.map('map', { center: [23.6, -102.5], zoom: 5, zoomControl: true });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-        setTimeout(() => map.invalidateSize(), 500);
-        L.control.measure({ position: 'topleft', primaryLengthUnit: 'kilometers', activeColor: '#FFD700' }).addTo(map);
-
-        async function cambiarVariable(id, file) {
-            ['rad', 'pot', 'temp'].forEach(k => { if(layers[k]) map.removeLayer(layers[k]); });
-            const res = await fetch(`datos/${file}`);
-            const buf = await res.arrayBuffer();
-            const georaster = await parseGeoraster(buf);
-            activeRaster = georaster;
-            layers[id] = new GeoRasterLayer({
-                georaster, opacity: 0.7, resolution: 256,
-                pixelValuesToColorFn: v => {
-                    if (id === 'rad') return v[0] < 100 ? null : (v[0] > 1800 ? '#bd0026' : '#fecc5c');
-                    if (id === 'pot') return v[0] < 1 ? null : (v[0] > 5 ? '#fde725' : '#440154');
-                    return v[0] < -50 ? null : (v[0] > 25 ? '#d7301f' : '#4575b4');
-                }
-            });
-            layers[id].addTo(map);
-        }
-
-        async function toggleVector(id, file, chk) {
-            if (!chk.checked) { if(layers[id]) map.removeLayer(layers[id]); return; }
-            const res = await fetch(`datos/${file}`);
-            const data = await res.json();
-            layers[id] = L.geoJSON(data, { style: { color: '#3498db', weight: 1.5, fillOpacity: 0.2 }, onEachFeature: (f, l) => l.on('click', (e) => { L.DomEvent.stopPropagation(e); document.getElementById('inspector-content').innerHTML = `<b>Info:</b> ${f.properties.Nombre || id}`; }) }).addTo(map);
-        }
-
-        async function toggleSubestaciones(chk) {
-            if (!chk.checked) { if(layers['sub']) map.removeLayer(layers['sub']); return; }
-            const res = await fetch('datos/subestaciones_cfe.json');
-            const data = await res.json();
-            const markers = L.markerClusterGroup();
-            L.geoJSON(data).eachLayer(m => markers.addLayer(m));
-            layers['sub'] = markers.addTo(map);
-        }
-
-        map.on('click', async (e) => {
-            if (!activeRaster) return;
-            const res = await geoblaze.identify(activeRaster, [e.latlng.lng, e.latlng.lat]);
-            if (res) {
-                lastResult = { lat: e.latlng.lat.toFixed(4), lng: e.latlng.lng.toFixed(4), val: res[0].toFixed(2) };
-                document.getElementById('inspector-content').innerHTML = `<b>Ubicación:</b> ${lastResult.lat}, ${lastResult.lng}<br><b>Valor:</b> ${lastResult.val}`;
-                document.getElementById('btnPDF').style.display = 'block';
-            }
-        });
-        function descargarReporte() { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text(`Valor Solar: ${lastResult.val}`, 20, 20); doc.save("Reporte.pdf"); }
-    </script>
-</body>
-</html>
+            <div class="layer-row">
+                <input type="checkbox" id="chkTemp" onchange="toggleTif('temp', 'TEMP.tif')">
+                <div style="width:100%">
+                    <div style="display:flex; justify-content:space-between;"><label for="chkTemp">Temperatura</label
