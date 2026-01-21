@@ -3,146 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SP-Energy | Monitor SIG Profesional</title>
+    <title>SP-Energy | Monitor SIG</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
     <script src="https://unpkg.com/geoblaze"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        :root { --primary: #FFD700; --dark: #2c3e50; }
-        body { margin: 0; padding: 0; font-family: 'Roboto', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .main-header { height: 60px; background: #222; color: white; display: flex; align-items: center; padding: 0 20px; z-index: 3000; border-bottom: 3px solid var(--primary); justify-content: space-between; }
-        #main-container { display: flex; flex: 1; position: relative; }
-        #sidebar { width: 320px; background: white; border-right: 1px solid #ccc; overflow-y: auto; padding: 15px; z-index: 2000; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
-        #map { flex: 1; background: #e5e5e5; cursor: crosshair !important; }
+        body { margin: 0; padding: 0; font-family: 'Roboto', sans-serif; overflow: hidden; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* HEADER ORIGINAL RESTAURADO */
+        .main-header { 
+            height: 60px; background: #222; color: white; display: flex; align-items: center; 
+            padding: 0 20px; z-index: 3000; justify-content: space-between; border-bottom: 3px solid #FFD700;
+        }
+        .logo-text { font-weight: bold; font-size: 1.4rem; color: #fff; letter-spacing: 1px; }
+        .navbar ul { list-style: none; display: flex; gap: 20px; margin: 0; padding: 0; }
+        .navbar a { color: #ccc; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; }
+        .navbar a.active { color: #FFD700; font-weight: bold; }
+
+        #main-layout { display: flex; flex: 1; position: relative; overflow: hidden; }
+
+        /* SIDEBAR ORIGINAL */
+        #sidebar {
+            width: 320px; background: #fdfdfd; border-right: 1px solid #ccc; z-index: 2000;
+            overflow-y: auto; padding: 15px; box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        #map { flex: 1; background: #e5e5e5; z-index: 1; }
+
         .control-block { background: #fff; border: 1px solid #e0e0e0; border-radius: 5px; padding: 10px; margin-bottom: 15px; }
-        .control-block h3 { margin: 0 0 10px 0; font-size: 0.85rem; color: var(--dark); border-bottom: 2px solid var(--primary); text-transform: uppercase; }
-        .layer-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9rem; }
-        .layer-row input { margin-right: 10px; accent-color: var(--primary); cursor: pointer; }
-        #inspector-box { position: absolute; top: 20px; right: 20px; width: 280px; background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; border-top: 5px solid var(--dark); }
-        .btn-report { width: 100%; margin-top: 10px; background: var(--dark); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .loading { font-size: 0.7rem; color: #e67e22; display: none; margin-left: auto; }
+        .control-block h3 { margin: 0 0 10px 0; font-size: 0.85rem; color: #2c3e50; border-bottom: 2px solid #FFD700; padding-bottom: 5px; text-transform: uppercase; }
+        
+        .layer-row { display: flex; flex-direction: column; margin-bottom: 12px; font-size: 0.9rem; color: #444; }
+        .layer-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .layer-header input { cursor: pointer; accent-color: #FFD700; transform: scale(1.2); }
+
+        /* LEYENDAS */
+        .legend-gradient { height: 8px; width: 100%; border-radius: 2px; border: 1px solid #ccc; margin-top: 2px; }
+        .legend-nums { display: flex; justify-content: space-between; font-size: 0.7rem; color: #777; }
+
+        /* INSPECTOR FLOTANTE ORIGINAL */
+        #inspector-box {
+            position: absolute; top: 15px; right: 15px;
+            width: 280px; background: rgba(255, 255, 255, 0.95);
+            padding: 15px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1000; border-left: 5px solid #2c3e50;
+        }
+        #inspector-box h4 { margin: 0 0 8px 0; font-size: 0.8rem; color: #777; text-transform: uppercase; border-bottom: 1px solid #eee; }
+        .data-row { margin-bottom: 6px; font-size: 0.9rem; }
+        .data-label { font-weight: bold; color: #2c3e50; }
+        .btn-pdf { width: 100%; background: #2c3e50; color: white; border: none; padding: 10px; margin-top: 10px; cursor: pointer; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .btn-pdf:hover { background: #34495e; }
+
+        .loading-text { font-size: 0.7rem; color: #e67e22; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 
     <header class="main-header">
-        <div style="font-weight:bold; font-size:1.4rem;">SP-ENERGY ☀️</div>
-        <div style="font-size:0.8rem; color:#ccc;">MONITOR SIG DE ALTA PRECISIÓN</div>
+        <div class="logo-text">SP-ENERGY ☀️</div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#" class="active">Mapas</a></li>
+                <li><a href="#">Gráficas</a></li>
+                <li><a href="#">Emisiones</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <div id="main-container">
+    <div id="main-layout">
         <div id="sidebar">
             <div class="control-block">
-                <h3>Variables Climáticas</h3>
+                <h3>Variables Climáticas (TIF)</h3>
+                
                 <div class="layer-row">
-                    <input type="radio" name="clim" id="chkRad" onclick="toggleTif('rad', 'GHI_FINAL.tif')">
-                    <label for="chkRad">Radiación GHI</label><span id="load_rad" class="loading">...</span>
+                    <div class="layer-header">
+                        <input type="radio" name="climatico" id="chkRad" onclick="toggleTif('rad', 'GHI_FINAL.tif')">
+                        <label for="chkRad">Radiación (GHI)</label> <span id="load_rad" class="loading-text">Cargando...</span>
+                    </div>
+                    <div class="legend-gradient" style="background: linear-gradient(to right, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);"></div>
+                    <div class="legend-nums"><span>0</span><span>2300+ kWh</span></div>
                 </div>
+
                 <div class="layer-row">
-                    <input type="radio" name="clim" id="chkPot" onclick="toggleTif('pot', 'PV_FINAL.tif')">
-                    <label for="chkPot">Potencial FV</label><span id="load_pot" class="loading">...</span>
+                    <div class="layer-header">
+                        <input type="radio" name="climatico" id="chkPot" onclick="toggleTif('pot', 'PV_FINAL.tif')">
+                        <label for="chkPot">Potencial FV</label> <span id="load_pot" class="loading-text">Cargando...</span>
+                    </div>
+                    <div class="legend-gradient" style="background: linear-gradient(to right, #440154, #3b528b, #21918c, #5ec962, #fde725);"></div>
+                    <div class="legend-nums"><span>3.0</span><span>5.8 kWh/p</span></div>
+                </div>
+
+                <div class="layer-row">
+                    <div class="layer-header">
+                        <input type="radio" name="climatico" id="chkTemp" onclick="toggleTif('temp', 'TEMP.tif')">
+                        <label for="chkTemp">Temperatura</label> <span id="load_temp" class="loading-text">Cargando...</span>
+                    </div>
+                    <div class="legend-gradient" style="background: linear-gradient(to right, #4575b4, #ffffbf, #d7301f);"></div>
+                    <div class="legend-nums"><span>-2°C</span><span>30°C</span></div>
                 </div>
             </div>
 
             <div class="control-block">
                 <h3>Infraestructura CFE</h3>
-                <div class="layer-row"><input type="checkbox" onchange="toggleVector('reg', 'mis_9_regiones.json', this)"> Regiones de Control</div>
-                <div class="layer-row"><input type="checkbox" onchange="toggleVector('tx', 'lineas_transmision_cfe_24.geojson', this)"> Líneas de Transmisión</div>
-                <div class="layer-row"><input type="checkbox" onchange="toggleVector('sub', 'subestaciones_cfe.json', this)"> Subestaciones</div>
+                <div class="layer-header"><input type="checkbox" id="chkReg" onchange="toggleVector('reg', 'mis_9_regiones.json')"><label for="chkReg">Regiones de Control</label></div>
+                <div class="layer-header"><input type="checkbox" id="chkTx" onchange="toggleVector('tx', 'lineas_transmision_cfe_24.geojson')"><label for="chkTx">Líneas de Transmisión</label></div>
+                <div class="layer-header"><input type="checkbox" id="chkSub" onchange="toggleSubestaciones()"><label for="chkSub">Subestaciones (Markers)</label></div>
             </div>
 
             <div class="control-block">
                 <h3>Territorio</h3>
-                <div class="layer-row"><input type="checkbox" onchange="toggleVector('anp', '232_ANP-ITRF08_04072025.json', this)"> Áreas Naturales (ANP)</div>
-                <div class="layer-row"><input type="checkbox" onchange="toggleVector('agua', 'hidro4mgw.json', this)"> Ríos</div>
+                <div class="layer-header"><input type="checkbox" onchange="toggleVector('anp', '232_ANP-ITRF08_04072025.json')"><label>Áreas Naturales (ANP)</label></div>
+                <div class="layer-header"><input type="checkbox" onchange="toggleVector('agua', 'hidro4mgw.json')"><label>Hidrología (Ríos)</label></div>
             </div>
+
+            <button onclick="map.setView([23.6345, -102.5528], 5)" class="btn-pdf" style="background:#7f8c8d;">⟲ Centrar México</button>
         </div>
 
         <div id="map">
             <div id="inspector-box">
-                <h4 style="margin:0 0 10px 0;">INSPECTOR DE DATOS</h4>
-                <div id="inspector-content" style="font-size:0.9rem; color:#555;">Selecciona una variable y haz clic en el mapa.</div>
+                <h4>Inspector de Datos</h4>
+                <div id="inspector-content">Haz clic en el mapa para analizar...</div>
+                <button class="btn-pdf" id="btnExport" style="display:none;" onclick="exportarReporte()">Descargar Reporte PDF</button>
             </div>
         </div>
     </div>
 
     <script>
         const layers = {};
-        let currentReportData = null;
-        const map = L.map('map', { center: [23.6, -102.5], zoom: 5, zoomControl: true });
+        let activeRaster = null;
+        let lastValue = null;
+
+        const map = L.map('map', { center: [23.6345, -102.5528], zoom: 5, zoomControl: false });
+        L.control.zoom({ position: 'topleft' }).addTo(map);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-        // Fix de la regla y el cursor
-        setTimeout(() => map.invalidateSize(), 500);
-        L.control.measure({ position: 'topleft', primaryLengthUnit: 'kilometers', activeColor: '#FFD700' }).addTo(map);
+        // Fix de la regla (Measure)
+        L.control.measure({ 
+            position: 'topleft', 
+            primaryLengthUnit: 'kilometers', 
+            activeColor: '#FFD700' 
+        }).addTo(map);
 
         // --- MANEJO DE RASTERS (TIF) ---
-        async function toggleTif(id, file) {
-            ['rad', 'pot'].forEach(k => { if(layers[k]) map.removeLayer(layers[k]); });
+        async function toggleTif(id, filename) {
+            // Limpiamos capas previas para que no se encimen y los valores sean correctos
+            ['rad', 'pot', 'temp'].forEach(k => {
+                if (layers[k]) map.removeLayer(layers[k]);
+                document.getElementById(`load_${k}`).style.display = 'none';
+            });
+
             document.getElementById(`load_${id}`).style.display = 'inline';
             try {
-                const res = await fetch(`datos/${file}`);
+                const res = await fetch(`datos/${filename}`);
                 const buf = await res.arrayBuffer();
                 const georaster = await parseGeoraster(buf);
-                window.activeRaster = georaster;
+                activeRaster = georaster;
+
                 layers[id] = new GeoRasterLayer({
-                    georaster: georaster, opacity: 0.7, resolution: 256,
-                    pixelValuesToColorFn: v => {
-                        if (id === 'rad') return v[0] < 100 ? null : (v[0] > 2000 ? '#b10026' : '#feb24c');
-                        return v[0] < 1 ? null : (v[0] > 5 ? '#225ea8' : '#41b6c4');
+                    georaster: georaster,
+                    opacity: 0.7,
+                    pixelValuesToColorFn: values => {
+                        const val = values[0];
+                        if (id === 'rad') return val < 100 ? null : (val > 2000 ? '#bd0026' : '#fecc5c');
+                        if (id === 'pot') return val < 1 ? null : (val > 5 ? '#fde725' : '#3b528b');
+                        if (id === 'temp') return val < -50 ? null : (val > 25 ? '#d7301f' : '#4575b4');
                     }
                 });
                 layers[id].addTo(map);
-            } catch(e) { console.error("Error:", e); }
+            } catch (e) { console.error(e); }
             document.getElementById(`load_${id}`).style.display = 'none';
         }
 
-        // --- MANEJO DE VECTORES (JSON) ---
-        async function toggleVector(id, file, chk) {
-            if (!chk.checked) { if(layers[id]) map.removeLayer(layers[id]); return; }
-            if (layers[id]) { layers[id].addTo(map); return; }
+        // --- MANEJO DE VECTORES (INTERACTIVOS) ---
+        async function toggleVector(id, file) {
+            if (layers[id] && map.hasLayer(layers[id])) {
+                map.removeLayer(layers[id]);
+                return;
+            }
             const res = await fetch(`datos/${file}`);
             const data = await res.json();
             layers[id] = L.geoJSON(data, {
-                style: () => ({ color: id === 'anp' ? 'green' : (id === 'tx' ? 'blue' : 'gray'), weight: 1.5, fillOpacity: 0.2 }),
-                onEachFeature: (f, l) => l.bindPopup(`Elemento: ${f.properties.Nombre || f.properties.Name || id}`)
+                style: { color: '#3498db', weight: 2, fillOpacity: 0.2 },
+                onEachFeature: (f, l) => {
+                    l.on('mouseover', () => {
+                        let html = `<b>Capa:</b> ${id.toUpperCase()}<br>`;
+                        for (let key in f.properties) {
+                            html += `<b>${key}:</b> ${f.properties[key]}<br>`;
+                        }
+                        document.getElementById('inspector-content').innerHTML = html;
+                    });
+                }
             }).addTo(map);
         }
 
-        // --- INSPECTOR Y CÁLCULO ---
+        // --- SUBESTACIONES (CLUSTERS) ---
+        async function toggleSubestaciones() {
+            if (layers['sub']) {
+                map.hasLayer(layers['sub']) ? map.removeLayer(layers['sub']) : layers['sub'].addTo(map);
+                return;
+            }
+            const res = await fetch('datos/subestaciones_cfe.json');
+            const data = await res.json();
+            const markers = L.markerClusterGroup();
+            L.geoJSON(data, {
+                onEachFeature: (f, l) => l.bindPopup(`<b>Subestación:</b> ${f.properties.Nombre || f.properties.Name}`)
+            }).eachLayer(l => markers.addLayer(l));
+            layers['sub'] = markers.addTo(map);
+        }
+
+        // --- CLIC EN EL MAPA PARA LECTURA DE DATOS ---
         map.on('click', async (e) => {
-            if (!window.activeRaster) return;
-            const result = await geoblaze.identify(window.activeRaster, [e.latlng.lng, e.latlng.lat]);
+            if (!activeRaster) return;
+            const result = await geoblaze.identify(activeRaster, [e.latlng.lng, e.latlng.lat]);
             if (result) {
-                const val = result[0].toFixed(2);
-                const isRad = document.getElementById('chkRad').checked;
-                currentReportData = { lat: e.latlng.lat.toFixed(5), lng: e.latlng.lng.toFixed(5), val, unit: isRad ? "kWh/m²" : "kWh/kWp" };
+                lastValue = result[0].toFixed(2);
+                const lat = e.latlng.lat.toFixed(5);
+                const lng = e.latlng.lng.toFixed(5);
                 
                 document.getElementById('inspector-content').innerHTML = `
-                    <b>Ubicación:</b> ${currentReportData.lat}, ${currentReportData.lng}<br>
-                    <b>Valor:</b> <span style="font-size:1.2rem; color:#e67e22;">${val} ${currentReportData.unit}</span><hr>
-                    <button class="btn-report" onclick="generarPDF()">DESCARGAR REPORTE PDF</button>
+                    <div class="data-row"><span class="data-label">Ubicación:</span> ${lat}, ${lng}</div>
+                    <div class="data-row"><span class="data-label">Valor:</span> <span style="color:#e67e22; font-weight:bold;">${lastValue}</span></div>
                 `;
+                document.getElementById('btnExport').style.display = 'block';
             }
         });
 
-        // --- GENERADOR DE PDF ---
-        function generarPDF() {
+        // --- EXPORTAR PDF ---
+        function exportarReporte() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFontSize(18); doc.text("REPORTE TÉCNICO SOLAR SP-ENERGY", 20, 20);
-            doc.setFontSize(12); doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 35);
-            doc.text(`Coordenadas: ${currentReportData.lat}, ${currentReportData.lng}`, 20, 45);
-            doc.text(`Producción estimada: ${currentReportData.val} ${currentReportData.unit} anuales.`, 20, 55);
-            doc.text("Este análisis considera un sistema estándar con 75% de eficiencia (PR).", 20, 70);
-            doc.save(`Reporte_SP_${currentReportData.lat}.pdf`);
+            doc.text("Reporte de Sitio - SP Energy", 20, 20);
+            doc.text(`Valor registrado: ${lastValue}`, 20, 40);
+            doc.save("Reporte_Solar.pdf");
         }
     </script>
 </body>
