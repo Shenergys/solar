@@ -1,144 +1,90 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SP-Energy | Análisis SEN</title>
-    <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>SP-Energy | Dashboard Completo</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <style>
-        /* Layout Principal */
-        .main-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        
-        /* Banner de Instrucciones */
-        .help-banner {
-            background: #fff8c4; padding: 15px; border-radius: 8px;
-            border-left: 5px solid #FFD700; margin-bottom: 20px; font-size: 0.95rem;
-        }
-
-        /* Sección Estática Superior */
-        .static-section { margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-
-        /* Dashboard con Sidebar */
-        .dashboard-layout { display: flex; gap: 20px; align-items: flex-start; }
-        .sidebar {
-            flex: 0 0 250px; background: #222; padding: 20px; border-radius: 10px;
-            position: sticky; top: 20px; color: white;
-        }
-        .sidebar h3 { color: #FFD700; font-size: 0.9rem; margin-bottom: 15px; border-bottom: 1px solid #444; }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 10px; }
-        .sidebar-btn {
-            background: none; border: none; color: #eee; text-align: left;
-            padding: 10px; cursor: pointer; border-radius: 5px; transition: 0.3s;
-        }
-        .sidebar-btn:hover, .sidebar-btn.active { background: #FFD700; color: #000; font-weight: bold; }
-
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 20px; font-family: 'Roboto', sans-serif; }
+        .graph-card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .dashboard-layout { display: flex; gap: 30px; }
+        .sidebar { flex: 0 0 280px; background: #222; padding: 25px 15px; border-radius: 12px; position: sticky; top: 20px; height: fit-content; }
+        .sidebar-btn { width: 100%; background: transparent; border: none; color: #bbb; text-align: left; padding: 12px 15px; cursor: pointer; border-radius: 6px; margin-bottom: 5px; transition: 0.3s; }
+        .sidebar-btn:hover { background: rgba(255, 215, 0, 0.1); color: #FFD700; }
+        .sidebar-btn.active { background: #FFD700; color: #000; font-weight: bold; }
         .content-area { flex: 1; min-width: 0; }
-        .graph-card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .dynamic-section { display: none; }
+        .dynamic-section { display: none; animation: fadeIn 0.4s ease; }
         .dynamic-section.active { display: block; }
-
-        /* Estilos de Gráficas e Info */
-        .chart-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
-        .chart-area { flex: 3; min-width: 300px; height: 400px; }
-        .info-area { flex: 1; min-width: 250px; background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 5px solid #FFD700; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .highlight { color: #d35400; font-weight: bold; }
-
-        @media (max-width: 900px) {
-            .dashboard-layout { flex-direction: column; }
-            .sidebar { position: static; width: 100%; }
-            .grid-2 { grid-template-columns: 1fr; }
-        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .chart-wrapper { position: relative; height: 400px; margin-top: 15px; }
+        .controls-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 1000px) { .dashboard-layout { flex-direction: column; } .sidebar { position: static; width: 100%; } .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <ul>
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="graficas.html" class="active">Gráficas y Tablas</a></li>
-        </ul>
-    </nav>
-
     <main class="main-container">
-        <h2 class="section-title">Análisis de Datos del SEN</h2>
-
-        <div class="help-banner">
-            <strong>¿Cómo visualizar los datos?</strong> Las gráficas solares superiores son fijas. Utiliza el menú lateral para cambiar entre los demás temas de análisis regional y tecnológico.
-        </div>
-
-        <section class="static-section">
-            <div class="graph-card">
-                <h2>Capacidad y generación solar fotovoltaica (2010–2024)</h2>
-                <p>Evolución al 2024: La capacidad alcanzó 7,961 MW y la generación creció a 18,640 GWh.</p>
-                <div class="grid-2">
-                    <div><h3>Capacidad (MW)</h3><canvas id="chartCapSolar"></canvas></div>
-                    <div><h3>Generación (GWh)</h3><canvas id="chartGenSolar"></canvas></div>
+        <section class="graph-card">
+            <h2>Capacidad y Generación Solar Fotovoltaica (2010–2024)</h2>
+            <div class="grid-2">
+                <div>
+                    <h3>Capacidad Instalada (MW)</h3>
+                    <div class="chart-wrapper"><canvas id="staticCap"></canvas></div>
+                </div>
+                <div>
+                    <h3>Generación Eléctrica (GWh)</h3>
+                    <div class="chart-wrapper"><canvas id="staticGen"></canvas></div>
                 </div>
             </div>
         </section>
 
         <div class="dashboard-layout">
             <aside class="sidebar">
-                <h3>FILTRAR POR TEMA</h3>
-                <nav class="sidebar-nav">
-                    <button class="sidebar-btn active" onclick="showTab(this, 'tab-sen')">Indicadores del SEN</button>
-                    <button class="sidebar-btn" onclick="showTab(this, 'tab-tech')">Evolución Tecnológica</button>
-                    <button class="sidebar-btn" onclick="showTab(this, 'tab-reg')">Series por Región</button>
-                    <button class="sidebar-btn" onclick="showTab(this, 'tab-factor')">Factor de Planta</button>
-                    <button class="sidebar-btn" onclick="showTab(this, 'tab-distribuida')">Generación Distribuida</button>
+                <h3 style="color: #FFD700; padding-left: 10px; border-left: 4px solid #FFD700; margin-bottom: 20px;">TEMAS DE ANÁLISIS</h3>
+                <nav>
+                    <button class="sidebar-btn active" onclick="showTab(this, 'sec-factor')">Factor de Planta (FV y Otros)</button>
+                    <button class="sidebar-btn" onclick="showTab(this, 'sec-gd')">Generación Distribuida</button>
+                    <button class="sidebar-btn" onclick="showTab(this, 'sec-reg')">Series por Región</button>
+                    <button class="sidebar-btn" onclick="showTab(this, 'sec-sen')">Indicadores del SEN</button>
+                    <button class="sidebar-btn" onclick="showTab(this, 'sec-tech')">Evolución Tecnológica</button>
                 </nav>
             </aside>
 
             <div class="content-area">
-                <section id="tab-sen" class="dynamic-section active">
+                <section id="sec-factor" class="dynamic-section active">
                     <div class="graph-card">
-                        <div style="display:flex; justify-content:space-between;">
-                            <h2>Indicadores Generales del SEN</h2>
-                            <div class="view-toggle">
-                                <button onclick="toggleView('sen', 'chart')" class="btn primary">Gráfica</button>
-                                <button onclick="toggleView('sen', 'table')" class="btn">Tabla</button>
+                        <h2>Análisis de Factor de Planta</h2>
+                        <div class="grid-2">
+                            <div>
+                                <h3>Factor FV por Región (%)</h3>
+                                <div class="chart-wrapper"><canvas id="chartFactorReg"></canvas></div>
                             </div>
-                        </div>
-                        <div id="sen-chart-view">
-                            <select id="senVariableSelect" onchange="updateSenChart()" style="margin: 10px 0;">
-                                <option value="capacidad">Capacidad Total (MW)</option>
-                                <option value="generacion">Generación Total (GWh)</option>
-                                <option value="demanda">Demanda Máxima (MW)</option>
-                                <option value="consumo">Consumo Bruto/Final (GWh)</option>
-                            </select>
-                            <div class="chart-wrapper">
-                                <div class="chart-area"><canvas id="chartSEN"></canvas></div>
-                                <div class="info-area" id="senInfoText"><h4>Análisis</h4></div>
+                            <div>
+                                <h3>Comparativa por Tecnología (%)</h3>
+                                <div class="chart-wrapper"><canvas id="chartFactorTech"></canvas></div>
                             </div>
-                        </div>
-                        <div id="sen-table-view" style="display:none; overflow-x:auto;">
-                            <table class="data-table"><thead id="mixTableHead"></thead><tbody id="mixTableBody"></tbody></table>
                         </div>
                     </div>
                 </section>
 
-                <section id="tab-tech" class="dynamic-section">
+                <section id="sec-gd" class="dynamic-section">
                     <div class="graph-card">
-                        <div style="display:flex; justify-content:space-between;">
-                            <h2>Evolución por Tecnología</h2>
-                            <div class="view-toggle">
-                                <button id="btnTechCap" class="btn primary">Capacidad (MW)</button>
-                                <button id="btnTechGen" class="btn">Generación (GWh)</button>
-                            </div>
+                        <h2>Generación Distribuida (GD)</h2>
+                        <div class="controls-row">
+                            <button class="btn primary" onclick="updateGD('mw')">Capacidad (MW)</button>
+                            <button class="btn" onclick="updateGD('contratos')">Contratos</button>
                         </div>
-                        <div style="height: 500px;"><canvas id="chartTechStack"></canvas></div>
+                        <div class="chart-wrapper"><canvas id="chartGD"></canvas></div>
                     </div>
                 </section>
 
-                <section id="tab-reg" class="dynamic-section">
+                <section id="sec-reg" class="dynamic-section">
                     <div class="graph-card">
-                        <div style="display:flex; justify-content:space-between;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
                             <h2>Series por Región</h2>
-                            <div class="view-toggle">
+                            <div>
                                 <button onclick="toggleView('reg', 'chart')" class="btn primary">Gráfica</button>
                                 <button onclick="toggleView('reg', 'table')" class="btn">Tabla</button>
                             </div>
@@ -148,46 +94,28 @@
                                 <select id="regionSelect" onchange="updateRegChart()">
                                     <option value="CEN">CEN</option><option value="ORI">ORI</option><option value="OCC">OCC</option>
                                     <option value="NOR">NOR</option><option value="NTE">NTE</option><option value="NES">NES</option>
-                                    <option value="PEN">PEN</option><option value="SIBC">SIBC</option><option value="SIN">SIN</option>
                                 </select>
-                                <select id="variableSelect" onchange="updateRegChart()">
+                                <select id="varSelect" onchange="updateRegChart()">
                                     <option value="demanda">Demanda Máxima (MW)</option>
-                                    <option value="consumoBruto">Consumo Bruto (GWh)</option>
-                                    <option value="consumoFinal">Consumo Final (GWh)</option>
+                                    <option value="consumo">Consumo Bruto (GWh)</option>
                                 </select>
                             </div>
-                            <div class="chart-wrapper">
-                                <div class="chart-area"><canvas id="chartRegion"></canvas></div>
-                                <div class="info-area" id="regInfoText"><h4>Análisis Regional</h4></div>
-                            </div>
+                            <div class="chart-wrapper"><canvas id="chartReg"></canvas></div>
                         </div>
-                        <div id="reg-table-view" style="display:none; overflow-x:auto;">
-                            <table class="data-table"><thead><tr><th>Año</th><th>Valor</th><th>% SEN</th></tr></thead><tbody id="regTableBody"></tbody></table>
+                        <div id="reg-table-view" style="display:none; margin-top:20px;">
+                            <table class="data-table"><thead><tr><th>Año</th><th>Valor</th><th>% Participación</th></tr></thead><tbody id="regTableBody"></tbody></table>
                         </div>
                     </div>
                 </section>
 
-                <section id="tab-factor" class="dynamic-section">
+                <section id="sec-sen" class="dynamic-section">
                     <div class="graph-card">
-                        <h2>Análisis de Factor de Planta</h2>
-                        <div class="grid-2">
-                            <div>
-                                <h3>Promedio por Tecnología (%)</h3>
-                                <canvas id="chartFactorTech"></canvas>
-                            </div>
-                            <div>
-                                <h3>Factor FV por Región (%)</h3>
-                                <canvas id="chartFactorReg"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="tab-distribuida" class="dynamic-section">
-                    <div class="graph-card">
-                        <h2>Generación Distribuida (GD)</h2>
-                        <p>Evolución de contratos y capacidad instalada de pequeña escala.</p>
-                        <div class="chart-area" style="height: 450px;"><canvas id="chartGD"></canvas></div>
+                        <h2>Indicadores Generales del SEN</h2>
+                        <select id="senVarSelect" onchange="updateSenChart()" class="controls-row">
+                            <option value="cap">Capacidad Total (MW)</option>
+                            <option value="gen">Generación Total (GWh)</option>
+                        </select>
+                        <div class="chart-wrapper"><canvas id="chartSEN"></canvas></div>
                     </div>
                 </section>
             </div>
@@ -195,95 +123,15 @@
     </main>
 
     <script>
-        // --- DATA DE RESPALDO ---
         const years = [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
         
-        // Datos SEN
-        const capTotal = [55090,54656,55692,57413,62359,63545,73242,68051,72958,78447,83122,86154,87131,89007,90543];
-        const genTotal = [271483,277894,281545,286218,280365,287660,298426,302880,310686,317821,312348,323527,333964,346501,352305];
-        const demandaSen = [41750,43324,43920,44323,44398,45601,47348,49049,50825,52340,51225,52686,54489,57958,59601];
-        
-        // Datos Regionales (Selección de ejemplo para restaurar lógica)
-        const demandaRegion = { "CEN": [9004,8844,8651,8411,8192,8151,8567,8705,8805,8754,8717,8450,8466,8619,8848], "ORI": [6356,6577,6626,6709,6767,6960,7128,7299,7594,7923,7461,7868,8203,8783,9034], "OCC": [8175,8669,8975,9207,9104,9374,9351,9842,10373,10096,9763,10292,10537,11478,11834] };
-        const regShare = { "CEN": [21,20,19,18,18,17,18,17,17,16,17,16,15,14,14], "ORI": [15,15,15,15,15,15,15,14,14,15,14,14,15,15,15], "OCC": [19,20,20,20,20,20,19,20,20,19,19,19,19,19,19] };
+        // Datos Regionales Restaurados
+        const regData = {
+            "CEN": { demanda: [9004,8844,8651,8411,8192,8151,8567,8705,8805,8754,8717,8450,8466,8619,8848], share: [21,20,19,18,18,17,18,17,17,16,17,16,15,14,14] },
+            "ORI": { demanda: [6356,6577,6626,6709,6767,6960,7128,7299,7594,7923,7461,7868,8203,8783,9034], share: [15,15,15,15,15,15,15,14,14,15,14,14,15,15,15] }
+        };
 
-        // Datos Nuevos Excel (Factor de Planta y GD)
-        const dataGD_MW = [0.81, 4.66, 14.86, 29.13, 61.87, 117.53, 247.59, 459.25, 692.8, 1083.39, 1551.09, 2031.24, 2629.78, 3361.69, 4447.92];
-        const factorPlantaTech = { labels: ['FV', 'Nuclear', 'Térmica', 'Ciclo Comb.', 'Turbogás', 'Cogeneración', 'Comb. Interna', 'Carbón'], values: [28.4, 84.8, 29.3, 68.3, 50.3, 55, 60.1, 27] };
-        const factorPlantaFVReg = { labels: ['BCA', 'BCS', 'CEN', 'NES', 'NOR', 'NTE', 'OCC', 'ORI', 'PEN'], values: [20, 19.5, 19, 6, 19.5, 20.6, 19.75, 18.2, 17.33] };
-
-        // --- LÓGICA DE NAVEGACIÓN ---
-        function showTab(btn, tabId) {
-            document.querySelectorAll('.dynamic-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
-        }
-
-        function toggleView(section, type) {
-            const chartDiv = document.getElementById(`${section}-chart-view`);
-            const tableDiv = document.getElementById(`${section}-table-view`);
-            if(type === 'chart') { chartDiv.style.display = 'block'; tableDiv.style.display = 'none'; }
-            else { chartDiv.style.display = 'none'; tableDiv.style.display = 'block'; }
-        }
-
-        // --- RENDERIZADO DE GRÁFICAS ---
-        function initCharts() {
-            // Solares (Estáticas)
-            new Chart(document.getElementById('chartCapSolar'), {
-                type: 'line', data: { labels: years, datasets: [{ label: 'MW', data: [0,0,1,11,55,57,145,171,1878,3646,5149,5955,6515,7437,7961], borderColor: '#f1c40f', fill: true, backgroundColor: 'rgba(241, 196, 15, 0.1)' }] }
-            });
-            new Chart(document.getElementById('chartGenSolar'), {
-                type: 'line', data: { labels: years, datasets: [{ label: 'GWh', data: [0,0,3,20,83,45,151,349,2176,8394,13528,17069,16290,18210,18640], borderColor: '#f39c12' }] }
-            });
-
-            // Factor de Planta por Tecnología (Barras de colores)
-            new Chart(document.getElementById('chartFactorTech'), {
-                type: 'bar', data: { labels: factorPlantaTech.labels, datasets: [{ label: '% Factor', data: factorPlantaTech.values, backgroundColor: ['#f1c40f','#e67e22','#7f8c8d','#c0392b','#d35400','#8e44ad','#34495e','#2c3e50'] }] },
-                options: { scales: { y: { title: { display: true, text: 'Porcentaje (%)' } } } }
-            });
-
-            // Factor FV Región (Excel nuevo)
-            new Chart(document.getElementById('chartFactorReg'), {
-                type: 'bar', data: { labels: factorPlantaFVReg.labels, datasets: [{ label: '% Eficiencia FV', data: factorPlantaFVReg.values, backgroundColor: '#27ae60' }] },
-                options: { scales: { y: { title: { display: true, text: 'Factor de Planta (%)' } } } }
-            });
-
-            // Generación Distribuida
-            new Chart(document.getElementById('chartGD'), {
-                type: 'line', data: { labels: years, datasets: [{ label: 'Capacidad Instalada (MW)', data: dataGD_MW, borderColor: '#2980b9', fill: true }] },
-                options: { scales: { y: { title: { display: true, text: 'Megavatios (MW)' } } } }
-            });
-
-            updateSenChart();
-            updateRegChart();
-        }
-
-        // --- LÓGICA SEN Y REGIONAL (RECUPERADA) ---
-        let chartSEN, chartRegion;
-
-        function updateSenChart() {
-            const v = document.getElementById('senVariableSelect').value;
-            const ctx = document.getElementById('chartSEN');
-            if(chartSEN) chartSEN.destroy();
-            let data = v === 'capacidad' ? capTotal : (v === 'generacion' ? genTotal : demandaSen);
-            chartSEN = new Chart(ctx, { type: 'line', data: { labels: years, datasets: [{ label: v, data: data, borderColor: '#3498db' }] } });
-        }
-
-        function updateRegChart() {
-            const r = document.getElementById('regionSelect').value;
-            const ctx = document.getElementById('chartRegion');
-            if(chartRegion) chartRegion.destroy();
-            chartRegion = new Chart(ctx, {
-                type: 'line', data: { labels: years, datasets: [
-                    { label: 'Valor Región', data: demandaRegion[r] || [], yAxisID: 'y', borderColor: '#9b59b6' },
-                    { label: '% Participación', data: regShare[r] || [], yAxisID: 'y1', borderDash: [5,5], borderColor: '#34495e' }
-                ]},
-                options: { scales: { y1: { position: 'right' } } }
-            });
-        }
-
-        window.onload = initCharts;
-    </script>
-</body>
-</html>
+        // Datos Excel
+        const factorReg = { labels: ['BCA','BCS','CEN','NES','NOR','NTE','OCC','ORI','PEN'], values: [20, 19.5, 19, 6, 19.5, 20.6, 19.75, 18.2, 17.33] };
+        const gdMW = [0.81, 4.66, 14.86, 29.13, 61.87, 117.53, 247.59, 459.25, 692.8, 1083.39, 1551.09, 2031.24, 2629.78, 3361.69, 4447.92];
+        const gdContratos = [231, 670, 1986, 4613, 9009, 16979, 29556, 59232, 94893, 145939, 211098, 270506, 334984, 411085, 518019];
