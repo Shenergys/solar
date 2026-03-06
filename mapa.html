@@ -1,22 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SP-Energy | Monitor SIG</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script src="https://unpkg.com/georaster"></script>
 <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"/>
-<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
 <style>
 
@@ -126,6 +122,7 @@ z-index:2000;
 <body>
 
 <header class="main-header">
+
 <div class="logo-text">SP-ENERGY ☀️</div>
 
 <nav class="navbar">
@@ -137,11 +134,14 @@ z-index:2000;
 <li><a href="info.html">Contacto</a></li>
 </ul>
 </nav>
+
 </header>
+
 
 <div id="sidebar">
 
 <div class="control-block">
+
 <h3>Variables Climáticas</h3>
 
 <div class="layer-row">
@@ -161,7 +161,9 @@ z-index:2000;
 
 </div>
 
+
 <div class="control-block">
+
 <h3>Infraestructura CFE</h3>
 
 <div class="layer-row">
@@ -170,7 +172,7 @@ z-index:2000;
 </div>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleVector('tx','lineas_transmision_cfe_24.geojson')">
+<input type="checkbox" onchange="toggleVector('tx','lineas_transmision_cfe_24.json')">
 <label>Líneas</label>
 </div>
 
@@ -178,59 +180,161 @@ z-index:2000;
 
 </div>
 
+
 <div id="map"></div>
 
+
 <div id="legend">
+
 <div id="legendTitle"></div>
-<div id="legendGradient" style="height:10px;width:200px"></div>
+
+<div style="
+height:10px;
+width:200px;
+background:linear-gradient(to right,blue,cyan,green,yellow,red)">
 </div>
+
+</div>
+
+
 
 <script>
 
 const map=L.map('map').setView([23.6,-102.5],5)
 
 L.tileLayer(
-'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+{
+attribution:'© OpenStreetMap'
+}
 ).addTo(map)
 
 const layers={}
 
+
+function getColor(value,min,max){
+
+let ratio=(value-min)/(max-min)
+
+let r=Math.floor(255*ratio)
+let g=Math.floor(255*(1-ratio))
+let b=150
+
+return `rgb(${r},${g},${b})`
+
+}
+
+
+
 async function toggleTif(id,file){
 
 if(layers[id]){
+
 map.removeLayer(layers[id])
 delete layers[id]
+document.getElementById("legend").style.display="none"
 return
+
 }
 
+try{
+
 let res=await fetch("datos/"+file)
+
+if(!res.ok) throw new Error("Archivo no encontrado")
+
 const buf=await res.arrayBuffer()
+
 const georaster=await parseGeoraster(buf)
 
+let min=georaster.mins[0]
+let max=georaster.maxs[0]
+
 layers[id]=new GeoRasterLayer({
+
 georaster:georaster,
-opacity:0.7,
+
+opacity:0.75,
+
+pixelValuesToColorFn:function(pixelValues){
+
+const value=pixelValues[0]
+
+if(value===null) return null
+
+return getColor(value,min,max)
+
+},
+
 resolution:256
+
 })
 
 layers[id].addTo(map)
 
+map.fitBounds(layers[id].getBounds())
+
+document.getElementById("legend").style.display="block"
+
+}catch(err){
+
+alert("Error cargando "+file)
+
+console.error(err)
+
 }
+
+}
+
+
 
 async function toggleVector(id,file){
 
 if(layers[id]){
+
 map.removeLayer(layers[id])
 delete layers[id]
 return
+
 }
 
+try{
+
 let res=await fetch("datos/"+file)
+
 const data=await res.json()
 
-layers[id]=L.geoJSON(data)
+layers[id]=L.geoJSON(data,{
+
+style:{
+color:"#ff7800",
+weight:2,
+fillOpacity:0.1
+},
+
+onEachFeature:function(feature,layer){
+
+if(feature.properties){
+
+layer.bindPopup(JSON.stringify(feature.properties))
+
+}
+
+}
+
+})
 
 layers[id].addTo(map)
+
+map.fitBounds(layers[id].getBounds())
+
+}catch(err){
+
+alert("Error cargando "+file)
+
+console.error(err)
+
+}
 
 }
 
