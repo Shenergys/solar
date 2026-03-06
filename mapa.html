@@ -5,7 +5,6 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>SP-Energy | Monitor SIG</title>
 
 <link rel="stylesheet" href="style.css">
@@ -24,8 +23,51 @@
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
 
-</head>
+<style>
 
+/* asegura que el mapa siempre tenga tamaño */
+html,body{
+height:100%;
+margin:0;
+}
+
+#sidebar{
+position:absolute;
+top:60px;
+left:0;
+bottom:0;
+width:320px;
+background:#f4f4f4;
+overflow:auto;
+padding:15px;
+border-right:1px solid #ccc;
+}
+
+#map{
+position:absolute;
+top:60px;
+left:320px;
+right:0;
+bottom:0;
+}
+
+#legend{
+position:absolute;
+bottom:20px;
+right:20px;
+background:white;
+padding:10px;
+border-radius:5px;
+box-shadow:0 3px 8px rgba(0,0,0,0.3);
+}
+
+.layer-row{
+margin-bottom:6px;
+}
+
+</style>
+
+</head>
 
 <body>
 
@@ -51,18 +93,15 @@
 <h3>Capas climáticas</h3>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleTif('ghi','GHI_FINAL.tif')">
-Radiación solar
+<input type="checkbox" onchange="toggleTif('ghi','GHI_FINAL.tif')"> Radiación solar
 </div>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleTif('pv','PV_FINAL.tif')">
-Potencial fotovoltaico
+<input type="checkbox" onchange="toggleTif('pv','PV_FINAL.tif')"> Potencial FV
 </div>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleTif('temp','TEMP.tif')">
-Temperatura
+<input type="checkbox" onchange="toggleTif('temp','TEMP.tif')"> Temperatura
 </div>
 
 <hr>
@@ -70,18 +109,15 @@ Temperatura
 <h3>Infraestructura eléctrica</h3>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleVector('reg','mis_9_regiones.json')">
-Regiones
+<input type="checkbox" onchange="toggleVector('reg','mis_9_regiones.json')"> Regiones
 </div>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleVector('tx','lineas_transmision_cfe_24.json')">
-Líneas de transmisión
+<input type="checkbox" onchange="toggleVector('tx','lineas_transmision_cfe_24.json')"> Líneas transmisión
 </div>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleVector('sub','subestaciones_cfe.json')">
-Subestaciones
+<input type="checkbox" onchange="toggleVector('sub','subestaciones_cfe.json')"> Subestaciones
 </div>
 
 <hr>
@@ -89,30 +125,20 @@ Subestaciones
 <h3>Restricciones</h3>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleVector('anp','232_ANP-ITRF08_04072025.json')">
-Áreas Naturales Protegidas
+<input type="checkbox" onchange="toggleVector('anp','232_ANP-ITRF08_04072025.json')"> ANP
 </div>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleVector('hidro','hidro4mgw.json')">
-Hidrología
+<input type="checkbox" onchange="toggleVector('hidro','hidro4mgw.json')"> Hidrología
 </div>
 
 </div>
-
 
 <div id="map"></div>
 
 <div id="legend">
-
-<div><b>Escala raster</b></div>
-
-<div style="
-height:10px;
-width:200px;
-background:linear-gradient(to right,blue,cyan,green,yellow,orange,red)">
-</div>
-
+<b>Escala raster</b>
+<div style="height:10px;width:200px;background:linear-gradient(to right,blue,cyan,green,yellow,orange,red)"></div>
 </div>
 
 
@@ -120,8 +146,9 @@ background:linear-gradient(to right,blue,cyan,green,yellow,orange,red)">
 
 const map=L.map('map').setView([23.6,-102.5],5)
 
-const basemap=L.tileLayer(
-'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+L.tileLayer(
+'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+{attribution:'© OpenStreetMap'}
 ).addTo(map)
 
 L.control.scale().addTo(map)
@@ -130,28 +157,6 @@ L.control.measure({
 primaryLengthUnit:'kilometers',
 primaryAreaUnit:'sqkilometers'
 }).addTo(map)
-
-const mexicoBounds=[[14,-118],[33,-86]]
-
-const centerBtn=L.control({position:'topleft'})
-
-centerBtn.onAdd=function(){
-
-let btn=L.DomUtil.create('button')
-
-btn.innerHTML="⤢"
-
-btn.title="Centrar México"
-
-btn.style.background="white"
-btn.style.padding="6px"
-
-btn.onclick=()=>map.fitBounds(mexicoBounds)
-
-return btn
-}
-
-centerBtn.addTo(map)
 
 const layers={}
 
@@ -166,80 +171,47 @@ return `rgb(${r},120,${b})`
 
 }
 
-
 async function toggleTif(id,file){
 
 if(layers[id]){
-
 map.removeLayer(layers[id])
 delete layers[id]
-
 return
 }
 
 let res=await fetch("datos/"+file)
-
 let buf=await res.arrayBuffer()
-
 let raster=await parseGeoraster(buf)
 
 let min=raster.mins[0]
 let max=raster.maxs[0]
 
 layers[id]=new GeoRasterLayer({
-
 georaster:raster,
-
 opacity:0.7,
-
 resolution:256,
-
 pixelValuesToColorFn:function(pixel){
-
 let v=pixel[0]
-
 if(v===null) return null
-
 return getColor(v,min,max)
-
 }
-
 })
 
 layers[id].addTo(map)
-
 map.fitBounds(layers[id].getBounds())
 
 }
 
-
-
 async function toggleVector(id,file){
 
 if(layers[id]){
-
 map.removeLayer(layers[id])
 delete layers[id]
-
 return
 }
 
 let res=await fetch("datos/"+file)
-
 let data=await res.json()
-
-if(id==='sub'){
-
-let cluster=L.markerClusterGroup()
-
-L.geoJSON(data,{
-pointToLayer:(f,latlng)=>L.marker(latlng),
-onEachFeature:(f,l)=>l.bindPopup(JSON.stringify(f.properties))
-}).eachLayer(l=>cluster.addLayer(l))
-
-layers[id]=cluster
-
-}else{
 
 layers[id]=L.geoJSON(data,{
 style:{
@@ -249,8 +221,6 @@ fillOpacity:0.15
 },
 onEachFeature:(f,l)=>l.bindPopup(JSON.stringify(f.properties))
 })
-
-}
 
 layers[id].addTo(map)
 
