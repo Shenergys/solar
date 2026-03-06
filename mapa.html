@@ -112,7 +112,6 @@
         <nav class="navbar">
             <ul>
                 <li><a href="index.html">Inicio</a></li>
-@@ -95,132 +95,107 @@
         </nav>
     </header>
 
@@ -307,7 +306,7 @@
                 chk.checked ? layers[id].addTo(map) : map.removeLayer(layers[id]);
                 return;
             }
-@@ -229,37 +204,41 @@ <h4>Inspector de Datos</h4>
+<h4>Inspector de Datos</h4>
                 document.getElementById(`load_${id}`).style.display = 'block';
 
                 try {
@@ -363,7 +362,7 @@
                         pane: 'paneRaster'
                     });
 
-@@ -269,13 +248,13 @@ <h4>Inspector de Datos</h4>
+<h4>Inspector de Datos</h4>
             }
         }
 
@@ -381,7 +380,7 @@
                 chk.checked ? layers[id].addTo(map) : map.removeLayer(layers[id]);
                 return;
             }
-@@ -286,23 +265,24 @@ <h4>Inspector de Datos</h4>
+<h4>Inspector de Datos</h4>
                     if(!res.ok) res = await fetch(file);
                     const data = await res.json();
 
@@ -413,7 +412,7 @@
                             l.on('mouseover', e => {
                                 updateInspector(f.properties, id);
                                 e.target.setStyle({ weight: 3, color: '#f1c40f', opacity: 1 });
-@@ -318,14 +298,14 @@ <h4>Inspector de Datos</h4>
+<h4>Inspector de Datos</h4>
             }
         }
 
@@ -432,7 +431,7 @@
                 chk.checked ? layers[id].addTo(map) : map.removeLayer(layers[id]);
                 return;
             }
-@@ -336,52 +316,62 @@ <h4>Inspector de Datos</h4>
+<h4>Inspector de Datos</h4>
                     if(!res.ok) res = await fetch('subestaciones_cfe.json');
                     const data = await res.json();
 
