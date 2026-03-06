@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -103,9 +104,7 @@ border-left:5px solid #FFD700;
 
 <header class="main-header">
 
-<div class="logo-container">
-SP-ENERGY ☀️
-</div>
+<div class="logo-container">SP-ENERGY ☀️</div>
 
 <div class="slogan-container">
 <h1>Energía Solar para Todos</h1>
@@ -139,33 +138,27 @@ SP-ENERGY ☀️
 
 <nav class="sidebar-nav">
 
-<button class="sidebar-btn active"
-onclick="showSection('sec-cap',this)">
+<button class="sidebar-btn active" onclick="showSection('sec-cap',this)">
 Capacidad y Generación Solar
 </button>
 
-<button class="sidebar-btn"
-onclick="showSection('sec-sen',this)">
+<button class="sidebar-btn" onclick="showSection('sec-sen',this)">
 Indicadores del SEN
 </button>
 
-<button class="sidebar-btn"
-onclick="showSection('sec-tech',this)">
+<button class="sidebar-btn" onclick="showSection('sec-tech',this)">
 Evolución Tecnológica
 </button>
 
-<button class="sidebar-btn"
-onclick="showSection('sec-reg',this)">
+<button class="sidebar-btn" onclick="showSection('sec-reg',this)">
 Series por Región
 </button>
 
-<button class="sidebar-btn"
-onclick="showSection('sec-factor',this)">
+<button class="sidebar-btn" onclick="showSection('sec-factor',this)">
 Promedio Factor de Planta
 </button>
 
-<button class="sidebar-btn"
-onclick="showSection('sec-gd',this)">
+<button class="sidebar-btn" onclick="showSection('sec-gd',this)">
 Generación Distribuida
 </button>
 
@@ -182,19 +175,13 @@ Generación Distribuida
 <div class="grid-2">
 
 <div>
-
 <h3>Capacidad (MW)</h3>
-
 <canvas id="chartCapSolar"></canvas>
-
 </div>
 
 <div>
-
 <h3>Generación (GWh)</h3>
-
 <canvas id="chartGenSolar"></canvas>
-
 </div>
 
 </div>
@@ -224,6 +211,7 @@ Generación Distribuida
 <div class="controls-row">
 
 <select id="regionSelect">
+
 <option value="CEN">CEN</option>
 <option value="ORI">ORI</option>
 <option value="OCC">OCC</option>
@@ -232,6 +220,7 @@ Generación Distribuida
 <option value="NES">NES</option>
 <option value="PEN">PEN</option>
 <option value="SIN">SIN</option>
+
 </select>
 
 </div>
@@ -245,7 +234,9 @@ Generación Distribuida
 </div>
 
 <div class="info-area" id="regInfoText">
+
 <h4>Análisis Regional</h4>
+
 </div>
 
 </div>
@@ -269,8 +260,7 @@ Generación Distribuida
 <h4>Nota Técnica</h4>
 
 <p>
-Un factor de planta más alto indica mayor uso
-de la capacidad instalada.
+Un factor de planta más alto indica mayor uso de la capacidad instalada.
 </p>
 
 </div>
@@ -294,9 +284,7 @@ de la capacidad instalada.
 </main>
 
 <footer>
-
 <p>© 2025 SP-Energy</p>
-
 </footer>
 
 <script>
@@ -322,54 +310,39 @@ const capSolar=[0,0,1,11,55,57,145,171,1878,3646,5149,5955,6515,7437,7961]
 
 const genSolar=[0,0,3,20,83,45,151,349,2176,8394,13528,17069,16290,18210,18640]
 
-new Chart(
-document.getElementById("chartCapSolar"),
-{
+new Chart(document.getElementById("chartCapSolar"),{
 type:"line",
-data:{labels:years,datasets:[{
+data:{
+labels:years,
+datasets:[{
 label:"Capacidad MW",
 data:capSolar,
 borderColor:"#f1c40f",
 backgroundColor:"rgba(241,196,15,0.2)",
 fill:true
-}]}
+}]
+}
 })
 
-new Chart(
-document.getElementById("chartGenSolar"),
-{
+new Chart(document.getElementById("chartGenSolar"),{
 type:"line",
-data:{labels:years,datasets:[{
+data:{
+labels:years,
+datasets:[{
 label:"Generación GWh",
 data:genSolar,
 borderColor:"#e67e22",
 backgroundColor:"rgba(230,126,34,0.2)",
 fill:true
-}]}
-})
-
-const capTotal=[55090,54656,55692,57413,62359,63545,73242,68051,72958,78447,83122,86154,87131,89007,90543]
-
-new Chart(
-document.getElementById("chartSEN"),
-{
-type:"line",
-data:{labels:years,datasets:[{
-label:"Capacidad Total MW",
-data:capTotal,
-borderColor:"#3498db",
-backgroundColor:"rgba(52,152,219,0.2)",
-fill:true
-}]}
+}]
+}
 })
 
 const factorYears=[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024]
 
 const factorData=[20,21,22,23,24,25,24,23,22,21,20,19,18,17,16]
 
-new Chart(
-document.getElementById("chartFactor"),
-{
+new Chart(document.getElementById("chartFactor"),{
 type:"bar",
 data:{
 labels:factorYears,
@@ -385,9 +358,7 @@ const gdYears=[2017,2018,2019,2020,2021,2022,2023,2024]
 
 const gdCap=[300,450,650,900,1200,1700,2400,3200]
 
-new Chart(
-document.getElementById("chartDistribuida"),
-{
+new Chart(document.getElementById("chartDistribuida"),{
 type:"line",
 data:{
 labels:gdYears,
@@ -405,3 +376,5 @@ fill:true
 
 </body>
 </html>
+```
+
