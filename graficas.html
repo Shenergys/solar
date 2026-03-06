@@ -1,62 +1,64 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SP-Energy | Gráficas y Tablas</title>
 
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-/* Layout Gráfica + Texto */
-.chart-wrapper { display:flex; flex-wrap:wrap; gap:20px; align-items:center; margin-top:1rem; }
-.chart-area { flex:3; min-width:300px; height:400px; }
-.info-area { flex:1; min-width:250px; background:#fff; padding:20px; border-radius:8px; border-left:5px solid #FFD700; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
-.info-area h4 { margin-top:0; color:#333; border-bottom:1px solid #eee; padding-bottom:10px; }
-.info-area p { font-size:0.95rem; line-height:1.5; color:#555; }
-.highlight { color:#d35400; font-weight:bold; }
-
-/* REFERENCIAS */
-.references { background:#222; color:#eee; padding:40px 20px; margin-top:50px; font-size:0.9rem; }
-.references h3 { color:#FFD700; margin-bottom:20px; border-bottom:1px solid #444; display:inline-block; }
-.references ul { list-style:none; padding:0; }
-.references li { margin-bottom:15px; line-height:1.4; }
-.references a { color:#ddd; text-decoration:none; font-weight:bold; }
-.references a:hover { color:#FFD700; text-decoration:underline; }
-
-/* NUEVO SISTEMA DE SECCIONES */
-.section-menu{
+.chart-wrapper{
 display:flex;
 flex-wrap:wrap;
-gap:10px;
-justify-content:center;
-margin-bottom:30px;
+gap:20px;
+align-items:center;
+margin-top:1rem;
 }
 
-.section-btn{
-padding:8px 16px;
-border:1px solid #ccc;
+.chart-area{
+flex:3;
+min-width:300px;
+height:400px;
+}
+
+.info-area{
+flex:1;
+min-width:250px;
 background:#fff;
-cursor:pointer;
-border-radius:4px;
+padding:20px;
+border-radius:8px;
+border-left:5px solid #FFD700;
+box-shadow:0 4px 10px rgba(0,0,0,0.05);
 }
 
-.section-btn.active{
-background:#FFD700;
-border-color:#e6c200;
+.references{
+background:#222;
+color:#eee;
+padding:40px 20px;
+margin-top:50px;
+font-size:0.9rem;
+}
+
+.references h3{
+color:#FFD700;
+margin-bottom:20px;
+border-bottom:1px solid #444;
+display:inline-block;
+}
+
+.references a{
+color:#ddd;
+text-decoration:none;
 font-weight:bold;
 }
 
-.graph-section{
-display:none;
-}
-
-.graph-section.active{
-display:block;
+.references a:hover{
+color:#FFD700;
+text-decoration:underline;
 }
 
 </style>
@@ -65,10 +67,17 @@ display:block;
 <body>
 
 <header class="main-header">
-<div class="logo-container"><span class="logo-text">SP-ENERGY ☀️</span></div>
-<div class="slogan-container"><h1>Energía Solar para Todos</h1></div>
+<div class="logo-container">
+<span class="logo-text">SP-ENERGY ☀️</span>
+</div>
+
+<div class="slogan-container">
+<h1>Energía Solar para Todos</h1>
+</div>
+
 <div class="spacer"></div>
 </header>
+
 
 <nav class="navbar">
 <ul>
@@ -80,31 +89,18 @@ display:block;
 </ul>
 </nav>
 
+
 <main class="main-container">
 
 <h2 class="section-title">Análisis de Datos del SEN</h2>
 
-<div class="section-menu">
-
-<button class="section-btn active" onclick="showSection('solar',this)">Solar</button>
-<button class="section-btn" onclick="showSection('sen',this)">Indicadores SEN</button>
-<button class="section-btn" onclick="showSection('tech',this)">Tecnologías</button>
-<button class="section-btn" onclick="showSection('region',this)">Regiones</button>
-<button class="section-btn" onclick="showSection('factor',this)">Factor de Planta</button>
-<button class="section-btn" onclick="showSection('factorReg',this)">Factor FV Región</button>
-<button class="section-btn" onclick="showSection('gd',this)">Generación Distribuida</button>
-
-</div>
-
-
-<!-- SECCIÓN SOLAR -->
-<div class="graph-section active" id="solar">
 
 <section class="graph-card">
+
 <h2>Capacidad y generación solar fotovoltaica (2010–2024)</h2>
-<p>Evolución al 2024: La capacidad solar fotovoltaica pasó de ser incipiente en 2010 a alcanzar 7,961 MW en 2024, mientras que la generación creció exponencialmente hasta los 18,640 GWh.</p>
 
 <div class="grid-2">
+
 <div>
 <h3>Capacidad (MW) y Participación</h3>
 <canvas id="chartCapSolar"></canvas>
@@ -114,37 +110,24 @@ display:block;
 <h3>Generación (GWh) y Participación</h3>
 <canvas id="chartGenSolar"></canvas>
 </div>
+
 </div>
 
 </section>
-</div>
 
 
-<!-- SECCIÓN SEN -->
-<div class="graph-section" id="sen">
 
 <section class="graph-card">
 
-<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
 <h2>Indicadores Generales del SEN</h2>
 
-<div class="view-toggle">
-<button id="btnMixChart" class="btn primary">Ver gráficas</button>
-<button id="btnMixTable" class="btn">Ver tabla</button>
-</div>
-
-</div>
-
-<div id="mixChartContainer">
-
 <div class="controls-row">
-<label>Variable:</label>
 
 <select id="senVariableSelect">
 <option value="capacidad">Capacidad Total</option>
 <option value="generacion">Generación Total</option>
 <option value="demanda">Demanda Máxima</option>
-<option value="consumo">Consumo (Bruto/Final)</option>
+<option value="consumo">Consumo</option>
 </select>
 
 </div>
@@ -156,65 +139,29 @@ display:block;
 </div>
 
 <div class="info-area" id="senInfoText">
-<h4>Análisis de Avance</h4>
 </div>
 
-</div>
-
-</div>
-
-<div id="mixTableContainer" style="display:none; overflow-x:auto;">
-<table class="data-table">
-<thead id="mixTableHead"></thead>
-<tbody id="mixTableBody"></tbody>
-</table>
 </div>
 
 </section>
-</div>
 
 
-<!-- SECCIÓN TECNOLOGÍAS -->
-<div class="graph-section" id="tech">
 
 <section class="graph-card">
 
-<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-<h2>Evolución por Tecnología (2010–2024)</h2>
+<h2>Evolución por Tecnología (2010-2024)</h2>
 
-<div class="view-toggle">
-<button id="btnTechCap" class="btn primary">Capacidad</button>
-<button id="btnTechGen" class="btn">Generación</button>
-</div>
-
-</div>
-
-<p>Al 2024, la matriz energética muestra una clara transición: la tecnología fósil se estabiliza mientras que la tecnología limpia aumenta su participación para cubrir la demanda.</p>
-
-<div style="height:500px; width:100%;">
+<div style="height:500px;">
 <canvas id="chartTechStack"></canvas>
 </div>
 
 </section>
-</div>
 
 
-<!-- SECCIÓN REGIONES -->
-<div class="graph-section" id="region">
 
 <section class="graph-card">
 
-<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
 <h2>Series por Región</h2>
-
-<div class="view-toggle">
-<button id="btnRegChart" class="btn primary">Ver gráfica</button>
-<button id="btnRegTable" class="btn">Ver tabla</button>
-</div>
-
-</div>
-
-<div id="regChartContainer">
 
 <div class="controls-row">
 
@@ -232,12 +179,6 @@ display:block;
 <option value="SIN">SIN</option>
 </select>
 
-<select id="variableSelect">
-<option value="demanda">Demanda Máxima</option>
-<option value="consumoBruto">Consumo Bruto</option>
-<option value="consumoFinal">Consumo Final</option>
-</select>
-
 </div>
 
 <div class="chart-wrapper">
@@ -246,89 +187,216 @@ display:block;
 <canvas id="chartRegion"></canvas>
 </div>
 
-<div class="info-area" id="regInfoText">
-<h4>Análisis Regional</h4>
-</div>
-
-</div>
-
-</div>
-
-<div id="regTableContainer" style="display:none; overflow-x:auto;">
-
-<table class="data-table">
-<thead>
-<tr>
-<th>Año</th>
-<th>Valor Región</th>
-<th>Participación SEN (%)</th>
-</tr>
-</thead>
-
-<tbody id="regTableBody"></tbody>
-
-</table>
+<div class="info-area" id="regInfoText"></div>
 
 </div>
 
 </section>
-</div>
 
 
-<!-- NUEVAS SECCIONES -->
 
-<div class="graph-section" id="factor">
 <section class="graph-card">
-<h2>Promedio Factor de Planta</h2>
-<div style="height:400px"><canvas id="chartFactor"></canvas></div>
-</section>
+
+<h2>Indicadores Complementarios del Sistema Eléctrico</h2>
+
+<div class="grid-2">
+
+<div>
+<h3>Factor de Planta FV por Región</h3>
+<canvas id="chartFactorRegion"></canvas>
 </div>
 
-<div class="graph-section" id="factorReg">
-<section class="graph-card">
-<h2>Factor de Planta FV por Región</h2>
-<div style="height:400px"><canvas id="chartFactorRegion"></canvas></div>
-</section>
+<div>
+<h3>Factor de Planta Promedio por Tecnología</h3>
+<canvas id="chartFactorTech"></canvas>
 </div>
 
-<div class="graph-section" id="gd">
-<section class="graph-card">
-<h2>Generación Distribuida</h2>
-<div style="height:400px"><canvas id="chartGD"></canvas></div>
-</section>
 </div>
+
+<div style="margin-top:40px">
+
+<h3>Generación Distribuida en México</h3>
+<canvas id="chartGD"></canvas>
+
+</div>
+
+</section>
+
+
 
 </main>
 
 
+
+<div class="references">
+
+<div style="max-width:1200px;margin:0 auto;">
+
+<h3>Referencias</h3>
+
+<ul>
+
+<li>
+CENACE
+<a href="https://www.cenace.gob.mx/Paginas/SIM/Reportes/EnergiaGeneradaTipoTec.aspx">
+Sitio Oficial
+</a>
+</li>
+
+<li>
+Sistema de Información Energética
+<a href="https://sie.energia.gob.mx/inicio/">
+SIE
+</a>
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+
 <footer>
-<p>&copy; 2025 SP-Energy.</p>
+<p>© 2025 SP-Energy</p>
 </footer>
 
 
 <script>
 
-/* FUNCIÓN PARA CAMBIAR SECCIONES */
 
-function showSection(id,btn){
+const regionFP=["BCA","BCS","CEN","NES","NOR","NTE","OCC","ORI","PEN"]
+const factorRegion=[20,19.5,19,6,19.5,19.2,18.8,18.7,19.3]
 
-document.querySelectorAll(".graph-section")
-.forEach(s=>s.classList.remove("active"))
 
-document.getElementById(id).classList.add("active")
+const techFP=[
+"Solar fotovoltaica",
+"Nuclear",
+"Térmica convencional",
+"Ciclo combinado",
+"Turbogás"
+]
 
-document.querySelectorAll(".section-btn")
-.forEach(b=>b.classList.remove("active"))
+const factorTech=[28.4,84.8,29.3,68.3,50.3]
 
-btn.classList.add("active")
+
+const gdYears=[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024]
+
+const gdMW=[0.81,4.66,14.86,29.13,61.87,121.4,244,503,1023,1785,2610,3293,3627,3890,4100]
+
+const gdContracts=[231,670,1986,4613,9009,17000,34000,76000,150000,270000,370000,450000,500000,540000,570000]
+
+
+
+function createFactorRegionChart(){
+
+new Chart(document.getElementById("chartFactorRegion"),{
+type:'bar',
+
+data:{
+labels:regionFP,
+datasets:[{
+data:factorRegion,
+backgroundColor:"#f1c40f"
+}]
+},
+
+options:{
+plugins:{legend:{display:false}},
+scales:{y:{title:{display:true,text:"%"}}}
+}
+
+})
 
 }
 
-/* TU JS ORIGINAL SIGUE AQUÍ EXACTAMENTE IGUAL */
+
+
+function createFactorTechChart(){
+
+new Chart(document.getElementById("chartFactorTech"),{
+type:'bar',
+
+data:{
+labels:techFP,
+datasets:[{
+data:factorTech,
+backgroundColor:"#3498db"
+}]
+},
+
+options:{
+plugins:{legend:{display:false}},
+scales:{y:{title:{display:true,text:"%"}}}
+}
+
+})
+
+}
+
+
+
+function createGDChart(){
+
+new Chart(document.getElementById("chartGD"),{
+
+type:'line',
+
+data:{
+labels:gdYears,
+
+datasets:[
+
+{
+label:"Capacidad GD (MW)",
+data:gdMW,
+borderColor:"#27ae60",
+backgroundColor:"rgba(39,174,96,0.2)",
+fill:true
+},
+
+{
+label:"Contratos",
+data:gdContracts,
+borderColor:"#2980b9",
+yAxisID:'y1'
+}
+
+]
+
+},
+
+options:{
+
+scales:{
+
+y:{position:'left'},
+
+y1:{
+position:'right',
+grid:{drawOnChartArea:false}
+}
+
+}
+
+}
+
+})
+
+}
+
+
+
+window.onload=function(){
+
+createFactorRegionChart()
+createFactorTechChart()
+createGDChart()
+
+}
+
 
 </script>
 
 </body>
 </html>
-```
-
