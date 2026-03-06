@@ -3,255 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>SP-ENERGY | Monitor SIG</title>
+<title>SP-Energy | Monitor SIG</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"> 
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script src="https://unpkg.com/georaster"></script>
 <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
+<script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
+
 <style>
-
-/* RESET */
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Roboto',sans-serif;
-}
-
-body{
-width:100vw;
-height:100vh;
-overflow:hidden;
-}
-
-/* HEADER */
+body { margin:0; padding:0; font-family:'Roboto',sans-serif; overflow:hidden; width:100vw; height:100vh; }
 
 .main-header{
-position:fixed;
-top:0;
-left:0;
-width:100%;
 height:60px;
 background:#222;
 color:white;
 display:flex;
 align-items:center;
-justify-content:space-between;
 padding:0 20px;
+justify-content:space-between;
 border-bottom:3px solid #FFD700;
+position:fixed;
+top:0;
+left:0;
+width:100%;
 z-index:3000;
+box-sizing:border-box;
 }
 
-.logo{
-font-weight:bold;
-font-size:1.3rem;
-}
+.logo-text{font-weight:bold;font-size:1.4rem;color:#fff;}
 
-.navbar ul{
-display:flex;
-gap:20px;
-list-style:none;
-}
-
-.navbar a{
-color:#ccc;
-text-decoration:none;
-font-size:0.9rem;
-}
-
-.navbar a.active{
-color:#FFD700;
-}
-
-/* SIDEBAR */
+.navbar ul{list-style:none;display:flex;gap:20px;}
+.navbar a{color:#ccc;text-decoration:none;font-size:0.9rem;text-transform:uppercase;}
+.navbar a.active{color:#FFD700;}
 
 #sidebar{
 position:absolute;
 top:60px;
-left:0;
 bottom:0;
+left:0;
 width:320px;
-background:white;
+background:#fdfdfd;
 border-right:1px solid #ccc;
 overflow-y:auto;
 padding:15px;
 z-index:2000;
 }
 
-/* MAPA */
-
 #map{
 position:absolute;
 top:60px;
+bottom:0;
 left:320px;
 right:0;
-bottom:0;
+background:#e5e5e5;
 }
 
-/* BLOQUES */
-
 .control-block{
-border:1px solid #ddd;
+background:#fff;
+border:1px solid #e0e0e0;
 border-radius:5px;
-padding:12px;
+padding:10px;
 margin-bottom:15px;
 }
 
 .control-block h3{
-font-size:0.8rem;
-margin-bottom:10px;
+margin:0 0 10px 0;
+font-size:0.85rem;
 border-bottom:2px solid #FFD700;
 padding-bottom:5px;
+text-transform:uppercase;
 }
-
-/* CAPAS */
 
 .layer-row{
 display:flex;
-align-items:center;
-margin-bottom:10px;
-gap:10px;
+align-items:flex-start;
+margin-bottom:8px;
+font-size:0.9rem;
 }
 
-/* SLIDER */
-
-.opacity-slider{
-width:100%;
-margin-bottom:15px;
+.layer-row input{
+margin-top:4px;
+margin-right:8px;
+cursor:pointer;
+accent-color:#FFD700;
+transform:scale(1.2);
 }
 
-/* LEYENDA */
-
-.legend{
-position:absolute;
-bottom:20px;
-right:20px;
-background:white;
-padding:10px;
-border-radius:4px;
-box-shadow:0 3px 8px rgba(0,0,0,0.3);
-z-index:2000;
-font-size:0.8rem;
-display:none;
-}
-
-.legend-title{
-font-weight:bold;
-margin-bottom:5px;
-}
-
-.legend-gradient{
-height:10px;
-width:200px;
-border:1px solid #ccc;
-margin-bottom:3px;
-}
-
-.legend-numbers{
-display:flex;
-justify-content:space-between;
-font-size:0.7rem;
-}
-
-/* INSPECTOR */
-
-#inspector{
+#inspector-box{
 position:absolute;
 top:10px;
-right:20px;
-width:220px;
-background:white;
-padding:10px;
+right:60px;
+width:250px;
+background:rgba(255,255,255,0.95);
+padding:15px;
+border-radius:4px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+z-index:1000;
 border-left:5px solid #2c3e50;
-box-shadow:0 3px 8px rgba(0,0,0,0.3);
-font-size:0.85rem;
-z-index:1500;
+font-size:0.9rem;
 }
-
 </style>
 </head>
 
 <body>
 
 <header class="main-header">
-
-<div class="logo">SP-ENERGY ☀</div>
+<div class="logo-text">SP-ENERGY ☀️</div>
 
 <nav class="navbar">
 <ul>
-<li><a href="#" class="active">Mapa</a></li>
+<li><a href="index.html">Inicio</a></li>
+<li><a href="mapa.html" class="active">Mapas</a></li>
+<li><a href="graficas.html">Gráficas</a></li>
+<li><a href="emisiones.html">Emisiones</a></li>
+<li><a href="info.html">Contacto</a></li>
 </ul>
 </nav>
-
 </header>
 
 <div id="sidebar">
 
 <div class="control-block">
-
-<h3>Variables Climáticas</h3>
+<h3>Variables Climáticas (TIF)</h3>
 
 <div class="layer-row">
 <input type="checkbox" id="chkRad" onchange="toggleTif('rad','GHI_FINAL.tif')">
-<label>Radiación Solar</label>
+<label>Radiación (GHI)</label>
 </div>
-
-<input type="range" min="0" max="1" step="0.1" value="0.7"
-class="opacity-slider"
-oninput="setOpacity('rad',this.value)">
 
 <div class="layer-row">
 <input type="checkbox" id="chkPot" onchange="toggleTif('pot','PV_FINAL.tif')">
 <label>Potencial FV</label>
 </div>
 
-<input type="range" min="0" max="1" step="0.1" value="0.7"
-class="opacity-slider"
-oninput="setOpacity('pot',this.value)">
-
 <div class="layer-row">
 <input type="checkbox" id="chkTemp" onchange="toggleTif('temp','TEMP.tif')">
 <label>Temperatura</label>
 </div>
 
-<input type="range" min="0" max="1" step="0.1" value="0.7"
-class="opacity-slider"
-oninput="setOpacity('temp',this.value)">
+</div>
+
+<div class="control-block">
+<h3>Infraestructura CFE</h3>
+
+<div class="layer-row">
+<input type="checkbox" id="chkReg" onchange="toggleVector('reg','mis_9_regiones.json')">
+<label>Regiones de Control</label>
+</div>
+
+<div class="layer-row">
+<input type="checkbox" id="chkTx" onchange="toggleVector('tx','lineas_transmision_cfe_24.geojson')">
+<label>Líneas de Transmisión</label>
+</div>
+
+<div class="layer-row">
+<input type="checkbox" id="chkSubPt" onchange="toggleSub('pt')">
+<label>Subestaciones (Puntos)</label>
+</div>
+
+<div class="layer-row">
+<input type="checkbox" id="chkSubCl" onchange="toggleSub('cl')">
+<label>Subestaciones (Clusters)</label>
+</div>
 
 </div>
 
-<button onclick="map.fitBounds(boundsMX)"
-style="width:100%;padding:10px;background:#2c3e50;color:white;border:none;border-radius:4px">
-Centrar México
+<div class="control-block">
+<h3>Territorio</h3>
+
+<div class="layer-row">
+<input type="checkbox" id="chkAnp" onchange="toggleVector('anp','232_ANP-ITRF08_04072025.json')">
+<label>Áreas Naturales (ANP)</label>
+</div>
+
+<div class="layer-row">
+<input type="checkbox" id="chkAgua" onchange="toggleVector('agua','hidro4mgw.json')">
+<label>Hidrología (Ríos)</label>
+</div>
+
+<div class="layer-row">
+<input type="checkbox" id="chkHum" onchange="loadAsentamientos()">
+<label>Asentamientos (Estados)</label>
+</div>
+
+</div>
+
+<button onclick="map.fitBounds(boundsMX)" style="width:100%; padding:10px; background:#2c3e50; color:white; border:none; border-radius:4px;">
+⟲ Centrar México
 </button>
 
 </div>
 
-<div id="map"></div>
-
-<div id="inspector">
-<b>Inspector</b>
-<div id="info">Activa una capa</div>
+<div id="map">
+<div id="inspector-box">
+<strong>Inspector</strong>
+<div id="inspector-content">Pasa el cursor sobre un elemento...</div>
 </div>
-
-<div id="legend" class="legend">
-
-<div class="legend-title" id="legendTitle"></div>
-
-<div id="legendGradient" class="legend-gradient"></div>
-
-<div class="legend-numbers">
-<span id="legendMin"></span>
-<span id="legendMax"></span>
-</div>
-
 </div>
 
 <script>
@@ -259,155 +217,56 @@ Centrar México
 const boundsMX=[[13,-118],[33,-86]]
 
 const map=L.map('map',{
-center:[23.6,-102.5],
-zoom:5
+center:[23.6345,-102.5528],
+zoom:5,
+zoomControl:false
 })
 
-L.tileLayer(
-'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-).addTo(map)
+L.control.zoom({ position:'topleft'}).addTo(map)
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map)
+
+map.createPane('paneRaster').style.zIndex=200
+map.createPane('panePoligonos').style.zIndex=400
+map.createPane('paneLineas').style.zIndex=450
+map.createPane('panePuntos').style.zIndex=600
 
 const layers={}
 
-/* TRANSPARENCIA */
-
-function setOpacity(id,val){
-
-if(layers[id]){
-layers[id].setOpacity(val)
-}
-
-}
-
-/* LEYENDA */
-
-function showLegend(type){
-
-const legend=document.getElementById("legend")
-const title=document.getElementById("legendTitle")
-const grad=document.getElementById("legendGradient")
-const min=document.getElementById("legendMin")
-const max=document.getElementById("legendMax")
-
-legend.style.display="block"
-
-if(type==="rad"){
-
-title.innerText="Radiación GHI"
-grad.style.background="linear-gradient(to right,#ffffb2,#fecc5c,#fd8d3c,#f03b20,#bd0026)"
-min.innerText="0"
-max.innerText="2300 kWh"
-
-}
-
-if(type==="pot"){
-
-title.innerText="Potencial FV"
-grad.style.background="linear-gradient(to right,#440154,#3b528b,#21918c,#5ec962,#fde725)"
-min.innerText="3.0"
-max.innerText="5.8"
-
-}
-
-if(type==="temp"){
-
-title.innerText="Temperatura"
-grad.style.background="linear-gradient(to right,#4575b4,#ffffbf,#d7301f)"
-min.innerText="-2°C"
-max.innerText="30°C"
-
-}
-
-}
-
-/* CARGAR TIF */
-
-async function toggleTif(id,file){
+async function toggleTif(id,filename){
 
 const chk=document.getElementById(
-id==="rad"?"chkRad":
-id==="pot"?"chkPot":
-"chkTemp"
+id==='rad'?'chkRad':
+id==='pot'?'chkPot':
+'chkTemp'
 )
 
 if(layers[id]){
-
 chk.checked?layers[id].addTo(map):map.removeLayer(layers[id])
 return
-
 }
 
 if(chk.checked){
 
-let res=await fetch("datos/"+file)
-const buf=await res.arrayBuffer()
+let res=await fetch(`datos/${filename}`)
+if(!res.ok) res=await fetch(filename)
 
+const buf=await res.arrayBuffer()
 const georaster=await parseGeoraster(buf)
 
-let colorFn
-
-if(id==="rad"){
-
-colorFn=v=>{
-
-if(v<100)return null
-
-return v>2200?"#800026":
-v>1900?"#bd0026":
-v>1600?"#e31a1c":
-v>1300?"#fc4e2a":
-v>1000?"#fd8d3c":
-"#feb24c"
-
-}
-
-}
-
-if(id==="pot"){
-
-colorFn=v=>{
-
-if(v<1)return null
-
-return v>5.2?"#fde725":
-v>4.8?"#5ec962":
-v>4.4?"#21918c":
-v>4.0?"#3b528b":
-"#440154"
-
-}
-
-}
-
-if(id==="temp"){
-
-colorFn=v=>{
-
-if(v<-50)return null
-
-return v>28?"#d73027":
-v>24?"#fc8d59":
-v>20?"#fee090":
-v>15?"#e0f3f8":
-v>10?"#91bfdb":
-"#4575b4"
-
-}
-
-}
-
 layers[id]=new GeoRasterLayer({
-
 georaster:georaster,
 opacity:0.7,
 resolution:256,
-pixelValuesToColorFn:vals=>colorFn(vals[0])
-
+pixelValuesToColorFn:v=>{
+const val=v[0]
+if(val==null) return null
+return "#ff7800"
+},
+pane:'paneRaster'
 })
 
 layers[id].addTo(map)
-
-showLegend(id)
 
 }
 
