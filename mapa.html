@@ -1,294 +1,241 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SP-Energy | Monitor SIG</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<title>SP-Energy | Plataforma SIG Energética</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.css"/>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.1.0/dist/leaflet-measure.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/georaster"></script>
 <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.1.0/dist/leaflet-measure.min.js"></script>
 
 <style>
 
 body{
 margin:0;
-font-family:'Roboto',sans-serif;
-overflow:hidden;
-height:100vh;
-}
-
-.main-header{
-height:60px;
-background:#222;
-color:white;
-display:flex;
-align-items:center;
-padding:0 20px;
-justify-content:space-between;
-border-bottom:3px solid #FFD700;
-position:fixed;
-top:0;
-width:100%;
-z-index:3000;
-}
-
-.logo-text{
-font-weight:bold;
-font-size:1.4rem;
-}
-
-.navbar ul{
-display:flex;
-gap:20px;
-list-style:none;
-}
-
-.navbar a{
-color:#ccc;
-text-decoration:none;
-font-size:0.9rem;
-}
-
-.navbar a.active{
-color:#FFD700;
-}
-
-#sidebar{
-position:absolute;
-top:60px;
-bottom:0;
-left:0;
-width:320px;
-background:#fdfdfd;
-border-right:1px solid #ccc;
-overflow-y:auto;
-padding:15px;
+font-family:Roboto;
 }
 
 #map{
 position:absolute;
 top:60px;
 bottom:0;
-left:320px;
 right:0;
+left:300px;
 }
 
-.control-block{
-background:white;
-border:1px solid #ddd;
-border-radius:5px;
-padding:10px;
-margin-bottom:15px;
-}
-
-.control-block h3{
-margin:0 0 10px 0;
-font-size:0.9rem;
-border-bottom:2px solid #FFD700;
-padding-bottom:5px;
-}
-
-.layer-row{
+header{
+height:60px;
+background:#111;
+color:white;
 display:flex;
 align-items:center;
+padding-left:20px;
+border-bottom:3px solid #f4c542;
+}
+
+#sidebar{
+
+position:absolute;
+top:60px;
+left:0;
+bottom:0;
+width:300px;
+background:white;
+border-right:1px solid #ddd;
+padding:15px;
+overflow:auto;
+
+}
+
+.layer{
 margin-bottom:8px;
 }
 
-.layer-row input{
-margin-right:8px;
-}
+.legend{
 
-#legend{
 position:absolute;
 bottom:20px;
 right:20px;
 background:white;
 padding:10px;
-border-radius:4px;
-box-shadow:0 3px 8px rgba(0,0,0,0.3);
-display:none;
-z-index:2000;
+border-radius:5px;
+box-shadow:0 2px 8px rgba(0,0,0,.3);
+
+}
+
+.gradient{
+
+width:200px;
+height:10px;
+background:linear-gradient(to right, #313695,#4575b4,#74add1,#abd9e9,#e0f3f8,#ffffbf,#fee090,#fdae61,#f46d43,#d73027,#a50026);
+
 }
 
 </style>
+
 </head>
 
 <body>
 
-<header class="main-header">
-
-<div class="logo-text">SP-ENERGY ☀️</div>
-
-<nav class="navbar">
-<ul>
-<li><a href="index.html">Inicio</a></li>
-<li><a href="mapa.html" class="active">Mapas</a></li>
-<li><a href="graficas.html">Gráficas</a></li>
-<li><a href="emisiones.html">Emisiones</a></li>
-<li><a href="info.html">Contacto</a></li>
-</ul>
-</nav>
-
+<header>
+SP-ENERGY ☀ Plataforma SIG
 </header>
-
 
 <div id="sidebar">
 
-<div class="control-block">
+<h3>Capas</h3>
 
-<h3>Variables Climáticas</h3>
-
-<div class="layer-row">
-<input type="checkbox" onchange="toggleTif('rad','GHI_FINAL.tif')">
-<label>Radiación</label>
+<div class="layer">
+<input type="checkbox" onclick="loadRaster('ghi','GHI_FINAL.tif')">
+Radiación solar
 </div>
 
-<div class="layer-row">
-<input type="checkbox" onchange="toggleTif('pot','PV_FINAL.tif')">
-<label>Potencial FV</label>
+<div class="layer">
+<input type="checkbox" onclick="loadRaster('pv','PV_FINAL.tif')">
+Potencial FV
 </div>
 
-<div class="layer-row">
-<input type="checkbox" onchange="toggleTif('temp','TEMP.tif')">
-<label>Temperatura</label>
+<div class="layer">
+<input type="checkbox" onclick="loadRaster('temp','TEMP.tif')">
+Temperatura
+</div>
+
+<hr>
+
+<div class="layer">
+<input type="checkbox" onclick="loadVector('regiones','mis_9_regiones.json')">
+Regiones
+</div>
+
+<div class="layer">
+<input type="checkbox" onclick="loadVector('lineas','lineas_transmision_cfe_24.json')">
+Líneas transmisión
+</div>
+
+<div class="layer">
+<input type="checkbox" onclick="loadVector('sub','subestaciones_cfe.json')">
+Subestaciones
+</div>
+
+<div class="layer">
+<input type="checkbox" onclick="loadVector('anp','232_ANP-ITRF08_04072025.json')">
+ANP
+</div>
+
+<div class="layer">
+<input type="checkbox" onclick="loadVector('hidro','hidro4mgw.json')">
+Hidrología
 </div>
 
 </div>
-
-
-<div class="control-block">
-
-<h3>Infraestructura CFE</h3>
-
-<div class="layer-row">
-<input type="checkbox" onchange="toggleVector('reg','mis_9_regiones.json')">
-<label>Regiones</label>
-</div>
-
-<div class="layer-row">
-<input type="checkbox" onchange="toggleVector('tx','lineas_transmision_cfe_24.json')">
-<label>Líneas</label>
-</div>
-
-</div>
-
-</div>
-
 
 <div id="map"></div>
 
+<div class="legend">
 
-<div id="legend">
+<b>Escala</b>
 
-<div id="legendTitle"></div>
-
-<div style="
-height:10px;
-width:200px;
-background:linear-gradient(to right,blue,cyan,green,yellow,red)">
-</div>
+<div class="gradient"></div>
 
 </div>
-
-
 
 <script>
 
-const map=L.map('map').setView([23.6,-102.5],5)
+const map=L.map('map').setView([23,-102],5)
 
-L.tileLayer(
-'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-{
-attribution:'© OpenStreetMap'
-}
+const osm=L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 ).addTo(map)
+
+const carto=L.tileLayer(
+'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+)
+
+L.control.layers({
+
+"OSM":osm,
+"Carto":carto
+
+}).addTo(map)
+
+L.control.scale().addTo(map)
+
+L.control.measure({
+primaryLengthUnit:'kilometers',
+primaryAreaUnit:'sqkilometers'
+}).addTo(map)
 
 const layers={}
 
+function colorScale(v,min,max){
 
-function getColor(value,min,max){
+let r=(v-min)/(max-min)
 
-let ratio=(value-min)/(max-min)
+let red=Math.floor(255*r)
+let blue=Math.floor(255*(1-r))
 
-let r=Math.floor(255*ratio)
-let g=Math.floor(255*(1-ratio))
-let b=150
-
-return `rgb(${r},${g},${b})`
+return `rgb(${red},80,${blue})`
 
 }
 
-
-
-async function toggleTif(id,file){
+async function loadRaster(id,file){
 
 if(layers[id]){
 
 map.removeLayer(layers[id])
 delete layers[id]
-document.getElementById("legend").style.display="none"
 return
 
 }
 
-try{
-
 let res=await fetch("datos/"+file)
 
-if(!res.ok) throw new Error("Archivo no encontrado")
+let buf=await res.arrayBuffer()
 
-const buf=await res.arrayBuffer()
+let raster=await parseGeoraster(buf)
 
-const georaster=await parseGeoraster(buf)
-
-let min=georaster.mins[0]
-let max=georaster.maxs[0]
+let min=raster.mins[0]
+let max=raster.maxs[0]
 
 layers[id]=new GeoRasterLayer({
 
-georaster:georaster,
+georaster:raster,
+opacity:0.7,
+resolution:256,
 
-opacity:0.75,
+pixelValuesToColorFn:function(pixel){
 
-pixelValuesToColorFn:function(pixelValues){
+let v=pixel[0]
 
-const value=pixelValues[0]
+if(v==null) return null
 
-if(value===null) return null
+return colorScale(v,min,max)
 
-return getColor(value,min,max)
-
-},
-
-resolution:256
+}
 
 })
 
 layers[id].addTo(map)
 
-map.fitBounds(layers[id].getBounds())
-
-document.getElementById("legend").style.display="block"
-
-}catch(err){
-
-alert("Error cargando "+file)
-
-console.error(err)
-
 }
 
-}
-
-
-
-async function toggleVector(id,file){
+async function loadVector(id,file){
 
 if(layers[id]){
 
@@ -298,43 +245,26 @@ return
 
 }
 
-try{
-
 let res=await fetch("datos/"+file)
 
-const data=await res.json()
+let data=await res.json()
 
 layers[id]=L.geoJSON(data,{
 
 style:{
-color:"#ff7800",
-weight:2,
-fillOpacity:0.1
+color:"#ff5500",
+weight:1
 },
 
 onEachFeature:function(feature,layer){
-
-if(feature.properties){
 
 layer.bindPopup(JSON.stringify(feature.properties))
 
 }
 
-}
-
 })
 
 layers[id].addTo(map)
-
-map.fitBounds(layers[id].getBounds())
-
-}catch(err){
-
-alert("Error cargando "+file)
-
-console.error(err)
-
-}
 
 }
 
