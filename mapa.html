@@ -5,27 +5,26 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SP-Energy | Monitor SIG</title>
+
+<title>SP-Energy | Mapas</title>
 
 <link rel="stylesheet" href="style.css">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css"/>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/georaster"></script>
 <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
-
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
 
 <style>
 
-/* asegura que el mapa siempre tenga tamaño */
+/* SOLO asegura que el mapa tenga tamaño correcto */
+
 html,body{
 height:100%;
 margin:0;
@@ -37,10 +36,10 @@ top:60px;
 left:0;
 bottom:0;
 width:320px;
-background:#f4f4f4;
+background:#fdfdfd;
+border-right:1px solid #ccc;
 overflow:auto;
 padding:15px;
-border-right:1px solid #ccc;
 }
 
 #map{
@@ -56,9 +55,10 @@ position:absolute;
 bottom:20px;
 right:20px;
 background:white;
-padding:10px;
-border-radius:5px;
+padding:8px;
+border-radius:4px;
 box-shadow:0 3px 8px rgba(0,0,0,0.3);
+font-size:12px;
 }
 
 .layer-row{
@@ -134,21 +134,23 @@ margin-bottom:6px;
 
 </div>
 
+
 <div id="map"></div>
 
+
 <div id="legend">
-<b>Escala raster</b>
-<div style="height:10px;width:200px;background:linear-gradient(to right,blue,cyan,green,yellow,orange,red)"></div>
+Escala raster
+<div style="height:8px;width:200px;background:linear-gradient(to right,blue,cyan,green,yellow,orange,red)"></div>
 </div>
 
 
 <script>
 
-const map=L.map('map').setView([23.6,-102.5],5)
+const map=L.map('map').setView([23.5,-102],5)
 
 L.tileLayer(
 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-{attribution:'© OpenStreetMap'}
+{attribution:'©OpenStreetMap'}
 ).addTo(map)
 
 L.control.scale().addTo(map)
@@ -160,7 +162,10 @@ primaryAreaUnit:'sqkilometers'
 
 const layers={}
 
-function getColor(v,min,max){
+
+/* colores raster */
+
+function colorScale(v,min,max){
 
 let ratio=(v-min)/(max-min)
 
@@ -170,6 +175,9 @@ let b=Math.floor(255*(1-ratio))
 return `rgb(${r},120,${b})`
 
 }
+
+
+/* raster */
 
 async function toggleTif(id,file){
 
@@ -181,26 +189,38 @@ return
 
 let res=await fetch("datos/"+file)
 let buf=await res.arrayBuffer()
+
 let raster=await parseGeoraster(buf)
 
 let min=raster.mins[0]
 let max=raster.maxs[0]
 
 layers[id]=new GeoRasterLayer({
+
 georaster:raster,
 opacity:0.7,
 resolution:256,
+
 pixelValuesToColorFn:function(pixel){
+
 let v=pixel[0]
+
 if(v===null) return null
-return getColor(v,min,max)
+
+return colorScale(v,min,max)
+
 }
+
 })
 
 layers[id].addTo(map)
+
 map.fitBounds(layers[id].getBounds())
 
 }
+
+
+/* vectores */
 
 async function toggleVector(id,file){
 
@@ -213,14 +233,42 @@ return
 let res=await fetch("datos/"+file)
 let data=await res.json()
 
+/* subestaciones con cluster */
+
+if(id==="sub"){
+
+let cluster=L.markerClusterGroup()
+
+L.geoJSON(data,{
+pointToLayer:(f,latlng)=>
+L.circleMarker(latlng,{
+radius:3,
+fillColor:"#0077cc",
+color:"#ffffff",
+weight:0.5,
+fillOpacity:0.9
+}),
+onEachFeature:(f,l)=>l.bindPopup(JSON.stringify(f.properties))
+}).eachLayer(l=>cluster.addLayer(l))
+
+layers[id]=cluster
+
+}
+
+/* demás capas */
+
+else{
+
 layers[id]=L.geoJSON(data,{
 style:{
-color:"#FFD700",
-weight:2,
-fillOpacity:0.15
+color:"#444",
+weight:1,
+fillOpacity:0.05
 },
 onEachFeature:(f,l)=>l.bindPopup(JSON.stringify(f.properties))
 })
+
+}
 
 layers[id].addTo(map)
 
@@ -231,4 +279,3 @@ layers[id].addTo(map)
 </body>
 </html>
 ```
-
