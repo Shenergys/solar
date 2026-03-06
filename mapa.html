@@ -6,23 +6,26 @@
 <title>SP-Energy | Monitor SIG</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"> 
+<link rel="stylesheet" href="style.css">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script src="https://unpkg.com/georaster"></script>
 <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"/>
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
-<script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
-
 <style>
-body { margin:0; padding:0; font-family:'Roboto',sans-serif; overflow:hidden; width:100vw; height:100vh; }
+
+body{
+margin:0;
+font-family:'Roboto',sans-serif;
+overflow:hidden;
+height:100vh;
+}
 
 .main-header{
 height:60px;
@@ -35,17 +38,30 @@ justify-content:space-between;
 border-bottom:3px solid #FFD700;
 position:fixed;
 top:0;
-left:0;
 width:100%;
 z-index:3000;
-box-sizing:border-box;
 }
 
-.logo-text{font-weight:bold;font-size:1.4rem;color:#fff;}
+.logo-text{
+font-weight:bold;
+font-size:1.4rem;
+}
 
-.navbar ul{list-style:none;display:flex;gap:20px;}
-.navbar a{color:#ccc;text-decoration:none;font-size:0.9rem;text-transform:uppercase;}
-.navbar a.active{color:#FFD700;}
+.navbar ul{
+display:flex;
+gap:20px;
+list-style:none;
+}
+
+.navbar a{
+color:#ccc;
+text-decoration:none;
+font-size:0.9rem;
+}
+
+.navbar a.active{
+color:#FFD700;
+}
 
 #sidebar{
 position:absolute;
@@ -57,7 +73,6 @@ background:#fdfdfd;
 border-right:1px solid #ccc;
 overflow-y:auto;
 padding:15px;
-z-index:2000;
 }
 
 #map{
@@ -66,12 +81,11 @@ top:60px;
 bottom:0;
 left:320px;
 right:0;
-background:#e5e5e5;
 }
 
 .control-block{
-background:#fff;
-border:1px solid #e0e0e0;
+background:white;
+border:1px solid #ddd;
 border-radius:5px;
 padding:10px;
 margin-bottom:15px;
@@ -79,40 +93,33 @@ margin-bottom:15px;
 
 .control-block h3{
 margin:0 0 10px 0;
-font-size:0.85rem;
+font-size:0.9rem;
 border-bottom:2px solid #FFD700;
 padding-bottom:5px;
-text-transform:uppercase;
 }
 
 .layer-row{
 display:flex;
-align-items:flex-start;
+align-items:center;
 margin-bottom:8px;
-font-size:0.9rem;
 }
 
 .layer-row input{
-margin-top:4px;
 margin-right:8px;
-cursor:pointer;
-accent-color:#FFD700;
-transform:scale(1.2);
 }
 
-#inspector-box{
+#legend{
 position:absolute;
-top:10px;
-right:60px;
-width:250px;
-background:rgba(255,255,255,0.95);
-padding:15px;
+bottom:20px;
+right:20px;
+background:white;
+padding:10px;
 border-radius:4px;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
-z-index:1000;
-border-left:5px solid #2c3e50;
-font-size:0.9rem;
+box-shadow:0 3px 8px rgba(0,0,0,0.3);
+display:none;
+z-index:2000;
 }
+
 </style>
 </head>
 
@@ -135,20 +142,20 @@ font-size:0.9rem;
 <div id="sidebar">
 
 <div class="control-block">
-<h3>Variables Climáticas (TIF)</h3>
+<h3>Variables Climáticas</h3>
 
 <div class="layer-row">
-<input type="checkbox" id="chkRad" onchange="toggleTif('rad','GHI_FINAL.tif')">
-<label>Radiación (GHI)</label>
+<input type="checkbox" onchange="toggleTif('rad','GHI_FINAL.tif')">
+<label>Radiación</label>
 </div>
 
 <div class="layer-row">
-<input type="checkbox" id="chkPot" onchange="toggleTif('pot','PV_FINAL.tif')">
+<input type="checkbox" onchange="toggleTif('pot','PV_FINAL.tif')">
 <label>Potencial FV</label>
 </div>
 
 <div class="layer-row">
-<input type="checkbox" id="chkTemp" onchange="toggleTif('temp','TEMP.tif')">
+<input type="checkbox" onchange="toggleTif('temp','TEMP.tif')">
 <label>Temperatura</label>
 </div>
 
@@ -158,117 +165,72 @@ font-size:0.9rem;
 <h3>Infraestructura CFE</h3>
 
 <div class="layer-row">
-<input type="checkbox" id="chkReg" onchange="toggleVector('reg','mis_9_regiones.json')">
-<label>Regiones de Control</label>
+<input type="checkbox" onchange="toggleVector('reg','mis_9_regiones.json')">
+<label>Regiones</label>
 </div>
 
 <div class="layer-row">
-<input type="checkbox" id="chkTx" onchange="toggleVector('tx','lineas_transmision_cfe_24.geojson')">
-<label>Líneas de Transmisión</label>
-</div>
-
-<div class="layer-row">
-<input type="checkbox" id="chkSubPt" onchange="toggleSub('pt')">
-<label>Subestaciones (Puntos)</label>
-</div>
-
-<div class="layer-row">
-<input type="checkbox" id="chkSubCl" onchange="toggleSub('cl')">
-<label>Subestaciones (Clusters)</label>
+<input type="checkbox" onchange="toggleVector('tx','lineas_transmision_cfe_24.geojson')">
+<label>Líneas</label>
 </div>
 
 </div>
 
-<div class="control-block">
-<h3>Territorio</h3>
-
-<div class="layer-row">
-<input type="checkbox" id="chkAnp" onchange="toggleVector('anp','232_ANP-ITRF08_04072025.json')">
-<label>Áreas Naturales (ANP)</label>
 </div>
 
-<div class="layer-row">
-<input type="checkbox" id="chkAgua" onchange="toggleVector('agua','hidro4mgw.json')">
-<label>Hidrología (Ríos)</label>
-</div>
+<div id="map"></div>
 
-<div class="layer-row">
-<input type="checkbox" id="chkHum" onchange="loadAsentamientos()">
-<label>Asentamientos (Estados)</label>
-</div>
-
-</div>
-
-<button onclick="map.fitBounds(boundsMX)" style="width:100%; padding:10px; background:#2c3e50; color:white; border:none; border-radius:4px;">
-⟲ Centrar México
-</button>
-
-</div>
-
-<div id="map">
-<div id="inspector-box">
-<strong>Inspector</strong>
-<div id="inspector-content">Pasa el cursor sobre un elemento...</div>
-</div>
+<div id="legend">
+<div id="legendTitle"></div>
+<div id="legendGradient" style="height:10px;width:200px"></div>
 </div>
 
 <script>
 
-const boundsMX=[[13,-118],[33,-86]]
+const map=L.map('map').setView([23.6,-102.5],5)
 
-const map=L.map('map',{
-center:[23.6345,-102.5528],
-zoom:5,
-zoomControl:false
-})
-
-L.control.zoom({ position:'topleft'}).addTo(map)
-
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map)
-
-map.createPane('paneRaster').style.zIndex=200
-map.createPane('panePoligonos').style.zIndex=400
-map.createPane('paneLineas').style.zIndex=450
-map.createPane('panePuntos').style.zIndex=600
+L.tileLayer(
+'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+).addTo(map)
 
 const layers={}
 
-async function toggleTif(id,filename){
-
-const chk=document.getElementById(
-id==='rad'?'chkRad':
-id==='pot'?'chkPot':
-'chkTemp'
-)
+async function toggleTif(id,file){
 
 if(layers[id]){
-chk.checked?layers[id].addTo(map):map.removeLayer(layers[id])
+map.removeLayer(layers[id])
+delete layers[id]
 return
 }
 
-if(chk.checked){
-
-let res=await fetch(`datos/${filename}`)
-if(!res.ok) res=await fetch(filename)
-
+let res=await fetch("datos/"+file)
 const buf=await res.arrayBuffer()
 const georaster=await parseGeoraster(buf)
 
 layers[id]=new GeoRasterLayer({
 georaster:georaster,
 opacity:0.7,
-resolution:256,
-pixelValuesToColorFn:v=>{
-const val=v[0]
-if(val==null) return null
-return "#ff7800"
-},
-pane:'paneRaster'
+resolution:256
 })
 
 layers[id].addTo(map)
 
 }
+
+async function toggleVector(id,file){
+
+if(layers[id]){
+map.removeLayer(layers[id])
+delete layers[id]
+return
+}
+
+let res=await fetch("datos/"+file)
+const data=await res.json()
+
+layers[id]=L.geoJSON(data)
+
+layers[id].addTo(map)
 
 }
 
