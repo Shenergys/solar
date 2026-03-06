@@ -1,42 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>SP-Energy | Plataforma SIG Energética</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SP-ENERGY | Plataforma SIG</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.css"/>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.1.0/dist/leaflet-measure.css"/>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/georaster"></script>
-<script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
 <script src="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.1.0/dist/leaflet-measure.min.js"></script>
 
 <style>
 
 body{
 margin:0;
 font-family:Roboto;
-}
-
-#map{
-position:absolute;
-top:60px;
-bottom:0;
-right:0;
-left:300px;
 }
 
 header{
@@ -46,21 +30,27 @@ color:white;
 display:flex;
 align-items:center;
 padding-left:20px;
-border-bottom:3px solid #f4c542;
+border-bottom:3px solid #FFD700;
 }
 
 #sidebar{
-
 position:absolute;
 top:60px;
 left:0;
 bottom:0;
 width:300px;
-background:white;
-border-right:1px solid #ddd;
+background:#f4f4f4;
+border-right:1px solid #ccc;
 padding:15px;
 overflow:auto;
+}
 
+#map{
+position:absolute;
+top:60px;
+left:300px;
+right:0;
+bottom:0;
 }
 
 .layer{
@@ -68,27 +58,26 @@ margin-bottom:8px;
 }
 
 .legend{
-
 position:absolute;
 bottom:20px;
 right:20px;
 background:white;
 padding:10px;
-border-radius:5px;
-box-shadow:0 2px 8px rgba(0,0,0,.3);
-
+border-radius:6px;
+box-shadow:0 3px 10px rgba(0,0,0,0.3);
 }
 
 .gradient{
-
 width:200px;
 height:10px;
-background:linear-gradient(to right, #313695,#4575b4,#74add1,#abd9e9,#e0f3f8,#ffffbf,#fee090,#fdae61,#f46d43,#d73027,#a50026);
+background:linear-gradient(to right,blue,cyan,green,yellow,orange,red);
+}
 
+.opacity-control{
+margin-top:10px;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -99,48 +88,51 @@ SP-ENERGY ☀ Plataforma SIG
 
 <div id="sidebar">
 
-<h3>Capas</h3>
+<h3>Capas climáticas</h3>
 
 <div class="layer">
-<input type="checkbox" onclick="loadRaster('ghi','GHI_FINAL.tif')">
-Radiación solar
+<input type="checkbox" onclick="toggleLayer('ghi')"> Radiación solar
 </div>
 
 <div class="layer">
-<input type="checkbox" onclick="loadRaster('pv','PV_FINAL.tif')">
-Potencial FV
+<input type="checkbox" onclick="toggleLayer('pv')"> Potencial FV
 </div>
 
 <div class="layer">
-<input type="checkbox" onclick="loadRaster('temp','TEMP.tif')">
-Temperatura
+<input type="checkbox" onclick="toggleLayer('temp')"> Temperatura
 </div>
 
 <hr>
 
+<h3>Infraestructura</h3>
+
 <div class="layer">
-<input type="checkbox" onclick="loadVector('regiones','mis_9_regiones.json')">
-Regiones
+<input type="checkbox" onclick="loadVector('reg','datos/mis_9_regiones.json')"> Regiones
 </div>
 
 <div class="layer">
-<input type="checkbox" onclick="loadVector('lineas','lineas_transmision_cfe_24.json')">
-Líneas transmisión
+<input type="checkbox" onclick="loadVector('line','datos/lineas_transmision_cfe_24.json')"> Líneas transmisión
 </div>
 
 <div class="layer">
-<input type="checkbox" onclick="loadVector('sub','subestaciones_cfe.json')">
-Subestaciones
+<input type="checkbox" onclick="loadVector('sub','datos/subestaciones_cfe.json')"> Subestaciones
+</div>
+
+<hr>
+
+<h3>Restricciones</h3>
+
+<div class="layer">
+<input type="checkbox" onclick="loadVector('anp','datos/232_ANP-ITRF08_04072025.json')"> ANP
 </div>
 
 <div class="layer">
-<input type="checkbox" onclick="loadVector('anp','232_ANP-ITRF08_04072025.json')">
-ANP
+<input type="checkbox" onclick="loadVector('hidro','datos/hidro4mgw.json')"> Hidrología
 </div>
 
-<div class="layer">
-<input type="checkbox" onclick="loadVector('hidro','hidro4mgw.json')">
-Hidrología
+<div class="opacity-control">
+<label>Opacidad raster</label>
+<input type="range" min="0" max="1" step="0.1" value="0.7" onchange="setOpacity(this.value)">
 </div>
 
 </div>
@@ -148,31 +140,18 @@ Hidrología
 <div id="map"></div>
 
 <div class="legend">
-
-<b>Escala</b>
-
+<b>Escala raster</b>
 <div class="gradient"></div>
-
 </div>
 
 <script>
 
 const map=L.map('map').setView([23,-102],5)
 
-const osm=L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-).addTo(map)
+const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
+const carto=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png')
 
-const carto=L.tileLayer(
-'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-)
-
-L.control.layers({
-
-"OSM":osm,
-"Carto":carto
-
-}).addTo(map)
+L.control.layers({"OSM":osm,"Carto":carto}).addTo(map)
 
 L.control.scale().addTo(map)
 
@@ -181,90 +160,78 @@ primaryLengthUnit:'kilometers',
 primaryAreaUnit:'sqkilometers'
 }).addTo(map)
 
-const layers={}
+const mexicoBounds=[[14,-118],[33,-86]]
 
-function colorScale(v,min,max){
+const centerBtn=L.control({position:'topleft'})
+centerBtn.onAdd=function(){
+let btn=L.DomUtil.create('button')
+btn.innerHTML="⤢"
+btn.title="Centrar México"
+btn.style.background="white"
+btn.style.padding="6px"
+btn.onclick=()=>map.fitBounds(mexicoBounds)
+return btn
+}
+centerBtn.addTo(map)
 
-let r=(v-min)/(max-min)
+const rasterLayers={
+ghi:L.tileLayer('tiles/ghi/{z}/{x}/{y}.png',{opacity:0.7}),
+pv:L.tileLayer('tiles/pv/{z}/{x}/{y}.png',{opacity:0.7}),
+temp:L.tileLayer('tiles/temp/{z}/{x}/{y}.png',{opacity:0.7})
+}
 
-let red=Math.floor(255*r)
-let blue=Math.floor(255*(1-r))
+const vectorLayers={}
 
-return `rgb(${red},80,${blue})`
+function toggleLayer(id){
+
+if(map.hasLayer(rasterLayers[id])){
+map.removeLayer(rasterLayers[id])
+}else{
+rasterLayers[id].addTo(map)
+}
 
 }
 
-async function loadRaster(id,file){
+function setOpacity(v){
+Object.values(rasterLayers).forEach(l=>l.setOpacity(v))
+}
 
-if(layers[id]){
+async function loadVector(id,url){
 
-map.removeLayer(layers[id])
-delete layers[id]
+if(vectorLayers[id]){
+map.removeLayer(vectorLayers[id])
+delete vectorLayers[id]
 return
-
 }
 
-let res=await fetch("datos/"+file)
-
-let buf=await res.arrayBuffer()
-
-let raster=await parseGeoraster(buf)
-
-let min=raster.mins[0]
-let max=raster.maxs[0]
-
-layers[id]=new GeoRasterLayer({
-
-georaster:raster,
-opacity:0.7,
-resolution:256,
-
-pixelValuesToColorFn:function(pixel){
-
-let v=pixel[0]
-
-if(v==null) return null
-
-return colorScale(v,min,max)
-
-}
-
-})
-
-layers[id].addTo(map)
-
-}
-
-async function loadVector(id,file){
-
-if(layers[id]){
-
-map.removeLayer(layers[id])
-delete layers[id]
-return
-
-}
-
-let res=await fetch("datos/"+file)
-
+let res=await fetch(url)
 let data=await res.json()
 
-layers[id]=L.geoJSON(data,{
+if(id==='sub'){
 
+let cluster=L.markerClusterGroup()
+
+L.geoJSON(data,{
+pointToLayer:(f,latlng)=>L.marker(latlng),
+onEachFeature:(f,l)=>l.bindPopup(JSON.stringify(f.properties))
+}).eachLayer(l=>cluster.addLayer(l))
+
+vectorLayers[id]=cluster
+
+}else{
+
+vectorLayers[id]=L.geoJSON(data,{
 style:{
-color:"#ff5500",
-weight:1
+color:"#FFD700",
+weight:2,
+fillOpacity:0.1
 },
-
-onEachFeature:function(feature,layer){
-
-layer.bindPopup(JSON.stringify(feature.properties))
+onEachFeature:(f,l)=>l.bindPopup(JSON.stringify(f.properties))
+})
 
 }
 
-})
-
-layers[id].addTo(map)
+vectorLayers[id].addTo(map)
 
 }
 
