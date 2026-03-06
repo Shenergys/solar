@@ -163,7 +163,7 @@ delete layers[id]
 return
 }
 
-let res=await fetch("solar/datos/"+file)
+let res=await fetch("datos/"+file)
 let buf=await res.arrayBuffer()
 
 let raster=await parseGeoraster(buf)
