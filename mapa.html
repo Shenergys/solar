@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,8 +35,6 @@ top:60px;
 left:0;
 bottom:0;
 width:320px;
-background:#fdfdfd;
-border-right:1px solid #ccc;
 overflow:auto;
 padding:15px;
 }
@@ -50,17 +47,6 @@ right:0;
 bottom:0;
 }
 
-#legend{
-position:absolute;
-bottom:20px;
-right:20px;
-background:white;
-padding:8px;
-border-radius:4px;
-box-shadow:0 3px 8px rgba(0,0,0,0.3);
-font-size:12px;
-}
-
 .layer-row{
 margin-bottom:6px;
 }
@@ -68,6 +54,7 @@ margin-bottom:6px;
 </style>
 
 </head>
+
 
 <body>
 
@@ -93,15 +80,15 @@ margin-bottom:6px;
 <h3>Capas climáticas</h3>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleTif('ghi','GHI_FINAL.tif')"> Radiación solar
+<input type="checkbox" onchange="toggleRaster('ghi','GHI_FINAL.tif')"> Radiación solar
 </div>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleTif('pv','PV_FINAL.tif')"> Potencial FV
+<input type="checkbox" onchange="toggleRaster('pv','PV_FINAL.tif')"> Potencial FV
 </div>
 
 <div class="layer-row">
-<input type="checkbox" onchange="toggleTif('temp','TEMP.tif')"> Temperatura
+<input type="checkbox" onchange="toggleRaster('temp','TEMP.tif')"> Temperatura
 </div>
 
 <hr>
@@ -138,19 +125,13 @@ margin-bottom:6px;
 <div id="map"></div>
 
 
-<div id="legend">
-Escala raster
-<div style="height:8px;width:200px;background:linear-gradient(to right,blue,cyan,green,yellow,orange,red)"></div>
-</div>
-
-
 <script>
 
 const map=L.map('map').setView([23.5,-102],5)
 
 L.tileLayer(
 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-{attribution:'©OpenStreetMap'}
+{attribution:'© OpenStreetMap'}
 ).addTo(map)
 
 L.control.scale().addTo(map)
@@ -162,24 +143,19 @@ primaryAreaUnit:'sqkilometers'
 
 const layers={}
 
+function rasterColor(v,min,max){
 
-/* colores raster */
+let r=(v-min)/(max-min)
 
-function colorScale(v,min,max){
+let red=Math.floor(255*r)
+let blue=Math.floor(255*(1-r))
 
-let ratio=(v-min)/(max-min)
-
-let r=Math.floor(255*ratio)
-let b=Math.floor(255*(1-ratio))
-
-return `rgb(${r},120,${b})`
+return `rgb(${red},120,${blue})`
 
 }
 
 
-/* raster */
-
-async function toggleTif(id,file){
+async function toggleRaster(id,file){
 
 if(layers[id]){
 map.removeLayer(layers[id])
@@ -187,7 +163,7 @@ delete layers[id]
 return
 }
 
-let res=await fetch("datos/"+file)
+let res=await fetch("solar/datos/"+file)
 let buf=await res.arrayBuffer()
 
 let raster=await parseGeoraster(buf)
@@ -207,7 +183,7 @@ let v=pixel[0]
 
 if(v===null) return null
 
-return colorScale(v,min,max)
+return rasterColor(v,min,max)
 
 }
 
@@ -220,8 +196,6 @@ map.fitBounds(layers[id].getBounds())
 }
 
 
-/* vectores */
-
 async function toggleVector(id,file){
 
 if(layers[id]){
@@ -230,10 +204,8 @@ delete layers[id]
 return
 }
 
-let res=await fetch("datos/"+file)
+let res=await fetch("solar/datos/"+file)
 let data=await res.json()
-
-/* subestaciones con cluster */
 
 if(id==="sub"){
 
@@ -254,8 +226,6 @@ onEachFeature:(f,l)=>l.bindPopup(JSON.stringify(f.properties))
 layers[id]=cluster
 
 }
-
-/* demás capas */
 
 else{
 
@@ -278,4 +248,3 @@ layers[id].addTo(map)
 
 </body>
 </html>
-```
